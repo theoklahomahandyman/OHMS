@@ -4,7 +4,8 @@
 
 #mainNav {
     min-height: 3.5rem;
-    background-color: $white;
+    background-color: transparent;
+    transition: background-color 0.3s ease-in-out;
 
     .navbar-toggler {
         font-size: 80%;
