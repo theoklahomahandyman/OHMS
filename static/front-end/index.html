@@ -139,39 +139,52 @@
                     <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
                     <h2 class="text-white mb-5">Contact us to get started with your project!</h2>
                     <form class="form" id="contactForm">
-                        <div class="row">
+                        <div class="row mb-3">
                             <!-- First name input -->
-                            <div class="form-group">
+                            <div class="form-group col-md-6">
                                 <label for="firstName">First Name</label>
                                 <input type="text" id="firstName" name="firstName" class="form-control" required placeholder="John" minLength="2" maxlength="100" />
                             </div>
                             <!-- Last name input -->
-                            <div class="form-group">
+                            <div class="form-group col-md-6">
                                 <label for="lastName">Last Name</label>
                                 <input type="text" id="lastName" name="lastName" class="form-control" required placeholder="Doe" minLength="2" maxlength="100" />
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-3">
                             <!-- Email input -->
-                            <div class="form-group">
+                            <div class="form-group col-md-6">
                                 <label for="email">Email</label>
                                 <input type="email" id="email" name="email" class="form-control" required placeholder="johndoe@example.com" minLength="8" maxlength="255" />
                             </div>
                             <!-- Confirm email input -->
-                            <div class="form-group">
+                            <div class="form-group col-md-6">
                                 <label for="confirmEmail">Confirm Email</label>
                                 <input type="email" id="confirmEmail" name="confirmEmail" class="form-control" required placeholder="johndoe@example.com" minLength="8" maxlength="255" />
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-3">
                             <!-- Phone number input -->
+                            <div class="form-group col-md-6">
+                                <label for="phone">Phone Number</label>
+                                <input type="text" id="phone" name="phone" class="form-control" required placeholder="1 (234) 567-8901" minLength="16" maxlength="17" />
+                            </div>
                             <!-- Optional pictures input -->
+                            <div class="form-group col-md-6">
+                                <label for="files">Files</label>
+                                <input type="file" id="files" name="files" class="form-control" multiple />
+                            </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-3">
                             <!-- Description input -->
+                            <div class="form-group col-12">
+                                <label for="description">Description</label>
+                                <textarea id="description" name="description" class="form-control" required placeholder="Please write a description of the project..." minLength="150" maxlength="2000"></textarea>
+                            </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-3">
                             <!-- Submit button -->
+                            <button id="submit" class="btn btn-primary" type="submit">Submit</button>
                         </div>
                     </form>
                 </div>
