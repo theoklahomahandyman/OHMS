@@ -2,6 +2,7 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+# User model
 class User(AbstractUser):
     username = None
     first_name = models.CharField(max_length=100, validators=[MinLengthValidator(2), MaxLengthValidator(100)])
