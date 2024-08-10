@@ -28,7 +28,16 @@ class UserSerializer(serializers.ModelSerializer):
         return user
     
     def update(self, instance, validated_data):
+        errors = {}
         if 'password' in validated_data:
+            password = validated_data['password']
+            user_info = [instance.first_name, instance.last_name, instance.email, instance.phone]
+            for info in user_info:
+                if any(info[i:i+4].lower() in password.lower() for i in range(len(info) - 2)):
+                    errors['password'] = 'Please ensure the passwords is not too similar to your personal information.'
+                    break
+            if errors:
+                raise serializers.ValidationError(errors)
             instance.password = make_password(validated_data['password'])
         for attr, value in validated_data.items():
             if attr not in ['password', 'confirm_password']:
