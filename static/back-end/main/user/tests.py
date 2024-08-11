@@ -1,4 +1,3 @@
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.hashers import make_password
 from user.serializers import UserSerializer

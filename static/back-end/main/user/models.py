@@ -7,7 +7,7 @@ class User(AbstractUser):
     username = None
     first_name = models.CharField(max_length=100, validators=[MinLengthValidator(2), MaxLengthValidator(100)])
     last_name = models.CharField(max_length=100, validators=[MinLengthValidator(2), MaxLengthValidator(100)])
-    email = models.CharField(unique=True, max_length=255, validators=[MinLengthValidator(8), MaxLengthValidator(255)])
+    email = models.EmailField(unique=True, max_length=255, validators=[MinLengthValidator(8), MaxLengthValidator(255)])
     phone = models.CharField(max_length=17, validators=[MinLengthValidator(16), MaxLengthValidator(17)])
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
