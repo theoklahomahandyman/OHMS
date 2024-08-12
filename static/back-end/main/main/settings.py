@@ -127,12 +127,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 """
 models:
-    customer:
-        first name,
-        last name,
-        email,
-        phone number,
-        notes,
     service type:
         i.e. Painting, Construction, Maintence,
         name,
@@ -141,6 +135,12 @@ models:
         name,
         description,
         cost,
+    payment:
+        customer,
+        work order,
+        type,
+        date,
+        total,
     work orders:
         customer,
         possible date / time,
@@ -162,10 +162,4 @@ models:
         material,
         work order,
         quantity,
-    payment:
-        customer,
-        work order,
-        type,
-        date,
-        total,
 """

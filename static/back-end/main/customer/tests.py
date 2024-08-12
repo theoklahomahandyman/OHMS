@@ -14,8 +14,8 @@ class TestCustomerModel(TestCase):
     def setUpTestData(cls):
         cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901')
 
-    ## Test string method for user model
-    def test_user_string(self):
+    ## Test string method for customer model
+    def test_customer_string(self):
         self.assertEqual(str(self.customer), f'{self.customer.first_name} {self.customer.last_name}')
 
 # Tests for customer serializer
