@@ -104,7 +104,7 @@ class TestCustomerSerializer(TestCase):
 
     ## Test update success
     def test_update_success(self):
-        serializer = CustomerSerializer(instance = self.customer, data=self.update_data)
+        serializer = CustomerSerializer(instance=self.customer, data=self.update_data)
         self.assertTrue(serializer.is_valid())
         customer: Customer = serializer.save()
         customer.refresh_from_db()
