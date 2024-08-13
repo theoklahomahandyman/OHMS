@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-
-class ServiceTypeConfig(AppConfig):
+class ServiceConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'service_type'
+    name = 'service'

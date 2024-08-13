@@ -240,6 +240,9 @@ class TestCustomerView(APITestCase):
         self.assertEqual(Customer.objects.count(), 2)
         customer = Customer.objects.get(email=self.create_data['email'])
         self.assertEqual(customer.first_name, self.create_data['first_name'])
+        self.assertEqual(customer.last_name, self.create_data['last_name'])
+        self.assertEqual(customer.email, self.create_data['email'])
+        self.assertEqual(customer.phone, self.create_data['phone'])
 
     ## Test update customer with empty data
     def test_update_customer_empty_data(self):

@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'material.apps.MaterialConfig',
     'order.apps.OrderConfig',
     'payment.apps.PaymentConfig',
-    'service_type.apps.ServiceTypeConfig',
+    'service.apps.ServiceConfig',
 ]
 
 MIDDLEWARE = [
