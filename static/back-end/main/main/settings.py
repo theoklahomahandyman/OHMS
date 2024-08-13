@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'order.apps.OrderConfig',
     'payment.apps.PaymentConfig',
     'service.apps.ServiceConfig',
+    'supplier.apps.SupplierConfig',
 ]
 
 MIDDLEWARE = [
@@ -127,20 +128,10 @@ CORS_ALLOW_CREDENTIALS = True
 
 """
 models:
-    service type:
-        i.e. Painting, Construction, Maintence,
-        name,
-        description
     material:
         name,
         description,
         cost,
-    payment:
-        customer,
-        work order,
-        type,
-        date,
-        total,
     work orders:
         customer,
         possible date / time,
@@ -162,4 +153,10 @@ models:
         material,
         work order,
         quantity,
+    payment:
+        customer,
+        work order,
+        type,
+        date,
+        total,
 """
