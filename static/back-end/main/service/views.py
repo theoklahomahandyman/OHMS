@@ -6,12 +6,12 @@ from rest_framework.views import APIView
 from service.models import Service
 from rest_framework import status
 
+# CRUD view for service model
 class ServiceView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk=None):
-        service = Service.objects.get(pk=pk)
-        return service
+        return Service.objects.get(pk=pk)
     
     def get(self, request, *args, **kwargs):
         pk = kwargs.pop('pk', None)

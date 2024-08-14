@@ -18,6 +18,7 @@ class TestServiceModel(TestCase):
     def test_service_string(self):
         self.assertEqual(str(self.service), self.service.name)
 
+# Tests for service serializer
 class TestServiceSerializer(TestCase):
 
     @classmethod
@@ -66,7 +67,8 @@ class TestServiceSerializer(TestCase):
         serializer = ServiceSerializer(instance= self.service, data=self.create_data)
         self.assertTrue(serializer.is_valid())
 
-class TestServiceTypeView(APITestCase):
+# Tests for service view
+class TestServiceView(APITestCase):
     
     @classmethod
     def setUpTestData(cls):

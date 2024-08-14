@@ -103,3 +103,154 @@ class TestSupplierSerializers(TestCase):
         self.assertIn('city', serializer.validated_data)
         self.assertIn('state', serializer.validated_data)
         self.assertIn('zip', serializer.validated_data)
+
+# Tests for supplier views
+class TestSupplierView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 'a' * 501
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.long_string = 'a' * 501
+        cls.empty_data = {'name': ''}
+        cls.short_data = {'name': 'T'}
+        cls.long_data = {'name': cls.long_string, 'notes': cls.long_string}
+        cls.create_data = {'name': 'test', 'notes': 'test notes'}
+        cls.update_data = {'name': 'updated', 'notes': 'updated notes'}
+        cls.patch_data = {'notes': 'test service description.'}
+        cls.list_url = reverse('supplier-list')
+        cls.detail_url = lambda pk: reverse('supplier-detail', kwargs={'pk': pk})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+        
+    ## Test get supplier not found
+    def test_get_supplier_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(96))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Supplier Not Found.')
+    
+    ## Test get supplier success
+    def test_get_supplier_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.supplier.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], self.supplier.name)
+        self.assertEqual(response.data['notes'], self.supplier.notes)
+        
+    ## Test get suppliers success
+    def test_get_suppliers_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), Supplier.objects.count())
+        
+    ## Test create supplier with empty data
+    def test_create_supplier_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        
+    ## Test create supplier with short data
+    def test_create_supplier_short_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        
+    ## Test create supplier with long data
+    def test_create_supplier_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('notes', response.data)
+        
+    ## Test create supplier with existing name
+    def test_create_supplier_existing_name(self):
+        self.client.force_authenticate(user=self.user)
+        self.create_data['name'] = self.supplier.name
+        response = self.client.post(self.list_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        
+    ## Test create supplier success
+    def test_create_supplier_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Supplier.objects.count(), 2)
+        supplier = Supplier.objects.get(name=self.create_data['name'])
+        self.assertEqual(supplier.name, self.create_data['name'])
+        self.assertEqual(supplier.notes, self.create_data['notes'])
+        
+    ## Test update supplier with empty data
+    def test_update_supplier_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.supplier.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        
+    ## Test update supplier with short data
+    def test_update_supplier_short_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.supplier.pk), data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        
+    ## Test update supplier with long data
+    def test_update_supplier_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.supplier.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('notes', response.data)
+        
+    ## Test update supplier success
+    def test_update_supplier_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.supplier.pk), data=self.update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        supplier = Supplier.objects.get(pk=self.supplier.pk)
+        self.assertEqual(supplier.name, self.update_data['name'])
+        self.assertEqual(supplier.notes, self.update_data['notes'])
+        
+    ## Test partial update supplier with empty data
+    def test_partial_update_supplier_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.supplier.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        
+    ## Test partail update supplier with short data
+    def test_partial_update_supplier_short_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.supplier.pk), data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        
+    ## Test partial update supplier with long data
+    def test_partial_update_supplier_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.supplier.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('notes', response.data)
+        
+    ## Test partial update supplier success
+    def test_partial_update_supplier_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.supplier.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        supplier = Supplier.objects.get(pk=self.supplier.pk)
+        self.assertEqual(supplier.notes, self.patch_data['notes'])
+        
+    ## Test delete supplier success
+    def test_delete_supplier_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.supplier.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Supplier.objects.count(), 0)
+        
