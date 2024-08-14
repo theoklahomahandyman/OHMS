@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     'material.apps.MaterialConfig',
     'order.apps.OrderConfig',
     'payment.apps.PaymentConfig',
-    'service_type.apps.ServiceTypeConfig',
+    'service.apps.ServiceConfig',
+    'supplier.apps.SupplierConfig',
 ]
 
 MIDDLEWARE = [
@@ -127,17 +128,10 @@ CORS_ALLOW_CREDENTIALS = True
 
 """
 models:
-    admin users:
-        email,
-        password,
-        first name,
-        last name,
-    customer:
-        first name,
-        last name,
-        email,
-        phone number,
-        notes,
+    material:
+        name,
+        description,
+        cost,
     work orders:
         customer,
         possible date / time,
@@ -155,14 +149,6 @@ models:
         discount percentage (optional),
         payments,
         notes,
-    service type:
-        i.e. Painting, Construction, Maintence,
-        name,
-        description
-    material:
-        name,
-        description,
-        cost,
     work order material:
         material,
         work order,

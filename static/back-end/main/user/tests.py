@@ -1,4 +1,3 @@
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.hashers import make_password
 from user.serializers import UserSerializer
@@ -126,7 +125,7 @@ class TestUserSerializer(TestCase):
         serializer = UserSerializer(data=self.create_data)
         self.assertTrue(serializer.is_valid())
         user: User = serializer.save()
-        self.user.refresh_from_db()
+        user.refresh_from_db()
         self.assertEqual(User.objects.count(), 2)
         self.assertEqual(user.first_name, self.create_data['first_name'])
         self.assertEqual(user.last_name, self.create_data['last_name'])
@@ -139,7 +138,7 @@ class TestUserSerializer(TestCase):
         serializer = UserSerializer(instance=self.user, data=self.update_data)
         self.assertTrue(serializer.is_valid())
         user: User = serializer.save()
-        self.user.refresh_from_db()
+        user.refresh_from_db()
         self.assertEqual(user.first_name, self.update_data['first_name'])
         self.assertEqual(user.last_name, self.update_data['last_name'])
         self.assertEqual(user.email, self.update_data['email'])

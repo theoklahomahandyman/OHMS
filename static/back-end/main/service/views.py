@@ -1,33 +1,33 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
-from customer.serializers import CustomerSerializer
+from service.serializers import ServiceSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from customer.models import Customer
+from service.models import Service
 from rest_framework import status
 
-class CustomerView(APIView):
+# CRUD view for service model
+class ServiceView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk=None):
-        customer = Customer.objects.get(pk=pk)
-        return customer
-        
+        return Service.objects.get(pk=pk)
+    
     def get(self, request, *args, **kwargs):
         pk = kwargs.pop('pk', None)
         if pk:
             try:
-                customer = self.get_object(pk)
-                serializer = CustomerSerializer(customer)
-            except Customer.DoesNotExist:
-                return Response({'detail': 'Customer Not Found.'}, status=status.HTTP_404_NOT_FOUND)
+                service = self.get_object(pk)
+                serializer = ServiceSerializer(service)
+            except Service.DoesNotExist:
+                return Response({'detail': 'Service Not Found.'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            customers = Customer.objects.all()
-            serializer = CustomerSerializer(customers, many=True)
+            services = Service.objects.all()
+            serializer = ServiceSerializer(services, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, *args, **kwargs):
-        serializer = CustomerSerializer(data=request.data)
+        serializer = ServiceSerializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -37,8 +37,8 @@ class CustomerView(APIView):
 
     def put(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
-        customer = self.get_object(pk)
-        serializer = CustomerSerializer(customer, data=request.data, partial=False)
+        service = self.get_object(pk)
+        serializer = ServiceSerializer(service, data=request.data, partial=False)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -48,8 +48,8 @@ class CustomerView(APIView):
 
     def patch(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
-        customer = self.get_object(pk)
-        serializer = CustomerSerializer(customer, data=request.data, partial=True)
+        service = self.get_object(pk)
+        serializer = ServiceSerializer(service, data=request.data, partial=True)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -59,6 +59,6 @@ class CustomerView(APIView):
 
     def delete(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
-        customer = self.get_object(pk)
-        customer.delete()
+        service = self.get_object(pk)
+        service.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
