@@ -13,7 +13,7 @@ class SupplierAddressSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = SupplierAddress
-        fields = ['supplier', 'street_address', 'city', 'state', 'zip']
+        fields = ['supplier', 'street_address', 'city', 'state', 'zip', 'notes']
 
     def validate_zip(self, value):
         if not (10000 <= value <= 99999):

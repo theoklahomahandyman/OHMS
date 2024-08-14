@@ -103,8 +103,8 @@ class TestSupplierSerializers(TestCase):
         self.assertIn('city', serializer.validated_data)
         self.assertIn('state', serializer.validated_data)
         self.assertIn('zip', serializer.validated_data)
-
-# Tests for supplier views
+        
+# Tests for supplier view
 class TestSupplierView(APITestCase):
 
     @classmethod
@@ -254,3 +254,188 @@ class TestSupplierView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Supplier.objects.count(), 0)
         
+# Tests for supplier address view
+class TestSupplierAddressView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 'a' * 501
+        cls.supplier = Supplier.objects.create(name='test')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.long_string = 'a' * 501
+        cls.empty_data = {'supplier': '', 'street_address': '', 'city': '', 'state': '', 'zip': ''}
+        cls.short_data = {'supplier': cls.supplier.pk, 'street_address': 'T', 'city': 'C', 'state': 'O', 'zip': 482}
+        cls.long_data = {'supplier': cls.supplier.pk, 'street_address': cls.long_string, 'city': cls.long_string, 'state': cls.long_string, 'zip': 57390238573, 'notes': cls.long_string}
+        cls.create_data = {'supplier': cls.supplier.pk, 'street_address': '164 Main St', 'city': 'City', 'state': 'State', 'zip': 48023, 'notes': 'notes'}
+        cls.update_data = {'supplier': cls.supplier.pk, 'street_address': '749 Fairview St', 'city': 'A-Town', 'state': 'ST', 'zip': 52023, 'notes': 'updated notes'}
+        cls.patch_data = {'notes': 'test service description.'}
+        cls.create_url = reverse('supplier-address-create')
+        cls.list_url = lambda pk: reverse('supplier-address-list', kwargs={'pk': pk, 'type': 's'})
+        cls.detail_url = lambda pk: reverse('supplier-address-detail', kwargs={'pk': pk, 'type':'a'})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+        
+    ## Test get supplier address not found
+    def test_get_supplier_address_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(79027269))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Supplier Address Not Found.')
+    
+    ## Test get supplier address success
+    def test_get_supplier_address_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.address.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['supplier'], self.address.supplier.pk)
+        self.assertEqual(response.data['street_address'], self.address.street_address)
+        self.assertEqual(response.data['city'], self.address.city)
+        self.assertEqual(response.data['state'], self.address.state)
+        self.assertEqual(response.data['zip'], self.address.zip)
+        self.assertEqual(response.data['notes'], self.address.notes)
+        
+    ## Test get supplier addresses success
+    def test_get_supplier_addresses_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.supplier.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), SupplierAddress.objects.filter(supplier=self.supplier).count())
+        
+    ## Test create supplier address with empty data
+    def test_create_supplier_address_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('supplier', response.data)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+        
+    ## Test create supplier address with short data
+    def test_create_supplier_address_short_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+
+    ## Test create supplier address with long data
+    def test_create_supplier_address_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+        self.assertIn('notes', response.data)
+        
+    ## Test create supplier address success
+    def test_create_supplier_address_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(SupplierAddress.objects.count(), 2)
+        address = SupplierAddress.objects.get(supplier=self.create_data['supplier'], street_address=self.create_data['street_address'])
+        self.assertEqual(address.supplier.pk, self.create_data['supplier'])
+        self.assertEqual(address.street_address, self.create_data['street_address'])
+        self.assertEqual(address.city, self.create_data['city'])
+        self.assertEqual(address.state, self.create_data['state'])
+        self.assertEqual(address.zip, self.create_data['zip'])
+        self.assertEqual(address.notes, self.create_data['notes'])
+        
+    ## Test update supplier address with empty data
+    def test_update_supplier_address_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.address.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('supplier', response.data)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+        
+    ## Test update supplier address with short data
+    def test_update_supplier_address_short_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.address.pk), data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+        
+    ## Test update supplier address with long data
+    def test_update_supplier_address_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.address.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+        self.assertIn('notes', response.data)
+        
+    ## Test update supplier address success
+    def test_update_supplier_address_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.address.pk), data=self.update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        address = SupplierAddress.objects.get(pk=self.address.pk)
+        self.assertEqual(address.supplier.pk, self.update_data['supplier'])
+        self.assertEqual(address.street_address, self.update_data['street_address'])
+        self.assertEqual(address.city, self.update_data['city'])
+        self.assertEqual(address.state, self.update_data['state'])
+        self.assertEqual(address.zip, self.update_data['zip'])
+        self.assertEqual(address.notes, self.update_data['notes'])
+        
+    ## Test partial update supplier address with empty data
+    def test_partial_update_supplier_address_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.address.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('supplier', response.data)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+        
+    ## Test partail update supplier address with short data
+    def test_partial_update_supplier_address_short_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.address.pk), data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+        
+    ## Test partial update supplier address with long data
+    def test_partial_update_supplier_address_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.address.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('street_address', response.data)
+        self.assertIn('city', response.data)
+        self.assertIn('state', response.data)
+        self.assertIn('zip', response.data)
+        self.assertIn('notes', response.data)
+        
+    ## Test partial update supplier address success
+    def test_partial_update_supplier_address_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.address.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        address = SupplierAddress.objects.get(pk=self.address.pk)
+        self.assertEqual(address.notes, self.patch_data['notes'])
+        
+    ## Test delete supplier address success
+    def test_delete_supplier_address_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.address.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(SupplierAddress.objects.count(), 0)
