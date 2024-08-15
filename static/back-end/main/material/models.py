@@ -1,12 +1,12 @@
-from django.core.validators import MinValueValidator
-from supplier.models import Supplier
+from django.core.validators import MinValueValidator, MinLengthValidator, MaxLengthValidator
+from supplier.models import Supplier, SupplierAddress
 from django.db import models
 
 # Material model
 class Material(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, validators=[MinLengthValidator(2), MaxLengthValidator(255)])
     description = models.CharField(blank=True, null=True, max_length=500)
-    size = models.CharField(max_length=255)
+    size = models.CharField(max_length=255, validators=[MinLengthValidator(2), MaxLengthValidator(255)])
     unit_cost = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     available_quantity = models.PositiveIntegerField(default=0)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
@@ -25,6 +25,7 @@ class MaterialPurchase(models.Model):
     purchase_quantity = models.PositiveIntegerField()
     purchase_cost = models.FloatField(validators=[MinValueValidator(0.0)])
     purchase_date = models.DateField()
+    supplier_address = models.ForeignKey(SupplierAddress, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         # Calculate new average unit cost
