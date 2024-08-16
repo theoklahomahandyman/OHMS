@@ -18,41 +18,42 @@ class TestMaterialModels(TestCase):
     def test_material_string(self):
         self.assertEqual(str(self.material), f'OHMS{self.material.pk}-MAT')
 
+# Tests for material serializer
 class TestMaterialSerializers(TestCase):
     
     @classmethod
     def setUpTestData(cls):
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet')
         cls.long_string = 'a' * 501
-        cls.empty_material_data = {'name': '', 'size': ''}
-        cls.short_material_data = {'name': 'T', 'size': 'S'}
-        cls.long_material_data = {'name': cls.long_string, 'size': cls.long_string}
-        cls.material_data = {'name': 'material test', 'size': 'material size'}
+        cls.empty_data = {'name': '', 'size': ''}
+        cls.short_data = {'name': 'T', 'size': 'S'}
+        cls.long_data = {'name': cls.long_string, 'size': cls.long_string}
+        cls.valid_data = {'name': 'material test', 'size': 'material size'}
 
     ## Test material serializer with empty data
     def test_material_serializer_empty_data(self):
-        serializer = MaterialSerializer(data=self.empty_material_data)
+        serializer = MaterialSerializer(data=self.empty_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('name', serializer.errors)
         self.assertIn('size', serializer.errors)
 
     ## Test material serializer with short data
     def test_material_serializer_short_data(self):
-        serializer = MaterialSerializer(data=self.short_material_data)
+        serializer = MaterialSerializer(data=self.short_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('name', serializer.errors)
         self.assertIn('size', serializer.errors)
 
     ## Test material serializer with long data
     def test_material_serializer_long_data(self):
-        serializer = MaterialSerializer(data=self.long_material_data)
+        serializer = MaterialSerializer(data=self.long_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('name', serializer.errors)
         self.assertIn('size', serializer.errors)
 
     ## Test material serializer validation success
     def test_material_serializer_validation_success(self):
-        serializer = MaterialSerializer(data=self.material_data)
+        serializer = MaterialSerializer(data=self.valid_data)
         self.assertTrue(serializer.is_valid())
         self.assertIn('name', serializer.validated_data)
         self.assertIn('size', serializer.validated_data)
