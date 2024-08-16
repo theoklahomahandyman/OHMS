@@ -1,10 +1,11 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
+from purchase.models import Purchase, PurchaseMaterial
 from django.contrib.auth.hashers import make_password
 from supplier.models import Supplier, SupplierAddress
 from django.contrib.staticfiles.finders import find
 from purchase.serializers import PurchaseSerializer
-from purchase.models import Purchase
+from material.models import Material
 from rest_framework import status
 from django.test import TestCase
 from django.urls import reverse
@@ -18,10 +19,46 @@ class TestPurchaseModels(TestCase):
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date='2024-08-01', reciept='pergola-stain.jpg')
+        cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100)
+        cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, purchase_quantity=10, purchase_cost=100.0)
 
     ## Test string method for purchase model
     def test_purchase_string(self):
         self.assertEqual(str(self.purchase), f'OHMS{self.purchase.pk}-PUR')
+
+    ## Test save method for purchase model
+    def test_purchase_save(self):
+        self.purchase.refresh_from_db()
+        self.assertEqual(self.purchase.total, self.purchase.tax + self.purchase_material.purchase_cost)
+
+    ## Test string method for purchase material model
+    def test_purchase_material_string(self):
+        self.assertEqual(str(self.purchase_material), f'{self.purchase_material.material.name} - {self.purchase_material.purchase_quantity} units purchased for ${self.purchase_material.purchase_cost}')
+
+    ## Test save method for purchase material model
+    def test_purchase_material_save(self):
+        initial_quantity = self.material.available_quantity
+        purchase_material = PurchaseMaterial.objects.create(purchase=self.purchase, material=self.material, purchase_quantity=10, purchase_cost=200.0)
+        self.material.refresh_from_db()
+        self.assertEqual(self.material.available_quantity, initial_quantity + purchase_material.purchase_quantity)
+        ### Replacement method
+        self.assertEqual(self.material.unit_cost, purchase_material.purchase_cost / purchase_material.purchase_quantity)
+        self.purchase.refresh_from_db()
+        purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
+        expected_total = self.purchase.tax + sum(purchase_material.purchase_cost for purchase_material in purchase_materials)
+        self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
+
+    ## Test save method for purchase material model with zero quantity
+    def test_purchase_material_save_zero_quantity(self):
+        initial_quantity = self.material.available_quantity
+        PurchaseMaterial.objects.create(purchase=self.purchase, material=self.material, purchase_quantity=0, purchase_cost=200.0)
+        self.material.refresh_from_db()
+        self.assertEqual(self.material.available_quantity, initial_quantity)
+        self.assertEqual(self.material.unit_cost, 0.0)
+        self.purchase.refresh_from_db()
+        purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
+        expected_total = self.purchase.tax + sum(pm.purchase_cost for pm in purchase_materials)
+        self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
 
 # Tests for purchase serializer
 class TestPurchaseSerializer(TestCase):
