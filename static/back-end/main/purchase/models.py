@@ -9,7 +9,7 @@ class Purchase(models.Model):
     tax = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     date = models.DateField()
-    reciept = models.ImageField(upload_to='purchases/')
+    reciept = models.ImageField(upload_to='media/purchases/')
 
     def __str__(self):
         return f'OHMS{self.pk}-PUR'
