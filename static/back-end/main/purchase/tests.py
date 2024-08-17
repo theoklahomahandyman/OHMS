@@ -269,3 +269,135 @@ class TestPurchaseView(APITestCase):
         response = self.client.delete(self.detail_url(self.purchase.pk))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Purchase.objects.count(), 0)
+
+class TestPurchaseMaterialView(APITestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date='2024-08-01', reciept='pergola-stain.jpg')
+        cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100)
+        cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
+        cls.empty_data = {'purchase': '', 'material': '', 'quantity': '', 'cost': ''}
+        cls.negative_data = {'purchase': cls.purchase.pk, 'material': cls.material.pk, 'quantity': -10, 'cost': -73.29}
+        cls.create_data = {'purchase': cls.purchase.pk, 'material': cls.material.pk, 'quantity': 10, 'cost': 73.29}
+        cls.update_data = {'purchase': cls.purchase.pk, 'material': cls.material.pk, 'quantity': 15, 'cost': 137.42}
+        cls.patch_data = {'quantity': 16}
+        cls.create_url = reverse('purchase-material-create')
+        cls.list_url = lambda pk: reverse('purchase-material-list', kwargs={'pk': pk, 'type': 'a'})
+        cls.detail_url = lambda pk: reverse('purchase-material-detail', kwargs={'pk': pk, 'type': 'm'})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    ## Test get purchase material not found
+    def test_get_purchase_material_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(96))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Purchase Material Not Found.')
+
+    ## Test get purchase material success
+    def test_get_purchase_material_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.purchase_material.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['purchase'], self.purchase_material.purchase.pk)
+        self.assertEqual(response.data['material'], self.purchase_material.material.pk)
+        self.assertEqual(response.data['quantity'], self.purchase_material.quantity)
+        self.assertEqual(response.data['cost'], self.purchase_material.cost)
+
+    ## Test get purchase materials success
+    def test_get_purchase_materials_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.purchase.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), PurchaseMaterial.objects.filter(purchase=self.purchase).count())
+
+    ## Test create purchase material with empty data
+    def test_create_purchase_material_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('purchase', response.data)
+        self.assertIn('material', response.data)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test create purchase material with negative data
+    def test_create_purchase_material_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test create purchase material success
+    def test_create_purchase_material_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(PurchaseMaterial.objects.filter(purchase=self.purchase).count(), 2)
+        purchase_material = PurchaseMaterial.objects.filter(purchase=self.create_data['purchase'], material=self.create_data['material'], quantity=self.create_data['quantity'], cost=self.create_data['cost'])
+        self.assertTrue(purchase_material.exists())
+
+    ## Test update purchase material with empty data
+    def test_update_purchase_material_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.purchase_material.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('purchase', response.data)
+        self.assertIn('material', response.data)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test update purchase material with negative data
+    def test_update_purchase_material_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.purchase_material.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test update purchase material success
+    def test_update_purchase_material_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.purchase_material.pk), data=self.update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.purchase_material.refresh_from_db()
+        self.assertEqual(self.purchase_material.quantity, self.update_data['quantity'])
+        self.assertEqual(self.purchase_material.cost, self.update_data['cost'])
+
+    ## Test partial update purchase material with empty data
+    def test_partial_update_purchase_material_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase_material.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('purchase', response.data)
+        self.assertIn('material', response.data)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test partial update purchase material with negative data
+    def test_partial_update_purchase_material_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase_material.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test partial update purchase material success
+    def test_partial_update_purchase_material_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase_material.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.purchase_material.refresh_from_db()
+        self.assertEqual(self.purchase_material.quantity, self.patch_data['quantity'])
+
+    ## Test delete purchase material success
+    def test_delete_purchase_material_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.purchase_material.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PurchaseMaterial.objects.filter(purchase=self.purchase_material.purchase, material=self.purchase_material.material, quantity=self.purchase_material.quantity, cost=self.purchase_material.cost).count(), 0)

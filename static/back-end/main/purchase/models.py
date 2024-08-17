@@ -1,7 +1,7 @@
 from supplier.models import Supplier, SupplierAddress
 from django.core.validators import MinValueValidator
+from django.db import models, transaction
 from material.models import Material
-from django.db import models
 
 # Purchase model
 class Purchase(models.Model):
@@ -13,10 +13,11 @@ class Purchase(models.Model):
     reciept = models.ImageField(upload_to='media/purchases/')
 
     def save(self, *args, **kwargs):
-        # Save first to ensure instance has a primary key for searching for purchase materials
-        if not self.pk:
-            self.total = self.tax        
-        super().save(*args, **kwargs)
+        with transaction.atomic():
+            # Save first to ensure instance has a primary key for searching for purchase materials
+            if not self.pk:
+                self.total = self.tax        
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f'OHMS{self.pk}-PUR'
@@ -29,35 +30,34 @@ class PurchaseMaterial(models.Model):
     cost = models.FloatField(validators=[MinValueValidator(0.0)])
 
     def save(self, *args, **kwargs):
-        # Calculate new unit cost, switch from average to replace with new cost
+        with transaction.atomic():
+            # Calculate new unit cost with replacement
+            if self.quantity > 0:
+                new_unit_cost = self.cost / self.quantity
+            else:
+                new_unit_cost = 0.0
 
-        ## Average method
-        # previous_total_cost = (self.material.unit_cost * self.material.available_quantity)
-        # new_total_cost = previous_total_cost + self.cost
-        # new_total_quantity = self.material.available_quantity + self.quantity
-        # if new_total_quantity > 0:
-        #     new_unit_cost = new_total_cost / new_total_quantity
-        # else:
-        #     new_unit_cost = 0.0
+            # Update material unit cost
+            self.material.unit_cost = new_unit_cost
+            self.material.available_quantity += self.quantity
+            self.material.save()
 
-        ## Replacment method
-        if self.quantity > 0:
-            new_unit_cost = self.cost / self.quantity
-        else:
-            new_unit_cost = 0.0
+            # Handle purchase total updates
+            if self.pk:
+                original = PurchaseMaterial.objects.get(pk=self.pk)
+                self.purchase.total += self.cost - original.cost
+            else:
+                self.purchase.total += self.cost
+            self.purchase.save()
 
-        # Update material unit cost
-        self.material.unit_cost = new_unit_cost
-        self.material.available_quantity += self.quantity
-        self.material.save()
+            super().save(*args, **kwargs)
 
-        # Update purchase total
-        purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
-        total_costs = self.purchase.tax + self.cost + sum(purchase_material.cost for purchase_material in purchase_materials)
-        self.purchase.total = total_costs
-        self.purchase.save()
-
-        super().save(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            # Subtract cost from purchase total before deletion
+            self.purchase.total -= self.cost
+            self.purchase.save()
+            super().delete(*args, **kwargs)
 
     def __str__(self):
         return f'{self.material.name} - {self.quantity} units purchased for ${self.cost}'
