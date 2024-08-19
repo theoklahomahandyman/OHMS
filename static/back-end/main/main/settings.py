@@ -130,10 +130,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 """
 models:
-    material:
-        name,
-        description,
-        cost,
     work orders:
         customer,
         possible date / time,
