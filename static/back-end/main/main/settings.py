@@ -127,34 +127,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-
-"""
-models:
-    work orders:
-        customer,
-        possible date / time,
-        description,
-        dropdown for service type,
-        hourly rate,
-        hours worked / estimated,
-        pictures (optional, completed or an idea of the goal)
-        materials,
-        material upcharge (percentage),
-        extra costs,
-        total (estimated),
-        completed (boolean),
-        paid (boolean),
-        discount percentage (optional),
-        payments,
-        notes,
-    work order material:
-        material,
-        work order,
-        quantity,
-    payment:
-        customer,
-        work order,
-        type,
-        date,
-        total,
-"""
