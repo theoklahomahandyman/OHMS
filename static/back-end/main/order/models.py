@@ -46,15 +46,18 @@ class Order(models.Model):
         self.total = self.calculate_total()
         super().save(*args, **kwargs)
 
+# Order cost model
 class OrderCost(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='costs')
     name = models.CharField(max_length=300, validators=[MinLengthValidator(2), MaxLengthValidator(300)])
     cost = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
 
+# Order picture model
 class OrderPicture(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='pictures')
     image = models.ImageField(upload_to='media/orders')
 
+# Order material model
 class OrderMaterial(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='materials')
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
@@ -65,6 +68,7 @@ class OrderMaterial(models.Model):
         self.price = self.material.unit_cost * self.quantity
         super().save(*args, **kwargs)
 
+# Order payment model
 class OrderPayment(models.Model):
     class PAYMENT_CHOICES(models.TextChoices):
         CASH = 'cash', 'Cash'
@@ -76,3 +80,11 @@ class OrderPayment(models.Model):
     type = models.CharField(max_length=5, choices=PAYMENT_CHOICES.choices)
     total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     notes = models.CharField(max_length=255, validators=[MaxLengthValidator(255)], blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        order = self.order
+        total_payments = sum(payment.total for payment in OrderPayment.objects.filter(order=order))
+        if total_payments >= order.total:
+            order.paid = True
+            order.save()

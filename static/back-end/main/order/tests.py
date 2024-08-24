@@ -40,6 +40,9 @@ class TestOrderModels(TestCase):
         expected_total = subtotal + tax_amount - discount_amount
         self.assertAlmostEqual(expected_total, self.order.total, places=2)
 
+    def test_order_paid_status(self):
+        self.assertTrue(self.order.paid)
+
     # Test order material model save method
     def test_order_material_save(self):
         order_material = OrderMaterial(order=self.order, material=self.material, quantity=5)
