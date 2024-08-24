@@ -23,7 +23,7 @@ class OrderMaterialSerializer(serializers.ModelSerializer):
 class OrderPictureSerializer(serializers.ModelSerializer):
     class Meta: 
         model = OrderPicture
-        fields = ['order', 'material', 'quantity', 'price']
+        fields = ['order', 'image']
 
 # Serializer for order payment model
 class OrderPaymentSerializer(serializers.ModelSerializer):
