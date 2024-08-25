@@ -836,62 +836,114 @@ class TestOrderMatematerialView(APITestCase):
         cls.create_data = {'order': cls.order.pk, 'material': cls.material.pk, 'quantity': 10, 'price': 0}
         cls.update_data = {'order': cls.order.pk, 'material': cls.material.pk, 'quantity': 22, 'price': 0}
         cls.patch_data = {'quantity': 45}
-        # cls.create_url = reverse('order-material-create')
-        # cls.list_url = lambda pk: reverse('order-material-list', kwargs={'pk': pk, 'type': 'm'})
-        # cls.detail_url = lambda pk: reverse('order-material-detail', kwargs={'pk': pk, 'type':'s'})
+        cls.create_url = reverse('order-material-create')
+        cls.list_url = lambda pk: reverse('order-material-list', kwargs={'pk': pk, 'type': 'm'})
+        cls.detail_url = lambda pk: reverse('order-material-detail', kwargs={'pk': pk, 'type':'s'})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
         
     ## Test get order material not found
     def test_get_order_material_not_found(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(79027269))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Order Material Not Found.')
 
     ## Test get order material success
     def test_get_order_material_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.order_material.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['order'], self.order_material.order.pk)
+        self.assertEqual(response.data['material'], self.order_material.material.pk)
+        self.assertEqual(response.data['quantity'], self.order_material.quantity)
+        self.assertEqual(response.data['price'], self.order_material.price)
 
     ## Test get order materials success
     def test_get_order_materials_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.order.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), OrderMaterial.objects.filter(order=self.order).count())
 
     ## Test create order material with empty data
     def test_create_order_material_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('material', response.data)
 
     ## Test create order material with negative data
     def test_create_order_material_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('price', response.data)
 
     ## Test create order material success
     def test_create_order_material_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(OrderMaterial.objects.count(), 2)
 
     ## Test update order material with empty data
     def test_update_order_material_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_material.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('material', response.data)
 
     ## Test update order material with negative data
     def test_update_order_material_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_material.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('price', response.data)
 
     ## Test update order material success
     def test_update_order_material_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_material.pk), data=self.update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        material = OrderMaterial.objects.get(pk=self.order_material.pk)
+        self.assertEqual(material.order.pk, self.update_data['order'])
+        self.assertEqual(material.material.pk, self.update_data['material'])
+        self.assertEqual(material.quantity, self.update_data['quantity'])
 
     ## Test partial update order material with empty data
     def test_partial_update_order_material_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_material.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('material', response.data)
 
     ## Test partial update order material with negative data
     def test_partial_update_order_material_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_material.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('price', response.data)
 
     ## Test partial update order material success
     def test_partial_update_order_material_success(self):
-        pass
-
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_material.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        material = OrderMaterial.objects.get(pk=self.order_material.pk)
+        self.assertEqual(material.quantity, self.patch_data['quantity'])
+        
     ## Test delete order material success
     def test_delete_order_material_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.order_material.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(OrderMaterial.objects.count(), 0)
 
 # Tests for order payment view
 class TestOrderPaymentView(APITestCase):
