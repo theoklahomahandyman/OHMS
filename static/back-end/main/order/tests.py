@@ -967,71 +967,145 @@ class TestOrderPaymentView(APITestCase):
         cls.create_data = {'order': cls.order.pk, 'customer': cls.customer.pk, 'date': cls.date, 'type': OrderPayment.PAYMENT_CHOICES.CASH, 'total': cls.order.total, 'notes': 'test notes'}
         cls.update_data = {'order': cls.order.pk, 'customer': cls.customer.pk, 'date': cls.date, 'type': OrderPayment.PAYMENT_CHOICES.CHECK, 'total': cls.order.total, 'notes': 'updated test notes'}
         cls.patch_data = {'notes': 'updated test order payment notes'}
-        # cls.create_url = reverse('order-payment-create')
-        # cls.list_url = lambda pk: reverse('order-payment-list', kwargs={'pk': pk, 'type': 'm'})
-        # cls.detail_url = lambda pk: reverse('order-payment-detail', kwargs={'pk': pk, 'type':'s'})
+        cls.create_url = reverse('order-payment-create')
+        cls.list_url = lambda pk: reverse('order-payment-list', kwargs={'pk': pk, 'type': 'm'})
+        cls.detail_url = lambda pk: reverse('order-payment-detail', kwargs={'pk': pk, 'type':'s'})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
         
     ## Test get order payment not found
     def test_get_order_payment_not_found(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(79027269))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Order Payment Not Found.')
 
     ## Test get order payment success
     def test_get_order_payment_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.order_payment.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['order'], self.order_payment.order.pk)
+        self.assertEqual(response.data['customer'], self.order_payment.customer.pk)
+        self.assertEqual(response.data['total'], self.order_payment.total)
+        self.assertEqual(response.data['notes'], self.order_payment.notes)
 
     ## Test get order payments success
     def test_get_order_payments_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.order.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), OrderPayment.objects.filter(order=self.order).count())
 
     ## Test create order payment with empty data
     def test_create_order_payment_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('customer', response.data)
+        self.assertIn('date', response.data)
+        self.assertIn('type', response.data)
 
     ## Test create order payment with long data
     def test_create_order_payment_long_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('notes', response.data)
 
     ## Test create order payment with negative data
     def test_create_order_payment_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('total', response.data)
 
     ## Test create order payment success
     def test_create_order_payment_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(OrderPayment.objects.count(), 2)
+        payment = OrderPayment.objects.get(order=self.create_data['order'], customer=self.create_data['customer'], date=self.create_data['date'], type=self.create_data['type'], total=self.create_data['total'], notes=self.create_data['notes'])
+        self.assertEqual(payment.order.pk, self.create_data['order'])
+        self.assertEqual(payment.customer.pk, self.create_data['customer'])
+        self.assertEqual(payment.date, self.create_data['date'])
+        self.assertEqual(payment.type, self.create_data['type'])
+        self.assertEqual(payment.total, self.create_data['total'])
+        self.assertEqual(payment.notes, self.create_data['notes'])
 
     ## Test update order payment with empty data
     def test_update_order_payment_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_payment.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('customer', response.data)
+        self.assertIn('date', response.data)
+        self.assertIn('type', response.data)
 
     ## Test update order payment with long data
     def test_update_order_payment_long_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_payment.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('notes', response.data)
 
     ## Test update order payment with negative data
     def test_update_order_payment_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_payment.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('total', response.data)
 
     ## Test update order payment success
     def test_update_order_payment_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_payment.pk), data=self.update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payment = OrderPayment.objects.get(pk=self.order_payment.pk)
+        self.assertEqual(payment.order.pk, self.update_data['order'])
+        self.assertEqual(payment.customer.pk, self.update_data['customer'])
+        self.assertEqual(payment.date, self.update_data['date'])
+        self.assertEqual(payment.type, self.update_data['type'])
+        self.assertEqual(payment.total, self.update_data['total'])
+        self.assertEqual(payment.notes, self.update_data['notes'])
 
     ## Test partial update order payment with empty data
     def test_partial_update_order_payment_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_payment.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('customer', response.data)
+        self.assertIn('date', response.data)
+        self.assertIn('type', response.data)
 
     ## Test partial update order payment with long data
     def test_partial_update_order_payment_long_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_payment.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('notes', response.data)
 
     ## Test partial update order payment with negative data
     def test_partial_update_order_payment_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_payment.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('total', response.data)
 
     ## Test partial update order payment success
     def test_partial_update_order_payment_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_payment.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payment = OrderPayment.objects.get(pk=self.order_payment.pk)
+        self.assertEqual(payment.notes, self.patch_data['notes'])
 
     ## Test delete order payment success
     def test_delete_order_payment_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.order_payment.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(OrderPayment.objects.count(), 0)

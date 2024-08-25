@@ -238,3 +238,59 @@ class OrderMaterialView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 ## CRUD view for order payment model
+class OrderPaymentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        return OrderPayment.objects.get(pk=pk)
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.pop('pk', None)
+        type = kwargs.pop('type', None)
+        if type == 's':
+            try:
+                payment = self.get_object(pk)
+                serializer = OrderPaymentSerializer(payment)
+            except OrderPayment.DoesNotExist:
+                return Response({'detail': 'Order Payment Not Found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            payments = OrderPayment.objects.filter(order__pk=pk)
+            serializer = OrderPaymentSerializer(payments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = OrderPaymentSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        payment = self.get_object(pk)
+        serializer = OrderPaymentSerializer(payment, data=request.data, partial=False)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        payment = self.get_object(pk)
+        serializer = OrderPaymentSerializer(payment, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        payment = self.get_object(pk)
+        payment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
