@@ -567,86 +567,156 @@ class TestOrderCostView(APITestCase):
         cls.create_data = {'order': cls.order.pk, 'name': 'test line item cost', 'cost': 24.99}
         cls.update_data = {'order': cls.order.pk, 'name': 'updated test line item cost', 'cost': 38.62}
         cls.patch_data = {'name': 'updated test order cost'}
-        # cls.create_url = reverse('order-cost-create')
-        # cls.list_url = lambda pk: reverse('order-cost-list', kwargs={'pk': pk, 'type': 'm'})
-        # cls.detail_url = lambda pk: reverse('order-cost-detail', kwargs={'pk': pk, 'type':'s'})
+        cls.create_url = reverse('order-cost-create')
+        cls.list_url = lambda pk: reverse('order-cost-list', kwargs={'pk': pk, 'type': 'm'})
+        cls.detail_url = lambda pk: reverse('order-cost-detail', kwargs={'pk': pk, 'type':'s'})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
         
     ## Test get order cost not found
     def test_get_order_cost_not_found(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(79027269))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Order Cost Not Found.')
 
     ## Test get order cost success
     def test_get_order_cost_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.order_cost.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['order'], self.order_cost.order.pk)
+        self.assertEqual(response.data['name'], self.order_cost.name)
+        self.assertEqual(response.data['cost'], self.order_cost.cost)
 
     ## Test get order costs success
     def test_get_order_costs_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.order.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), OrderCost.objects.filter(order=self.order).count())
 
     ## Test create order cost with empty data
     def test_create_order_cost_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('name', response.data)
 
     ## Test create order cost with short data
     def test_create_order_cost_short_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
 
     ## Test create order cost with long data
     def test_create_order_cost_long_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
 
     ## Test create order cost with negative data
     def test_create_order_cost_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('cost', response.data)
 
     ## Test create order cost success
     def test_create_order_cost_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(OrderCost.objects.count(), 2)
+        cost = OrderCost.objects.get(order=self.create_data['order'], name=self.create_data['name'], cost=self.create_data['cost'])
+        self.assertEqual(cost.order.pk, self.create_data['order'])
+        self.assertEqual(cost.name, self.create_data['name'])
+        self.assertEqual(cost.cost, self.create_data['cost'])
 
     ## Test update order cost with empty data
     def test_update_order_cost_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_cost.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('name', response.data)
 
     ## Test update order cost with short data
     def test_update_order_cost_short_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_cost.pk), data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
 
     ## Test update order cost with long data
     def test_update_order_cost_long_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_cost.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
 
     ## Test update order cost with negative data
     def test_update_order_cost_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_cost.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('cost', response.data)
 
     ## Test update order cost success
     def test_update_order_cost_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_cost.pk), data=self.update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        cost = OrderCost.objects.get(pk=self.order_cost.pk)
+        self.assertEqual(cost.order.pk, self.update_data['order'])
+        self.assertEqual(cost.name, self.update_data['name'])
+        self.assertEqual(cost.cost, self.update_data['cost'])
 
     ## Test partial update order cost with empty data
     def test_partial_update_order_cost_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_cost.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('name', response.data)
 
     ## Test partial update order cost with short data
     def test_partial_update_order_cost_short_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_cost.pk), data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
 
     ## Test partial update order cost with long data
     def test_partial_update_order_cost_long_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_cost.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
 
     ## Test partial update order cost with negative data
     def test_partial_update_order_cost_negative_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_cost.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('cost', response.data)
 
     ## Test partial update order cost success
     def test_partial_update_order_cost_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_cost.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        cost = OrderCost.objects.get(pk=self.order_cost.pk)
+        self.assertEqual(cost.name, self.patch_data['name'])
 
     ## Test delete order cost success
     def test_delete_order_cost_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.order_cost.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(OrderCost.objects.count(), 0)
 
 # Tests for order picture view
 class TestOrderPictureView(APITestCase):

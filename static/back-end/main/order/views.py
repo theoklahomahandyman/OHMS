@@ -64,6 +64,62 @@ class OrderView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 ## CRUD view for order cost model
+class OrderCostView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        return OrderCost.objects.get(pk=pk)
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.pop('pk', None)
+        type = kwargs.pop('type', None)
+        if type == 's':
+            try:
+                cost = self.get_object(pk)
+                serializer = OrderCostSerializer(cost)
+            except OrderCost.DoesNotExist:
+                return Response({'detail': 'Order Cost Not Found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            costs = OrderCost.objects.filter(order__pk=pk)
+            serializer = OrderCostSerializer(costs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = OrderCostSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        cost = self.get_object(pk)
+        serializer = OrderCostSerializer(cost, data=request.data, partial=False)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        cost = self.get_object(pk)
+        serializer = OrderCostSerializer(cost, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        cost = self.get_object(pk)
+        cost.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 ## CRUD view for order picture model
 
