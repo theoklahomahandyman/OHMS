@@ -1,4 +1,4 @@
-from order.views import OrderView, OrderCostView
+from order.views import OrderView, OrderCostView, OrderPictureView
 from django.urls import path
 
 urlpatterns = [
@@ -8,4 +8,8 @@ urlpatterns = [
     path('costs/', OrderCostView.as_view(), name='order-cost-create'),
     path('costs/<int:pk>/<str:type>/', OrderCostView.as_view(), name='order-cost-list'),
     path('costs/<int:pk>/<str:type>/', OrderCostView.as_view(), name='order-cost-detail'),
+
+    path('pictures/', OrderPictureView.as_view(), name='order-picture-create'),
+    path('pictures/<int:pk>/<str:type>/', OrderPictureView.as_view(), name='order-picture-list'),
+    path('pictures/<int:pk>/<str:type>/', OrderPictureView.as_view(), name='order-picture-detail'),
 ]

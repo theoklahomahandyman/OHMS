@@ -737,53 +737,86 @@ class TestOrderPictureView(APITestCase):
         cls.order = Order.objects.create(customer=cls.customer, date=cls.date, description='test description', service=cls.service, hourly_rate=50.0, hours_worked=1.25, material_upcharge=9.25, tax=13.5, total=0.0, completed=False, paid=False, discount=1.75, notes='test order', callout=Order.CALLOUT_CHOICES.STANDARD)
         cls.order_picture = OrderPicture.objects.create(order=cls.order, image='pergola-stain.jpg')
         cls.empty_data = {'order': '', 'image': ''}
-        cls.valid_data = {'order': cls.order.pk, 'image': cls.image_1}
+        cls.create_data = {'order': cls.order.pk, 'image': cls.image_1}
         cls.update_data = {'order': cls.order.pk, 'image': cls.image_2}
         cls.patch_data = {'image': cls.image_3}
-        # cls.create_url = reverse('order-picture-create')
-        # cls.list_url = lambda pk: reverse('order-picture-list', kwargs={'pk': pk, 'type': 'm'})
-        # cls.detail_url = lambda pk: reverse('order-picture-detail', kwargs={'pk': pk, 'type':'s'})
+        cls.create_url = reverse('order-picture-create')
+        cls.list_url = lambda pk: reverse('order-picture-list', kwargs={'pk': pk, 'type': 'm'})
+        cls.detail_url = lambda pk: reverse('order-picture-detail', kwargs={'pk': pk, 'type':'s'})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
         
     ## Test get order picture not found
     def test_get_order_picture_not_found(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(79027269))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Order Picture Not Found.')
 
     ## Test get order picture success
     def test_get_order_picture_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.order_picture.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['order'], self.order_picture.order.pk)
 
     ## Test get order pictures success
     def test_get_order_pictures_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.order.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), OrderPicture.objects.filter(order=self.order).count())
 
     ## Test create order picture with empty data
     def test_create_order_picture_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('image', response.data)
 
     ## Test create order picture success
     def test_create_order_picture_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.create_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(OrderPicture.objects.count(), 2)
 
     ## Test update order picture with empty data
     def test_update_order_picture_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_picture.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('image', response.data)
 
     ## Test update order picture success
     def test_update_order_picture_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(self.detail_url(self.order_picture.pk), data=self.update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        picture = OrderPicture.objects.get(pk=self.order_picture.pk)
+        self.assertEqual(picture.order.pk, self.update_data['order'])
 
     ## Test partial update order picture with empty data
     def test_partial_update_order_picture_empty_data(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_picture.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('order', response.data)
+        self.assertIn('image', response.data)
 
     ## Test partial update order picture success
     def test_partial_update_order_picture_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order_picture.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     ## Test delete order picture success
     def test_delete_order_picture_success(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.order_picture.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(OrderPicture.objects.count(), 0)
 
 # Tests for order material view
 class TestOrderMatematerialView(APITestCase):
