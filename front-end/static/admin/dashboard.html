@@ -48,7 +48,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">User Information:</h6>
                         <a class="collapse-item" href="profile.html">Profile</a>
-                        <a class="collapse-item" href="change-password.html">Password</a>
+                        <a class="collapse-item" href="password.html">Password</a>
                     </div>
                 </div>
             </li>
@@ -129,7 +129,7 @@
                                 <a class="dropdown-item" href="profile.html">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>Profile
                                 </a>
-                                <a class="dropdown-item" href="change-password.html">
+                                <a class="dropdown-item" href="password.html">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>Password
                                 </a>
                                 <div class="dropdown-divider"></div>
@@ -143,16 +143,147 @@
                 <!-- End of Topbar -->
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-4 text-gray-800">Blank Page</h1>
-
+                    <h1 class="h3 mb-4 text-gray-800 text-center">Oklahoma Handyman Service Dashboard</h1>
+                    <div class="row">
+                        <!-- Admin Dashboard Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card shadow">
+                                <!-- Card Header - Accordion -->
+                                <a href="#adminDashboardCard" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="adminDashboardCard">
+                                    <h6 class="m-0 font-weight-bold text-primary text-center">Admin Dashboard</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse" id="adminDashboardCard">
+                                    <div class="card-body text-center">
+                                        <p class="text-center">The Admin Dashboard can be used to manage current site administrators.</p>
+                                        <a href="admin-dashboard.html" class="btn btn-primary align-items-center" id="adminDashboardNavigation">Admin Dashboard</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Profile Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card shadow">
+                                <!-- Card Header - Accordion -->
+                                <a href="#profileCard" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="profileCard">
+                                    <h6 class="m-0 font-weight-bold text-primary text-center">Profile Dashboard</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse" id="profileCard">
+                                    <div class="card-body text-center">
+                                        <p class="text-center">
+                                            The Profile Dashboard can be used to manage your current information. 
+                                            The Password Dashboard can be used to change your current password.
+                                        </p>
+                                        <a href="profile.html" class="btn btn-md btn-primary align-items-start" id="profileNavigation">Profile</a>
+                                        <a href="password.html" class="btn btn-md btn-primary align-items-end ml-2" id="passNavigation">Password</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Customer Dashboard Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card shadow">
+                                <!-- Card Header - Accordion -->
+                                <a href="#customerDashboardCard" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="customerDashboardCard">
+                                    <h6 class="m-0 font-weight-bold text-primary text-center">Customer Dashboard</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse" id="customerDashboardCard">
+                                    <div class="card-body text-center">
+                                        <p class="text-center">The Customer Dashboard can be used to manage past and current customers.</p>
+                                        <a href="customer-dashboard.html" class="btn btn-primary align-items-center" id="customerDashboardNavigation">Customer Dashboard</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Order Dashboard Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card shadow">
+                                <!-- Card Header - Accordion -->
+                                <a href="#orderDashboardCard" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="orderDashboardCard">
+                                    <h6 class="m-0 font-weight-bold text-primary text-center">Order Dashboard</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse" id="orderDashboardCard">
+                                    <div class="card-body text-center">
+                                        <p class="text-center">The Order Dashboard can be used to manage past and current work orders.</p>
+                                        <a href="order-dashboard.html" class="btn btn-primary align-items-center" id="orderDashboardNavigation">Order Dashboard</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Material Dashboard Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card shadow">
+                                <!-- Card Header - Accordion -->
+                                <a href="#materialDashboardCard" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="materialDashboardCard">
+                                    <h6 class="m-0 font-weight-bold text-primary text-center">Material Dashboard</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse" id="materialDashboardCard">
+                                    <div class="card-body text-center">
+                                        <p class="text-center">The Material Dashboard can be used to manage past and current materials.</p>
+                                        <a href="material-dashboard.html" class="btn btn-primary align-items-center" id="materialDashboardNavigation">Material Dashboard</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Purchase Dashboard Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card shadow">
+                                <!-- Card Header - Accordion -->
+                                <a href="#purchaseDashboardCard" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="purchaseDashboardCard">
+                                    <h6 class="m-0 font-weight-bold text-primary text-center">Purchase Dashboard</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse" id="purchaseDashboardCard">
+                                    <div class="card-body text-center">
+                                        <p class="text-center">The Purchase Dashboard can be used to manage past and current purchases.</p>
+                                        <a href="purchase-dashboard.html" class="btn btn-primary align-items-center" id="purchaseDashboardNavigation">Purchase Dashboard</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Supplier Dashboard Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card shadow">
+                                <!-- Card Header - Accordion -->
+                                <a href="#supplierDashboardCard" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="supplierDashboardCard">
+                                    <h6 class="m-0 font-weight-bold text-primary text-center">Supplier Dashboard</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse" id="supplierDashboardCard">
+                                    <div class="card-body text-center">
+                                        <p class="text-center">The Supplier Dashboard can be used to manage past and current suppliers.</p>
+                                        <a href="supplier-dashboard.html" class="btn btn-primary align-items-center" id="supplierDashboardNavigation">Supplier Dashboard</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Service Dashboard Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="card shadow">
+                                <!-- Card Header - Accordion -->
+                                <a href="#serviceTypesCard" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="serviceTypesCard">
+                                    <h6 class="m-0 font-weight-bold text-primary text-center">Service Types</h6>
+                                </a>
+                                <!-- Card Content - Collapse -->
+                                <div class="collapse" id="serviceTypesCard">
+                                    <div class="card-body text-center">
+                                        <p class="text-center">The Service Dashboard can be used to manage current service types.</p>
+                                        <a href="service-dashboard.html" class="btn btn-primary align-items-center" id="serviceTypesNavigation">Service Dashboard</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- /.container-fluid -->
-
             </div>
             <!-- End of Main Content -->
-
             <!-- Footer -->
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
