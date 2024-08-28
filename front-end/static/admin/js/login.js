@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return response.json();
         }).then(data => {
-            // Store access and refresh tokens in cookies
-            document.cookie = `access=${data.access}; path=/`;
-            document.cookie = `refresh=${data.refresh}; path=/`;
+            // Store access and refresh tokens in session storage
+            sessionStorage.setItem('access', data.access);
+            sessionStorage.setItem('refresh', data.refresh);
             // Redirect to the admin dashboard
             window.location.href = 'dashboard.html';
         }).catch(error => {
