@@ -34,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const deleteButton = document.createElement("a");
                     // Configure edit and delete buttons
                     editButton.classList = "btn btn-primary";
+                    editButton.innerHTML = 'Edit';
                     deleteButton.classList = "btn btn-danger";
+                    deleteButton.innerHTML = 'Delete';
                     // Fill cells with data
                     nameCell.textContent = service.name;
                     descriptionCell.textContent = service.description;
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tableBody.appendChild(row);
                 });
                 if (tableBody.innerHTML === '') {
-                    
+
                 }
             } else {
                 console.error('Failed to load service types.')
@@ -65,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const description = descriptionInput.value.trim();
         // Validate inputs
         if (!name || !description) {
-            showToast('Please fill out both the name and desctiption fields.', 'error');
+            showToast('Please fill out both the name and desctiption fields.', 'danger');
             return;
         }
         data = {
@@ -83,27 +85,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(data)
             });
             if (response.ok) {
-                showToast('Service type added successfully!', 'success');
-                // Clear input fields
                 nameInput.value = '';
                 descriptionInput.value = '';
                 loadServiceTypes();
+                showToast('Service type added successfully!', 'success');
             } else {
                 const errorData = await response.json();
-                showToast(`Error: ${errorData.detail || 'Failed to add service type.'}`, 'error');
+                showToast(`Error: ${errorData.detail || 'Failed to add service type.'}`, 'danger');
             }
         } catch (error) {
-            showToast('An error occurred while adding the service type.', 'error');
+            showToast('An error occurred while adding the service type.', 'danger');
         }
     });
     // Function to display a toast notification
     function showToast(message, type) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerText = message;
-        document.body.appendChild(toast);
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+        const toastElement = document.getElementById('toast');
+        const toast = bootstrap.Toast(toastElement);
+        const toastBodyElement = document.getElementById('toastBody');
+        toastElement.className = `toast align-items-center text-white bg-primary border-0 bg-${type}`;
+        toastBodyElement.innerText = '';
+        toastBodyElement.innerText = message;
+        toast.show();
     }
 });
