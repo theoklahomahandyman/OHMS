@@ -1,12 +1,11 @@
+const accessToken = sessionStorage.getItem('access');
 const tableBody = document.querySelector('#dataTable tbody');
 const addButton = document.getElementById('addServiceTypeButton');
 const nameInput = document.getElementById('name');
 const descriptionInput = document.getElementById('description');
 
-// Retrieve the access token from sessionStorage and only allow access if present
+// Allow access only if token is present
 function checkAccess() {
-    // Retrieve the access token from sessionStorage and only allow access if present
-    const accessToken = sessionStorage.getItem('access');
     if (!accessToken) {
         console.error('Access token not found. Please log in.');
         window.location.href = 'login.html';
@@ -52,6 +51,7 @@ async function loadData() {
                 editButton.innerHTML = 'Edit';
                 deleteButton.classList = "btn btn-danger";
                 deleteButton.innerHTML = 'Delete';
+                deleteButton.addEventListener('click', () => deleteData(service.id));
                 // Fill cells with data
                 nameCell.textContent = service.name;
                 descriptionCell.textContent = service.description;
@@ -103,13 +103,36 @@ async function addData() {
             nameInput.value = '';
             descriptionInput.value = '';
             loadData();
-            showToast('Service type added successfully!', 'success');
+            showToast('Service type successfully added!', 'success');
         } else {
             const errorData = await response.json();
             showToast(`Error: ${errorData.detail || 'Failed to add service type.'}`, 'danger');
         }
     } catch (error) {
         showToast('An error occurred while adding the service type.', 'danger');
+    }
+}
+
+// Function to delete table data
+async function deleteData(pk) {
+    try {
+        // send POST request
+        const response = await fetch(`http://localhost:8000/api/service/${pk}/`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+        });
+        if (response.ok) {
+            loadData();
+            showToast('Service type successfully deleted!', 'success');
+        } else {
+            const errorData = await response.json();
+            showToast(`Error: ${errorData.detail || 'Failed to delete service type.'}`, 'danger');
+        }
+    } catch (error) {
+        showToast('An error occurred while deleting the service type.', 'danger');
     }
 }
 

@@ -153,7 +153,6 @@
                         Service Types are used to classify the different service types available to be used in work orders.
                         They are available to users when filling out the contact form to classify the general need of the job.
                     </p>
-                    <button type="button" class="btn btn-success" id="toastTrigger">Test Toast</button>
                     <!-- Add Service Type Form -->
                     <h4 class="text-primary text-center">Add New Service Type</h4>
                     <form class="form">
@@ -275,14 +274,5 @@
     <!-- Page level custom scripts -->
     <script src="js/data/datatables.js"></script>
     <script src="js/service.js"></script>
-    <script>
-        document.getElementById('toastTrigger').addEventListener('click', function () {
-            var toastEl = document.getElementById('toast');
-            var toast = new bootstrap.Toast(toastEl);
-            console.log(toastEl)
-            console.log(toast);
-            toast.show();
-        });
-    </script>
 </body>
 </html>
