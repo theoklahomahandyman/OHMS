@@ -4,7 +4,7 @@ function SideBar({ toggle, toggleSideBar }) {
     return (
         <ul className={toggle} id='accordionSidebar'>
             {/* <!-- Sidebar - Brand --> */}
-            <a className="sidebar-brand d-flex align-items-center justify-content-center" href="dashboard.html">
+            <a className="sidebar-brand d-flex align-items-center justify-content-center" href="/">
                 <div className="sidebar-brand-icon rotate-n-15">
                     <i className="fas fa-tools"></i>
                 </div>
@@ -14,7 +14,7 @@ function SideBar({ toggle, toggleSideBar }) {
             <hr className="sidebar-divider my-0" />
             {/* <!-- Nav Item - Dashboard --> */}
             <li className="nav-item">
-                <a className="nav-link" href="dashboard.html">
+                <a className="nav-link" href="/">
                     <i className="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -32,21 +32,21 @@ function SideBar({ toggle, toggleSideBar }) {
                 <div id="userInfo" className="collapse" aria-labelledby="userInfo" data-parent="#accordionSidebar">
                     <div className="bg-white py-2 collapse-inner rounded">
                         <h6 className="collapse-header">User Information:</h6>
-                        <a className="collapse-item" href="profile.html">Profile</a>
-                        <a className="collapse-item" href="password.html">Password</a>
+                        <a className="collapse-item" href="/profile/">Profile</a>
+                        <a className="collapse-item" href="/password/">Password</a>
                     </div>
                 </div>
             </li>
             {/* <!-- Nav Item - Admin Dashboard --> */}
             <li className="nav-item">
-                <a className="nav-link" href="admin-dashboard.html">
+                <a className="nav-link" href="/admin/">
                     <i className="fas fa-fw fa-users"></i>
                     <span>Admin Dashboard</span>
                 </a>
             </li>
             {/* <!-- Nav Item - Customer Dashboard --> */}
             <li className="nav-item">
-                <a className="nav-link" href="customer-dashboard.html">
+                <a className="nav-link" href="/customer/">
                     <i className="fas fa-fw fa-user-circle"></i>
                     <span>Customer Dashboard</span>
                 </a>
@@ -57,7 +57,7 @@ function SideBar({ toggle, toggleSideBar }) {
             <div className="sidebar-heading">Work Orders</div>
             {/* <!-- Nav Item - Order Dashboard --> */}
             <li className="nav-item">
-                <a className="nav-link" href="order-dashboard.html">
+                <a className="nav-link" href="/order/">
                     <i className="fas fa-fw fa-file-invoice"></i>
                     <span>Order Dashboard</span>
                 </a>
@@ -71,14 +71,14 @@ function SideBar({ toggle, toggleSideBar }) {
                 <div id="materials" className="collapse" aria-labelledby="materials" data-parent="#accordionSidebar">
                     <div className="bg-white py-2 collapse-inner rounded">
                         <h6 className="collapse-header">Manage Materials:</h6>
-                        <a className="collapse-item" href="material-dashboard.html">Material Dashboard</a>
-                        <a className="collapse-item" href="purchase-dashboard.html">Purchase Dashboard</a>
-                        <a className="collapse-item" href="supplier-dashboard.html">Supplier Dashboard</a>
+                        <a className="collapse-item" href="/material/">Material Dashboard</a>
+                        <a className="collapse-item" href="/purchase/">Purchase Dashboard</a>
+                        <a className="collapse-item" href="/supplier/">Supplier Dashboard</a>
                     </div>
                 </div>
             </li>
             <li className="nav-item">
-                <a className="nav-link" href="service-dashboard.html">
+                <a className="nav-link" href="/service/">
                     <i className="fas fa-fw fa-screwdriver"></i>
                     <span>Service Types</span>
                 </a>

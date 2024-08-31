@@ -17,11 +17,11 @@ function Nav({ toggleSideBar }) {
                     </a>
                     {/* <!-- Dropdown - User Information --> */}
                     <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                        <a className="dropdown-item" href="profile.html">
+                        <a className="dropdown-item" href="/profile/">
                             <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                             Profile
                         </a>
-                        <a className="dropdown-item" href="password.html">
+                        <a className="dropdown-item" href="/password/">
                             <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                             Password
                         </a>
