@@ -1,6 +1,19 @@
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
+import { useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
+import Cookies from 'js-cookie';
 
 function Nav({ toggleSideBar }) {
+    const navigate = useNavigate();
+
+    const logout = () => {
+        Cookies.remove(ACCESS_TOKEN);
+        Cookies.remove(REFRESH_TOKEN);
+        toast.success('Goodbye!');
+        navigate('/login/');
+    }
+
     return (
         <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
             {/* <!-- Sidebar Toggle (Topbar) --> */}
@@ -26,10 +39,10 @@ function Nav({ toggleSideBar }) {
                             Password
                         </a>
                         <div className="dropdown-divider"></div>
-                        <a className="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                        <button className="dropdown-item" onClick={logout}>
                             <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             Logout
-                        </a>
+                        </button>
                     </div>
                 </li>
             </ul>

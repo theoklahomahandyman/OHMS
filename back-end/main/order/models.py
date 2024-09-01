@@ -7,8 +7,8 @@ from django.db import models
 # Order model
 class Order(models.Model):
     class CALLOUT_CHOICES(models.TextChoices):
-        STANDARD = 50.0, 'Standard - $50.00'
-        EMERGENCY = 175.0, 'Emergency - $175.00'
+        STANDARD = '50.0', 'Standard - $50.00'
+        EMERGENCY = '175.0', 'Emergency - $175.00'
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date = models.DateField()
@@ -29,18 +29,18 @@ class Order(models.Model):
         # Calculate labor costs
         labor_costs = self.hourly_rate * self.hours_worked
         # Calculate material costs
-        materials = OrderMaterial.objects.filter(order=self)
+        materials = OrderMaterial.objects.filter(order__pk=self.pk)
         total_material_costs = sum(material.price for material in materials)
         material_costs = total_material_costs * (1 + self.material_upcharge / 100)
         # Calculate order costs
-        costs = OrderCost.objects.filter(order=self)
+        costs = OrderCost.objects.filter(order__pk=self.pk)
         order_costs = sum(cost.cost for cost in costs)
         subtotal = labor_costs + material_costs + order_costs + float(self.callout)
         tax_amount = (self.tax / 100) * subtotal
         discount_amount = (self.discount / 100) * subtotal
         total = subtotal + tax_amount - discount_amount
         return max(total, 0)
-    
+
     def save(self, *args, **kwargs):
         # Automatically calculate total
         self.total = self.calculate_total()
