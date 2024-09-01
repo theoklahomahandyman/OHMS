@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import UpdateModal from './UpdateModal';
 import CreateModal from './CreateModal';
+import UpdateModal from './UpdateModal';
+import DeleteModal from './DeleteModal';
 import PropTypes from 'prop-types';
 import Loading from './Loading';
 import api from '../../api';
@@ -30,9 +31,11 @@ function Table({ name, fields, route }) {
     }, [fetchData]);
 
     useEffect(() => {
-        setTimeout(() => {
-            $('#dataTable').DataTable();
-        }, 1);
+        if (Array.isArray(data) && data.length > 0) {
+            setTimeout(() => {
+                $('#dataTable').DataTable();
+            }, 1);
+        }
     }, [data]);
 
     return (
@@ -72,7 +75,7 @@ function Table({ name, fields, route }) {
                                                     <td key={`${field.name}-${index}-${item.pk}`}>{item[field.name]}</td>
                                                 ))}
                                                 <td key={`edit-${item.id}`}><UpdateModal name={name} fields={fields} route={route} id={item.id} fetchData={fetchData} /></td>
-                                                <td key={`delete-${item.id}`}><button className="btn btn-danger">Delete</button></td>
+                                                <td key={`delete-${item.id}`}><DeleteModal name={name} route={route} id={item.id} fetchData={fetchData} /></td>
                                             </tr>
                                         ))
                                     ) : (
