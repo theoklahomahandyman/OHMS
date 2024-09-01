@@ -12,7 +12,7 @@ class ServiceView(APIView):
 
     def get_object(self, pk=None):
         return Service.objects.get(pk=pk)
-    
+
     def get(self, request, *args, **kwargs):
         pk = kwargs.pop('pk', None)
         if pk:
@@ -25,7 +25,7 @@ class ServiceView(APIView):
             services = Service.objects.all()
             serializer = ServiceSerializer(services, many=True)
         return Response(serializer.data)
-    
+
     def post(self, request, *args, **kwargs):
         serializer = ServiceSerializer(data=request.data)
         try:
