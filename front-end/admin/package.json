@@ -10,9 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.7.7",
+    "datatables.net-bs4": "^2.1.5",
+    "datatables.net-dt": "^2.1.5",
+    "datatables.net-responsive-dt": "^3.0.3",
+    "font-awesome": "^4.7.0",
+    "jquery": "^3.7.1",
     "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router": "^6.26.1",
     "react-router-dom": "^6.26.1",
     "react-toastify": "^10.0.5"
   },

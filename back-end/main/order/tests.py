@@ -14,7 +14,7 @@ from user.models import User
 
 # Tests for order modesl
 class TestOrderModels(TestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.date = timezone.now().date()
@@ -59,7 +59,7 @@ class TestOrderModels(TestCase):
 
 # Tests for order serializer
 class TestOrderSerializer(TestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.long_string = 't' * 10001
@@ -223,7 +223,7 @@ class TestOrderPictureSerializer(TestCase):
 
 # Tests for order material serializer
 class TestOrderMaterialSerializer(TestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.date = timezone.now().date()
@@ -335,7 +335,7 @@ class TestOrderView(APITestCase):
         cls.list_url = reverse('order-list')
         cls.detail_url = lambda pk: reverse('order-detail', kwargs={'pk': pk})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
-        
+
     ## Test get order not found
     def test_get_order_not_found(self):
         self.client.force_authenticate(user=self.user)
@@ -349,7 +349,7 @@ class TestOrderView(APITestCase):
         response = self.client.get(self.detail_url(self.order.pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['customer'], self.order.customer.pk)
-        self.assertEqual(response.data['date'], f'{self.order.date.year}-0{self.order.date.month}-{self.order.date.day}')
+        self.assertEqual(response.data['date'], f'{self.order.date.year}-0{self.order.date.month}-0{self.order.date.day}')
         self.assertEqual(response.data['description'], self.order.description)
         self.assertEqual(response.data['service'], self.order.service.pk)
         self.assertEqual(response.data['hourly_rate'], self.order.hourly_rate)
@@ -571,7 +571,7 @@ class TestOrderCostView(APITestCase):
         cls.list_url = lambda pk: reverse('order-cost-list', kwargs={'pk': pk, 'type': 'm'})
         cls.detail_url = lambda pk: reverse('order-cost-detail', kwargs={'pk': pk, 'type':'s'})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
-        
+
     ## Test get order cost not found
     def test_get_order_cost_not_found(self):
         self.client.force_authenticate(user=self.user)
@@ -744,7 +744,7 @@ class TestOrderPictureView(APITestCase):
         cls.list_url = lambda pk: reverse('order-picture-list', kwargs={'pk': pk, 'type': 'm'})
         cls.detail_url = lambda pk: reverse('order-picture-detail', kwargs={'pk': pk, 'type':'s'})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
-        
+
     ## Test get order picture not found
     def test_get_order_picture_not_found(self):
         self.client.force_authenticate(user=self.user)
@@ -840,7 +840,7 @@ class TestOrderMatematerialView(APITestCase):
         cls.list_url = lambda pk: reverse('order-material-list', kwargs={'pk': pk, 'type': 'm'})
         cls.detail_url = lambda pk: reverse('order-material-detail', kwargs={'pk': pk, 'type':'s'})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
-        
+
     ## Test get order material not found
     def test_get_order_material_not_found(self):
         self.client.force_authenticate(user=self.user)
@@ -937,7 +937,7 @@ class TestOrderMatematerialView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         material = OrderMaterial.objects.get(pk=self.order_material.pk)
         self.assertEqual(material.quantity, self.patch_data['quantity'])
-        
+
     ## Test delete order material success
     def test_delete_order_material_success(self):
         self.client.force_authenticate(user=self.user)
@@ -971,7 +971,7 @@ class TestOrderPaymentView(APITestCase):
         cls.list_url = lambda pk: reverse('order-payment-list', kwargs={'pk': pk, 'type': 'm'})
         cls.detail_url = lambda pk: reverse('order-payment-detail', kwargs={'pk': pk, 'type':'s'})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
-        
+
     ## Test get order payment not found
     def test_get_order_payment_not_found(self):
         self.client.force_authenticate(user=self.user)
