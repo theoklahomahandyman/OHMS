@@ -4,6 +4,10 @@ import CreateModal from './CreateModal';
 import PropTypes from 'prop-types';
 import Loading from './Loading';
 import api from '../../api';
+import $ from 'jquery';
+
+import 'datatables.net-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
 function Table({ name, fields, route }) {
     const [loading, setLoading] = useState(false);
@@ -25,6 +29,12 @@ function Table({ name, fields, route }) {
         fetchData();
     }, [fetchData]);
 
+    useEffect(() => {
+        setTimeout(() => {
+            $('#dataTable').DataTable();
+        }, 1);
+    }, [data]);
+
     return (
         <div>
             <div className="card shadow mb-4">
@@ -35,14 +45,14 @@ function Table({ name, fields, route }) {
                 <div className="card-body">
                     {loading ? <Loading /> : (
                         <div className="table-responsive">
-                            <table className="table table-bordered" id="dataTable" width="100%" cellSpacing="0">
+                            <table className="table table-bordered m-4" id="dataTable" width="95%" cellSpacing="0">
                                 <thead>
-                                    <tr className='text-center'>
+                                    <tr>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-header`}>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
+                                            <th key={`${field.name}-${index}-header`} className='text-center'>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
                                         ))}
-                                        <th>Edit</th>
-                                        <th>Delete</th>
+                                        <th className='text-center'>Edit</th>
+                                        <th className='text-center'>Delete</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
@@ -50,8 +60,8 @@ function Table({ name, fields, route }) {
                                         {fields.map((field, index) => (
                                             <th key={`${field.name}-${index}-footer`}>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
                                         ))}
-                                        <th>Edit</th>
-                                        <th>Delete</th>
+                                        <th className='text-center'>Edit</th>
+                                        <th className='text-center'>Delete</th>
                                     </tr>
                                 </tfoot>
                                 <tbody>
