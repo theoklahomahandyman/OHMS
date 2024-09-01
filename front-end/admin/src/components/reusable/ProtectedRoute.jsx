@@ -1,4 +1,4 @@
-import { REFRESH_TOKEN, ACCESS_TOKEN } from '../constants';
+import { REFRESH_TOKEN, ACCESS_TOKEN } from '../../constants';
 import { Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import Cookies from 'js-cookie';
 import Loading from './Loading';
-import api from '../api';
+import api from '../../api';
 
 const ProtectedRoute = ({ children }) => {
     const [isAuthorized, setIsAuthorized] = useState(null);

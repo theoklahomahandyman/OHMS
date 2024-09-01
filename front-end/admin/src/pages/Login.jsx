@@ -1,5 +1,5 @@
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
-import Loading from '../components/Loading';
+import Loading from '../components/reusable/Loading';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { useState } from 'react';

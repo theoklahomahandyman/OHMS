@@ -1,8 +1,8 @@
-import SideBar from '../components/SideBar';
-import Footer from '../components/Footer';
-import Nav from '../components/Nav';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import SideBar from '../SideBar';
+import Footer from '../Footer';
+import Nav from '../Nav';
 
 function Page({ children }) {
     const [toggle, setToggle] = useState('navbar-nav bg-gradient-primary sidebar sidebar-dark accordion');
