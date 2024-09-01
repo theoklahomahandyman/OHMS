@@ -43,8 +43,8 @@ function CreateModal({ name, fields, route }) {
             <div className="component">
                 <button onClick={() => setVisible(true)} className='btn btn-md btn-success action-btn'>Create</button>
             </div>
-            <Modal visible={visible} onClose={() => setVisible(false)}>
-                <Form method='post' route={route} data={data} title={name} onSuccess={handleSuccess} onError={handleError} setErrors={setErrors}>
+            <Modal visible={visible} onClose={() => setVisible(false)} title={name}>
+                <Form method='post' route={route} data={data} buttonText='Create' buttonStyle='success' onSuccess={handleSuccess} onError={handleError} setErrors={setErrors}>
                     {fields.map((field, index) => {
                         return (<Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />)
                     })}

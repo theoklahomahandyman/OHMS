@@ -3,13 +3,12 @@ import { useState } from 'react';
 import Loading from './Loading';
 import api from '../../api';
 
-function Form ({ children, method, route, data, title, onSuccess, onError, setErrors }) {
+function Form ({ children, method, route, data, buttonText, buttonStyle, onSuccess, onError, setErrors }) {
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
-        console.log(data)
         try {
             if (method === 'post'){
                 const response = await api.post(route, data);
@@ -41,13 +40,12 @@ function Form ({ children, method, route, data, title, onSuccess, onError, setEr
 
     return (
         <form onSubmit = {handleSubmit} className='form'>
-            <h1 className='modal-title text-center'>{title}</h1>
             {loading ? <Loading /> :
                 <div className='modal-body'>
                     {children}
                 </div>
             }
-            <button className='btn btn-primary mb-3 mx-auto d-block' disabled={loading}>{title}</button>
+            <button className={`btn btn-${buttonStyle} mb-3 mx-auto d-block`} disabled={loading}>{buttonText}</button>
         </form>
     )
 }
@@ -57,7 +55,8 @@ Form.propTypes = {
     method: PropTypes.string.isRequired,
     route: PropTypes.string.isRequired,
     data: PropTypes.any,
-    title: PropTypes.string.isRequired,
+    buttonText: PropTypes.string.isRequired,
+    buttonStyle: PropTypes.string.isRequired,
     onSuccess: PropTypes.func.isRequired,
     onError: PropTypes.func.isRequired,
     setErrors: PropTypes.func,

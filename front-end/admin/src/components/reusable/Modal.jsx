@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-function Modal({ visible, onClose, children }) {
+function Modal({ visible, onClose, title, children }) {
     if (!visible) return null;
 
     const handleClose = (event) => {
@@ -13,6 +13,7 @@ function Modal({ visible, onClose, children }) {
                 <div className='modal-content'>
                     <div className='modal-header'>
                     <h5 className='modal-title'></h5>
+                        <h1 className='modal-title text-center'>{title}</h1>
                         <button type='button' className='btn btn-danger' aria-label='Close' onClick={onClose}>X</button>
                     </div>
                     <div className="modal-body">
@@ -27,6 +28,7 @@ function Modal({ visible, onClose, children }) {
 Modal.propTypes = {
     visible: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired
 }
 
