@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
+import Supplier from './pages/Supplier';
+import Customer from './pages/Customer';
 import Service from './pages/Service';
 import Login from './pages/Login';
 
@@ -15,7 +17,11 @@ function App() {
 			<BrowserRouter>
 				<Routes>
 					<Route path='/' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-					<Route path='/service/' element={<ProtectedRoute><Service /></ProtectedRoute>}/>
+
+					<Route path='/customer/' element={<ProtectedRoute><Customer /></ProtectedRoute>} />
+					<Route path='/service/' element={<ProtectedRoute><Service /></ProtectedRoute>} />
+					<Route path='/supplier/' element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
+
 					<Route path='/login/' element={<Login />} />
 					<Route path='*' element={<NotFound />} />
 				</Routes>

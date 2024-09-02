@@ -4,10 +4,10 @@ import re
 
 # Serializer for customer model
 class CustomerSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Customer
-        fields = ['first_name', 'last_name', 'email', 'phone']
+        fields = ['id', 'first_name', 'last_name', 'email', 'phone', 'notes']
 
     def validate(self, data):
         errors = {}
@@ -18,4 +18,3 @@ class CustomerSerializer(serializers.ModelSerializer):
         if errors:
             raise serializers.ValidationError(errors)
         return data
-        

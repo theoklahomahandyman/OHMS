@@ -12,7 +12,7 @@ class SupplierView(APIView):
 
     def get_object(self, pk=None):
         return Supplier.objects.get(pk=pk)
-    
+
     def get(self, request, *args, **kwargs):
         pk = kwargs.pop('pk', None)
         if pk:
@@ -34,7 +34,7 @@ class SupplierView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-        
+
     def put(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
         supplier = self.get_object(pk)
@@ -56,7 +56,7 @@ class SupplierView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-        
+
     def delete(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
         supplier = self.get_object(pk)
@@ -69,23 +69,26 @@ class SupplierAddressView(APIView):
 
     def get_object(self, pk=None):
         return SupplierAddress.objects.get(pk=pk)
-        
+
     def get(self, request, *args, **kwargs):
-        pk = kwargs.pop('pk', None)
-        type = kwargs.pop('type', None)
-        if type == 'a':
+        supplier_pk = kwargs.pop('supplier_pk', None)
+        address_pk = kwargs.pop('address_pk', None)
+        if address_pk:
             try:
-                address = self.get_object(pk)
+                address = self.get_object(address_pk)
                 serializer = SupplierAddressSerializer(address)
             except SupplierAddress.DoesNotExist:
                 return Response({'detail': 'Supplier Address Not Found.'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            addresses = SupplierAddress.objects.filter(supplier__pk=pk)
+            addresses = SupplierAddress.objects.filter(supplier__pk=supplier_pk)
             serializer = SupplierAddressSerializer(addresses, many=True)
         return Response(serializer.data)
-    
+
     def post(self, request, *args, **kwargs):
-        serializer = SupplierAddressSerializer(data=request.data)
+        supplier_pk = kwargs.pop('supplier_pk', None)
+        data = request.data
+        data['supplier'] = supplier_pk
+        serializer = SupplierAddressSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -94,7 +97,7 @@ class SupplierAddressView(APIView):
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('address_pk', None)
         address = self.get_object(pk)
         serializer = SupplierAddressSerializer(address, data=request.data, partial=False)
         try:
@@ -103,9 +106,9 @@ class SupplierAddressView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-        
+
     def patch(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('address_pk', None)
         address = self.get_object(pk)
         serializer = SupplierAddressSerializer(address, data=request.data, partial=True)
         try:
@@ -114,10 +117,9 @@ class SupplierAddressView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-        
+
     def delete(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('address_pk', None)
         address = self.get_object(pk)
         address.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-        

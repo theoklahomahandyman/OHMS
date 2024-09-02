@@ -1,18 +1,26 @@
+import LocationsModal from '../components/LocationsModal';
 import { useState, useEffect, useCallback } from 'react';
-import CreateModal from './CreateModal';
-import UpdateModal from './UpdateModal';
-import DeleteModal from './DeleteModal';
-import PropTypes from 'prop-types';
-import Loading from './Loading';
-import api from '../../api';
+import Page from '../components/reusable/Page';
+import CreateModal from '../components/reusable/CreateModal';
+import UpdateModal from '../components/reusable/UpdateModal';
+import DeleteModal from '../components/reusable/DeleteModal';
+import Loading from '../components/reusable/Loading';
+import api from '../api';
 import $ from 'jquery';
 
 import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
-function Table({ name, fields, route, extraFields }) {
+function Supplier() {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
+
+    const route = '/supplier/';
+
+    const fields = [
+        {name: 'name', label: 'Supplier Name', type: 'text', required: true, maxLength: 255, minLength: 2},
+        {name: 'notes', label: 'Supplier Notes', type: 'text', required: false, maxLength: 500, minLength: 0}
+    ];
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -39,11 +47,15 @@ function Table({ name, fields, route, extraFields }) {
     }, [data]);
 
     return (
-        <div>
+        <Page>
+            <h1 className="h3 mb-2 text-gray-800 text-center">Suppliers</h1>
+            <p className="mb-4 text-center">
+                Suppliers are companies or individuals used to acquire materials for work orders and must be specified in purchases.
+            </p>
             <div className="card shadow mb-4">
                 <div className="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 className="m-0 font-weight-bold text-primary">{name}s</h6>
-                    <CreateModal name={name} fields={fields} route={route} fetchData={fetchData} />
+                    <h6 className="m-0 font-weight-bold text-primary">Suppliers</h6>
+                    <CreateModal name='Suppliers' fields={fields} route={route} fetchData={fetchData}/>
                 </div>
                 <div className="card-body">
                     {loading ? <Loading /> : (
@@ -52,27 +64,19 @@ function Table({ name, fields, route, extraFields }) {
                                 <thead>
                                     <tr>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-header`} className='text-center'>{field.label}</th>
+                                            <th key={`${field.name}-${index}-header`} className='text-center'>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
                                         ))}
-                                        {Array.isArray(extraFields) && extraFields.length > 0 ? (
-                                            extraFields.map((field, index) => (
-                                                <th key={`${field.name}-${index}-extra`} className="text-center">{field.name}</th>
-                                            ))
-                                        ) : <></>}
+                                        <th className='text-center'>Locations</th>
                                         <th className='text-center'>Edit</th>
                                         <th className='text-center'>Delete</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
-                                    <tr>
+                                    <tr className='text-center'>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-footer`} className='text-center'>{field.label}</th>
+                                            <th key={`${field.name}-${index}-footer`}>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
                                         ))}
-                                        {Array.isArray(extraFields) && extraFields.length > 0 ? (
-                                            extraFields.map((field, index) => (
-                                                <th key={`${field.name}-${index}-extra`} className="text-center">{field.name}</th>
-                                            ))
-                                        ) : <></>}
+                                        <th className="text-center">Locations</th>
                                         <th className='text-center'>Edit</th>
                                         <th className='text-center'>Delete</th>
                                     </tr>
@@ -84,13 +88,9 @@ function Table({ name, fields, route, extraFields }) {
                                                 {fields.map((field, index) => (
                                                     <td key={`${field.name}-${index}-${item.pk}`}>{item[field.name]}</td>
                                                 ))}
-                                                {Array.isArray(extraFields) && extraFields.length > 0 ? (
-                                                    extraFields.map((field, index) => (
-                                                        <td key={`${field.name}-${index}-extra`} className="text-center">{field.data}</td>
-                                                    ))
-                                                ) : <></>}
-                                                <td key={`edit-${item.id}`}><UpdateModal name={name} fields={fields} route={route} id={item.id} fetchData={fetchData} /></td>
-                                                <td key={`delete-${item.id}`}><DeleteModal name={name} route={route} id={item.id} fetchData={fetchData} /></td>
+                                                <td key={`locations-${item.id}`}><LocationsModal id={item.id} /></td>
+                                                <td key={`edit-${item.id}`}><UpdateModal name='Supplier' fields={fields} route={route} id={item.id} fetchData={fetchData} /></td>
+                                                <td key={`delete-${item.id}`}><DeleteModal name='Supplier' route={route} id={item.id} fetchData={fetchData} /></td>
                                             </tr>
                                         ))
                                     ) : (
@@ -104,15 +104,8 @@ function Table({ name, fields, route, extraFields }) {
                     )}
                 </div>
             </div>
-        </div>
+        </Page>
     )
 }
 
-Table.propTypes = {
-    name: PropTypes.string.isRequired,
-    fields: PropTypes.array.isRequired,
-    route: PropTypes.string.isRequired,
-    extraFields: PropTypes.array
-}
-
-export default Table;
+export default Supplier;
