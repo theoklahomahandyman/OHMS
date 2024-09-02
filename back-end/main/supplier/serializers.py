@@ -3,14 +3,14 @@ from rest_framework import serializers
 
 # Serializer for supplier model
 class SupplierSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Supplier
-        fields = ['name', 'notes']
+        fields = ['id', 'name', 'notes']
 
 # Serializer for supplier address model
 class SupplierAddressSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = SupplierAddress
         fields = ['supplier', 'street_address', 'city', 'state', 'zip', 'notes']
