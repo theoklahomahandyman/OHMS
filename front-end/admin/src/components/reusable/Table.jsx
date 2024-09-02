@@ -10,7 +10,7 @@ import $ from 'jquery';
 import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
-function Table({ name, fields, route }) {
+function Table({ name, fields, route, extraFields }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
 
@@ -43,7 +43,7 @@ function Table({ name, fields, route }) {
             <div className="card shadow mb-4">
                 <div className="card-header py-3 d-flex justify-content-between align-items-center">
                     <h6 className="m-0 font-weight-bold text-primary">{name}s</h6>
-                    <CreateModal name={name} fields={fields} route={route} fetchData={fetchData}/>
+                    <CreateModal name={name} fields={fields} route={route} fetchData={fetchData} />
                 </div>
                 <div className="card-body">
                     {loading ? <Loading /> : (
@@ -52,8 +52,13 @@ function Table({ name, fields, route }) {
                                 <thead>
                                     <tr>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-header`} className='text-center'>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
+                                            <th key={`${field.name}-${index}-header`} className='text-center'>{field.label}</th>
                                         ))}
+                                        {Array.isArray(extraFields) && extraFields.length > 0 ? (
+                                            extraFields.map((field, index) => (
+                                                <th key={`${field.name}-${index}-extra`} className="text-center">{field.name}</th>
+                                            ))
+                                        ) : <></>}
                                         <th className='text-center'>Edit</th>
                                         <th className='text-center'>Delete</th>
                                     </tr>
@@ -61,8 +66,13 @@ function Table({ name, fields, route }) {
                                 <tfoot>
                                     <tr className='text-center'>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-footer`}>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
+                                            <th key={`${field.name}-${index}-footer`}>{field.label}</th>
                                         ))}
+                                        {Array.isArray(extraFields) && extraFields.length > 0 ? (
+                                            extraFields.map((field, index) => (
+                                                <th key={`${field.name}-${index}-extra`} className="text-center">{field.name}</th>
+                                            ))
+                                        ) : <></>}
                                         <th className='text-center'>Edit</th>
                                         <th className='text-center'>Delete</th>
                                     </tr>
@@ -74,6 +84,11 @@ function Table({ name, fields, route }) {
                                                 {fields.map((field, index) => (
                                                     <td key={`${field.name}-${index}-${item.pk}`}>{item[field.name]}</td>
                                                 ))}
+                                                {Array.isArray(extraFields) && extraFields.length > 0 ? (
+                                                    extraFields.map((field, index) => (
+                                                        <td key={`${field.name}-${index}-extra`} className="text-center">{field.data}</td>
+                                                    ))
+                                                ) : <></>}
                                                 <td key={`edit-${item.id}`}><UpdateModal name={name} fields={fields} route={route} id={item.id} fetchData={fetchData} /></td>
                                                 <td key={`delete-${item.id}`}><DeleteModal name={name} route={route} id={item.id} fetchData={fetchData} /></td>
                                             </tr>
@@ -97,6 +112,7 @@ Table.propTypes = {
     name: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
     route: PropTypes.string.isRequired,
+    extraFields: PropTypes.array
 }
 
 export default Table;
