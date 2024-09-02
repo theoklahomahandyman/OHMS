@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 import '../../styles/modal.css';
 
-function Modal({ visible, onClose, title, children, size='' }) {
+function Modal({ visible, onClose, title, children }) {
     if (!visible) return null;
 
     const handleClose = (event) => {
@@ -10,8 +10,8 @@ function Modal({ visible, onClose, title, children, size='' }) {
     };
 
     return (
-        <div className={`modal fade show ${size}`} id='wrapper' style={{ display: 'block'}} onClick={handleClose}>
-            <div className={`modal-dialog ${size} modal-dialog-centered`}>
+        <div className='modal fade show' id='wrapper' style={{ display: 'block', zIndex: 1050, overflow: 'auto' }} onClick={handleClose}>
+            <div className='modal-dialog modal-dialog-centered'>
                 <div className='modal-content'>
                     <div className='modal-header'>
                     <h5 className='modal-title'></h5>
@@ -32,7 +32,6 @@ Modal.propTypes = {
     onClose: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
-    size: PropTypes.string,
 }
 
 export default Modal;
