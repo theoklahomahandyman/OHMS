@@ -64,9 +64,9 @@ function Table({ name, fields, route, extraFields }) {
                                     </tr>
                                 </thead>
                                 <tfoot>
-                                    <tr className='text-center'>
+                                    <tr>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-footer`}>{field.label}</th>
+                                            <th key={`${field.name}-${index}-footer`} className='text-center'>{field.label}</th>
                                         ))}
                                         {Array.isArray(extraFields) && extraFields.length > 0 ? (
                                             extraFields.map((field, index) => (
