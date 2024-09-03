@@ -45,7 +45,7 @@ class PurchaseView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-        
+
     def patch(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
         purchase = self.get_object(pk)
@@ -69,22 +69,24 @@ class PurchaseMaterialView(APIView):
 
     def get_object(self, pk=None):
         return PurchaseMaterial.objects.get(pk=pk)
-    
+
     def get(self, request, *args, **kwargs):
-        pk = kwargs.pop('pk', None)
-        type = kwargs.pop('type', None)
-        if type == 'm':
+        purchase_pk = kwargs.pop('purchase_pk', None)
+        material_pk = kwargs.pop('material_pk', None)
+        if material_pk:
             try:
-                purchase_material = self.get_object(pk)
-                serializer = PurchaseMaterialSerializer(purchase_material)
+                material = self.get_object(material_pk)
+                serializer = PurchaseMaterialSerializer(material)
             except PurchaseMaterial.DoesNotExist:
                 return Response({'detail': 'Purchase Material Not Found.'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            purchase_materials = PurchaseMaterial.objects.filter(purchase__pk=pk)
-            serializer = PurchaseMaterialSerializer(purchase_materials, many=True)
+            materials = PurchaseMaterial.objects.filter(purchase__pk=purchase_pk)
+            serializer = PurchaseMaterialSerializer(materials, many=True)
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
+        purchase_pk = kwargs.pop('purchase_pk', None)
+        request.data['purchase'] = purchase_pk
         serializer = PurchaseMaterialSerializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
