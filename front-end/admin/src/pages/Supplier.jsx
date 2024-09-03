@@ -1,10 +1,9 @@
-import LocationsModal from '../components/LocationsModal';
-import { useState, useEffect, useCallback } from 'react';
-import Page from '../components/reusable/Page';
 import CreateModal from '../components/reusable/CreateModal';
 import UpdateModal from '../components/reusable/UpdateModal';
 import DeleteModal from '../components/reusable/DeleteModal';
+import { useState, useEffect, useCallback } from 'react';
 import Loading from '../components/reusable/Loading';
+import Page from '../components/reusable/Page';
 import api from '../api';
 import $ from 'jquery';
 
@@ -74,7 +73,7 @@ function Supplier() {
                                 <tfoot>
                                     <tr className='text-center'>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-footer`}>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
+                                            <th key={`${field.name}-${index}-footer`} className='text-center'>{field.name.charAt(0).toUpperCase() + field.name.slice(1)}</th>
                                         ))}
                                         <th className="text-center">Locations</th>
                                         <th className='text-center'>Edit</th>
@@ -88,7 +87,7 @@ function Supplier() {
                                                 {fields.map((field, index) => (
                                                     <td key={`${field.name}-${index}-${item.pk}`}>{item[field.name]}</td>
                                                 ))}
-                                                <td key={`locations-${item.id}`}><LocationsModal id={item.id} /></td>
+                                                <td key={`locations-${item.id}`}><a href={`/supplier/location/${item.id}/`} className='btn btn-info'>Manage Locations</a></td>
                                                 <td key={`edit-${item.id}`}><UpdateModal name='Supplier' fields={fields} route={route} id={item.id} fetchData={fetchData} /></td>
                                                 <td key={`delete-${item.id}`}><DeleteModal name='Supplier' route={route} id={item.id} fetchData={fetchData} /></td>
                                             </tr>

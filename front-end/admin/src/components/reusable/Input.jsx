@@ -42,7 +42,7 @@ Input.propTypes = {
     label: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     required: PropTypes.bool.isRequired,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.number]).isRequired,
     setData: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
     maxLength: PropTypes.number,
