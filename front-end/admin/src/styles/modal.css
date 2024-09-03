@@ -1,9 +1,0 @@
-.modal-dialog {
-    max-width: 90vw; /* Ensure the modal is not too wide */
-}
-
-.modal-content {
-    width: 100%;
-    max-height: 80vh; /* Limit the height to prevent overflow */
-    overflow-y: auto; /* Enable vertical scrolling if content overflows */
-}

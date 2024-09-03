@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Location from './pages/Location';
 import NotFound from './pages/NotFound';
 import Supplier from './pages/Supplier';
+import Material from './pages/Material';
 import Customer from './pages/Customer';
 import Service from './pages/Service';
 import Login from './pages/Login';
@@ -20,9 +21,13 @@ function App() {
 					<Route path='/' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
 					<Route path='/customer/' element={<ProtectedRoute><Customer /></ProtectedRoute>} />
+
 					<Route path='/service/' element={<ProtectedRoute><Service /></ProtectedRoute>} />
+
 					<Route path='/supplier/' element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
-					<Route path='supplier/location/:supplier_id/' element={<ProtectedRoute><Location /></ProtectedRoute>} />
+					<Route path='/supplier/location/:supplier_id/' element={<ProtectedRoute><Location /></ProtectedRoute>} />
+
+					<Route path='/material/' element={<ProtectedRoute><Material /></ProtectedRoute>} />
 
 					<Route path='/login/' element={<Login />} />
 					<Route path='*' element={<NotFound />} />

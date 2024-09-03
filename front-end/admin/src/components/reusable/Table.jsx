@@ -10,7 +10,7 @@ import $ from 'jquery';
 import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
-function Table({ name, fields, route }) {
+function Table({ name, fields, extraFields, route }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
 
@@ -54,6 +54,11 @@ function Table({ name, fields, route }) {
                                         {fields.map((field, index) => (
                                             <th key={`${field.name}-${index}-header`} className='text-center'>{field.label}</th>
                                         ))}
+                                        {Array.isArray(extraFields) && extraFields.length > 0 ? (
+                                            extraFields.map((field, index) => (
+                                                <th key={`${field.name}-${index}-extra`} className='text-center'>{field.label}</th>
+                                            ))
+                                        ) : <> </>}
                                         <th className='text-center' key='edit-header'>Edit</th>
                                         <th className='text-center' key='delete-header'>Delete</th>
                                     </tr>
@@ -63,6 +68,11 @@ function Table({ name, fields, route }) {
                                         {fields.map((field, index) => (
                                             <th key={`${field.name}-${index}-footer`} className='text-center'>{field.label}</th>
                                         ))}
+                                        {Array.isArray(extraFields) && extraFields.length > 0 ? (
+                                            extraFields.map((field, index) => (
+                                                <th key={`${field.name}-${index}-extra`} className='text-center'>{field.label}</th>
+                                            ))
+                                        ) : <> </>}
                                         <th className='text-center' key='edit-footer'>Edit</th>
                                         <th className='text-center' key='delete-footer'>Delete</th>
                                     </tr>
@@ -74,6 +84,11 @@ function Table({ name, fields, route }) {
                                                 {fields.map((field, index) => (
                                                     <td key={`${field.name}-${index}-${item.pk}-data`}>{item[field.name]}</td>
                                                 ))}
+                                                {Array.isArray(extraFields) && extraFields.length > 0 ? (
+                                                    extraFields.map((field, index) => (
+                                                        <td key={`${field.name}-${index}${item.pk}-extra`}>{item[field.name]}</td>
+                                                    ))
+                                                ) : <></>}
                                                 <td key={`edit-${item.id}`}><UpdateModal name={name} fields={fields} route={route} id={item.id} fetchData={fetchData} /></td>
                                                 <td key={`delete-${item.id}`}><DeleteModal name={name} route={route} id={item.id} fetchData={fetchData} /></td>
                                             </tr>
@@ -96,6 +111,7 @@ function Table({ name, fields, route }) {
 Table.propTypes = {
     name: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
+    extraFields: PropTypes.array,
     route: PropTypes.string.isRequired,
 }
 
