@@ -4,11 +4,11 @@ import Page from '../components/reusable/Page';
 function Customer() {
 
     const fields = [
-        {name: 'first_name', label: 'First Name', type: 'text', required: true, maxLength: 100, minLength: 2},
-        {name: 'last_name', label: 'Last Name', type: 'text', required: true, maxLength: 100, minLength: 2},
-        {name: 'email', label: 'Email', type: 'email', required: true, maxLength: 255, minLength: 8},
-        {name: 'phone', label: 'Phone Number', type: 'text', required: true, maxLength: 17, minLength: 16},
-        {name: 'notes', label: 'Customer Notes', type: 'text', required: false, maxLength: 500}
+        {name: 'first_name', label: 'First Name', type: 'text', required: true, elementType: 'input', maxLength: 100, minLength: 2},
+        {name: 'last_name', label: 'Last Name', type: 'text', required: true, elementType: 'input', maxLength: 100, minLength: 2},
+        {name: 'email', label: 'Email', type: 'email', required: true, elementType: 'input', maxLength: 255, minLength: 8},
+        {name: 'phone', label: 'Phone Number', type: 'text', required: true, elementType: 'input', maxLength: 17, minLength: 16},
+        {name: 'notes', label: 'Customer Notes', type: 'text', required: false, elementType: 'input', maxLength: 500}
     ];
 
     return (

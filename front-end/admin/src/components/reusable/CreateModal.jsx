@@ -2,7 +2,6 @@ import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import Modal from './Modal';
-import Input from './Input';
 import Form from './Form';
 
 function CreateModal({ name, fields, route, fetchData }) {
@@ -44,11 +43,7 @@ function CreateModal({ name, fields, route, fetchData }) {
                 <button onClick={() => setVisible(true)} className='btn btn-md btn-success action-btn'>Create</button>
             </div>
             <Modal visible={visible} onClose={() => setVisible(false)} title={name}>
-                <Form method='post' route={route} data={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} onError={handleError} setErrors={setErrors}>
-                    {fields.map((field, index) => {
-                        return (<Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />)
-                    })}
-                </Form>
+                <Form method='post' route={route} data={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} onError={handleError} setErrors={setErrors} fields={fields} setData={setData} errors={errors} />
             </Modal>
         </>
     )
@@ -56,9 +51,25 @@ function CreateModal({ name, fields, route, fetchData }) {
 
 CreateModal.propTypes = {
     name: PropTypes.string.isRequired,
-    fields: PropTypes.array.isRequired,
     route: PropTypes.string.isRequired,
     fetchData: PropTypes.func.isRequired,
+    fields: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string.isRequired,
+            label: PropTypes.string.isRequired,
+            type: PropTypes.string.isRequired,
+            required: PropTypes.bool.isRequired,
+            elementType: PropTypes.string.isRequired,
+            maxLength: PropTypes.number,
+            minLength: PropTypes.number,
+            accept: PropTypes.string,
+            multiple: PropTypes.bool,
+            data: PropTypes.arrayOf(PropTypes.shape({
+                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+                label: PropTypes.string.isRequired
+            })),
+        })
+    ).isRequired,
 }
 
 export default CreateModal;

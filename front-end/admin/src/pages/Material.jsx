@@ -4,9 +4,9 @@ import Page from '../components/reusable/Page';
 function Material() {
 
     const fields = [
-        {name: 'name', label: 'Material Name', type: 'text', required: true, maxLength: 255, minLength: 2},
-        {name: 'description', label: 'Material Description', type: 'text', required: false, maxLength: 500, minLength: 0},
-        {name: 'size', label: 'Material Size', type: 'text', required: true, maxLength: 255, minLength: 2}
+        {name: 'name', label: 'Material Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
+        {name: 'description', label: 'Material Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
+        {name: 'size', label: 'Material Size', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2}
     ];
 
     const extraFields = [
