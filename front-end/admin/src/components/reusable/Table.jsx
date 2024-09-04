@@ -58,7 +58,7 @@ function Table({ name, fields, extraFields, route }) {
                                             extraFields.map((field, index) => (
                                                 <th key={`${field.name}-${index}-extra`} className='text-center'>{field.label}</th>
                                             ))
-                                        ) : <> </>}
+                                        ) : <></>}
                                         <th className='text-center' key='edit-header'>Edit</th>
                                         <th className='text-center' key='delete-header'>Delete</th>
                                     </tr>
@@ -72,7 +72,7 @@ function Table({ name, fields, extraFields, route }) {
                                             extraFields.map((field, index) => (
                                                 <th key={`${field.name}-${index}-extra`} className='text-center'>{field.label}</th>
                                             ))
-                                        ) : <> </>}
+                                        ) : <></>}
                                         <th className='text-center' key='edit-footer'>Edit</th>
                                         <th className='text-center' key='delete-footer'>Delete</th>
                                     </tr>

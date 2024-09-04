@@ -4,8 +4,8 @@ import Page from '../components/reusable/Page';
 function Service() {
 
     const fields = [
-        {name: 'name', label: 'Service Name', type: 'text', required: true, maxLength: 255, minLength: 2},
-        {name: 'description', label: 'Service Description', type: 'text', required: false, maxLength: 500, minLength: 0}
+        {name: 'name', label: 'Service Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
+        {name: 'description', label: 'Service Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0}
     ];
 
     return (

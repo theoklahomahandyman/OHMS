@@ -17,8 +17,8 @@ function Supplier() {
     const route = '/supplier/';
 
     const fields = [
-        {name: 'name', label: 'Supplier Name', type: 'text', required: true, maxLength: 255, minLength: 2},
-        {name: 'notes', label: 'Supplier Notes', type: 'text', required: false, maxLength: 500, minLength: 0}
+        {name: 'name', label: 'Supplier Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
+        {name: 'notes', label: 'Supplier Notes', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0}
     ];
 
     const fetchData = useCallback(async () => {
