@@ -2,7 +2,7 @@ import { handleChange } from '../../utils/change';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
-function Input ({ id, label, type, value, required, setData, placeholder, maxLength, minLength, accept, multiple, error }) {
+function Input ({ id, label, type, value, required, setData, placeholder, maxLength, minLength, accept, multiple, error, disabled }) {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -29,7 +29,7 @@ function Input ({ id, label, type, value, required, setData, placeholder, maxLen
         <div className='form-group text-center'>
             <label htmlFor={label}>{label}</label>
             <div className='input-group'>
-                <input className='form-control' id={id} name={id} type={showPassword ? 'text' : type} value={value} required={required} onChange={(event) => handleChange(event, setData)} placeholder={placeholder} maxLength={maxLength} minLength={minLength} accept={type === 'file' ? accept: undefined} multiple={type === 'file' ? multiple : undefined} autoComplete={autoCompleteType}/>
+                <input className='form-control' id={id} name={id} type={showPassword ? 'text' : type} value={value} required={required} onChange={(event) => handleChange(event, setData)} placeholder={placeholder} maxLength={maxLength} minLength={minLength} accept={type === 'file' ? accept: undefined} multiple={type === 'file' ? multiple : undefined} disabled={disabled === true ? disabled : false} autoComplete={autoCompleteType}/>
                 {type === 'password' && (<button className='btn btn-outline-secondary' type='button' onClick={togglePasswordVisibility}>{showPassword ? 'Hide' : 'Show'}</button>)}
             </div>
             {error && <div className='alert alert-danger mt-2'>{error}</div>}
@@ -50,6 +50,7 @@ Input.propTypes = {
     accept: PropTypes.string,
     multiple: PropTypes.bool,
     error: PropTypes.string,
+    disabled: PropTypes.bool,
 };
 
 export default Input;
