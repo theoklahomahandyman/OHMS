@@ -41,7 +41,10 @@ function UpdateModal({ name, fields, route, id, fetchData }) {
             </div>
             <Modal visible={visible} onClose={() => setVisible(false)} title={name}>
                 {loading ? <Loading /> : (
-                    <Form method='patch' route={updateRoute} initialData={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} />
+                    <>
+                        <Form method='patch' route={updateRoute} initialData={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} />
+                        {/* formset */}
+                    </>
                 )}
             </Modal>
         </>

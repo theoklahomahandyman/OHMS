@@ -92,34 +92,49 @@ function SubForm ({ fields, route, initialData, onSuccess, isNew }) {
             {loading ? (
                 <Loading />
             ) : editing || isNew ? (
-                <div className='row'>
-                    {Array.isArray(fields) && fields.length > 0 ? (
-                        fields.map((field, index) => {
-                            if (field.elementType === 'input'){
-                                return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
-                            } else {
-                                return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} />
-                            }
-                        })
-                    ) : <></>}
-                    <button className='btn btn-success' disabled={loading}>Save</button>
-                    <button className='btn btn-danger' onClick={cancel}>Cancel</button>
-                </div>
+                <>
+                    <div className='flex-grow-1 d-flex flex-wrap justify-content-center gap-2'>
+                        {Array.isArray(fields) && fields.length > 0 ? (
+                            fields.map((field, index) => {
+                                if (field.elementType === 'input'){
+                                    return (
+                                        <div className="mx-auto" key={index}>
+                                            <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                        </div>
+                                    )
+                                } else {
+                                    return (
+                                        <div className="mx-auto" key={index}>
+                                            <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} />
+                                        </div>
+                                    )
+                                }
+                            })
+                        ) : <></>}
+                    </div>
+                    <div className="d-flex justify-content-center gap-2 mt-3 w-100">
+                        <button className='btn btn-success mx-2' disabled={loading}>Save</button>
+                        <button className='btn btn-danger mx-2' onClick={cancel}>Cancel</button>
+                    </div>
+                </>
             ) : (
-                <div className='row'>
-                    {Array.isArray(fields) && fields.length > 0 ? (
-                        fields.map((field, index) => {
-                            if (field.elementType === 'input'){
-                                return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={true} />
-                            } else {
-                                return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} disabled={true} />
-                            }
-                        })
-
-                    ) : <></>}
-                    <button className='btn btn-primary' onClick={() => setEditing(true)}>Edit</button>
-                    <button className='btn btn-danger' onClick={handleDelete}>Remove</button>
-                </div>
+                <>
+                    <div className='flex-grow-1 d-flex flex-wrap gap-2'>
+                        {Array.isArray(fields) && fields.length > 0 ? (
+                            fields.map((field, index) => {
+                                if (field.elementType === 'input'){
+                                    return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={true} />
+                                } else {
+                                    return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} disabled={true} />
+                                }
+                            })
+                        ) : <></>}
+                    </div>
+                    <div className="d-flex justify-content-end gap-2 mt-3 w-100">
+                        <button className='btn btn-primary' onClick={() => setEditing(true)}>Edit</button>
+                        <button className='btn btn-danger' onClick={handleDelete}>Remove</button>
+                    </div>
+                </>
             )}
         </form>
     )
