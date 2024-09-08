@@ -89,13 +89,14 @@ function Form ({ fields, method, route, initialData, buttonText, buttonStyle, on
 }
 
 Form.propTypes = {
-    children: PropTypes.node,
     method: PropTypes.string.isRequired,
     route: PropTypes.string.isRequired,
-    initialData: PropTypes.any,
     buttonText: PropTypes.string.isRequired,
     buttonStyle: PropTypes.string.isRequired,
     onSuccess: PropTypes.func.isRequired,
+
+    children: PropTypes.node,
+    initialData: PropTypes.any,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,

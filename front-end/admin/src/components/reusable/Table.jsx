@@ -28,15 +28,12 @@ function Table({ name, fields, extraFields, route }) {
 
     useEffect(() => {
         fetchData();
-    }, [fetchData]);
-
-    useEffect(() => {
         if (Array.isArray(data) && data.length > 0) {
             setTimeout(() => {
                 $('#dataTable').DataTable();
             }, 1);
         }
-    }, [data]);
+    }, [fetchData, data]);
 
     return (
         <div>
@@ -111,8 +108,9 @@ function Table({ name, fields, extraFields, route }) {
 Table.propTypes = {
     name: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
-    extraFields: PropTypes.array,
     route: PropTypes.string.isRequired,
+    
+    extraFields: PropTypes.array,
 }
 
 export default Table;

@@ -6,7 +6,7 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function SubForm ({ fields, route, initialData, onSuccess, isNew }) {
+function SubForm ({ fields, route, initialData, fetchData, isNew }) {
     const [data, setData] = useState(initialData || {});
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -25,11 +25,13 @@ function SubForm ({ fields, route, initialData, onSuccess, isNew }) {
         setLoading(true);
         try {
             if (isNew){
-                const response = await api.post(route, data);
-                onSuccess(response.data)
+                await api.post(route, data);
+                toast.success(`${name} Successfully Added!`);
+                fetchData();
             } else if (editing) {
-                const response = await api.patch(route, data);
-                onSuccess(response.data)
+                await api.patch(route, data);
+                toast.success(`${name} Successfully Edited!`);
+                fetchData();
             }
         } catch (error) {
             if (error.response && error.response.data) {
@@ -50,8 +52,9 @@ function SubForm ({ fields, route, initialData, onSuccess, isNew }) {
         event.preventDefault();
         setLoading(true);
         try {
-            const response = await api.delete(route);
-        onSuccess(response)
+            await api.delete(route);
+            toast.success(`${name} Successfully Removed!`);
+            fetchData();
         } catch {
             toast.error('An error occurred so nothing was deleted. Please try again.')
         } finally {
@@ -142,8 +145,7 @@ function SubForm ({ fields, route, initialData, onSuccess, isNew }) {
 
 SubForm.propTypes = {
     route: PropTypes.string.isRequired,
-    initialData: PropTypes.any,
-    onSuccess: PropTypes.func.isRequired,
+    fetchData: PropTypes.func.isRequired,
     isNew: PropTypes.bool.isRequired,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
@@ -161,7 +163,9 @@ SubForm.propTypes = {
                 label: PropTypes.string.isRequired
             })),
         })
-    ),
+    ).isRequired,
+    
+    initialData: PropTypes.any,
 };
 
 export default SubForm;
