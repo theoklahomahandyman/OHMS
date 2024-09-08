@@ -1,12 +1,13 @@
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import FormSet from './FormSet';
 import Loading from './Loading';
 import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function Form ({ fields, method, route, initialData, buttonText, buttonStyle, onSuccess, children }) {
+function Form ({ fields, formsets, method, route, initialData, buttonText, buttonStyle, onSuccess, children }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(initialData || {});
     const [errors, setErrors] = useState({});
@@ -81,6 +82,11 @@ function Form ({ fields, method, route, initialData, buttonText, buttonStyle, on
 
                     ) : <></>}
                     {children}
+                    {Array.isArray(formsets) && formsets.length > 0 ? (
+                        formsets.map((formset, index) => {
+                            <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} />
+                        })
+                    ) : <></>}
                 </div>
             }
             <button className={`btn btn-${buttonStyle} mb-3 mx-auto d-block`} disabled={loading}>{buttonText}</button>
@@ -112,6 +118,29 @@ Form.propTypes = {
                 value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
                 label: PropTypes.string.isRequired
             })),
+        })
+    ),
+    formsets: PropTypes.arrayOf(
+        PropTypes.shape({
+            entity: PropTypes.string.isRequired,
+            route: PropTypes.string.isRequired,
+            fields: PropTypes.arrayOf(
+                PropTypes.shape({
+                    name: PropTypes.string.isRequired,
+                    label: PropTypes.string.isRequired,
+                    type: PropTypes.string.isRequired,
+                    required: PropTypes.bool.isRequired,
+                    elementType: PropTypes.string.isRequired,
+                    maxLength: PropTypes.number,
+                    minLength: PropTypes.number,
+                    accept: PropTypes.string,
+                    multiple: PropTypes.bool,
+                    data: PropTypes.arrayOf(PropTypes.shape({
+                        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+                        label: PropTypes.string.isRequired
+                    })),
+                })
+            ).isRequired,
         })
     ),
 };

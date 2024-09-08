@@ -10,7 +10,7 @@ import $ from 'jquery';
 import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
-function Table({ name, fields, extraFields, route }) {
+function Table({ name, fields, formsets, extraFields, route }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
 
@@ -28,12 +28,15 @@ function Table({ name, fields, extraFields, route }) {
 
     useEffect(() => {
         fetchData();
+    }, [fetchData]);
+
+    useEffect(() => {
         if (Array.isArray(data) && data.length > 0) {
             setTimeout(() => {
                 $('#dataTable').DataTable();
             }, 1);
         }
-    }, [fetchData, data]);
+    }, [data]);
 
     return (
         <div>
@@ -86,7 +89,7 @@ function Table({ name, fields, extraFields, route }) {
                                                         <td key={`${field.name}-${index}${item.pk}-extra`}>{item[field.name]}</td>
                                                     ))
                                                 ) : <></>}
-                                                <td key={`edit-${item.id}`}><UpdateModal name={name} fields={fields} route={route} id={item.id} fetchData={fetchData} /></td>
+                                                <td key={`edit-${item.id}`}><UpdateModal name={name} fields={fields} route={route} id={item.id} fetchData={fetchData} formsets={formsets} /></td>
                                                 <td key={`delete-${item.id}`}><DeleteModal name={name} route={route} id={item.id} fetchData={fetchData} /></td>
                                             </tr>
                                         ))
@@ -107,10 +110,49 @@ function Table({ name, fields, extraFields, route }) {
 
 Table.propTypes = {
     name: PropTypes.string.isRequired,
-    fields: PropTypes.array.isRequired,
     route: PropTypes.string.isRequired,
-    
+    fields: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string.isRequired,
+            label: PropTypes.string.isRequired,
+            type: PropTypes.string.isRequired,
+            required: PropTypes.bool.isRequired,
+            elementType: PropTypes.string.isRequired,
+            maxLength: PropTypes.number,
+            minLength: PropTypes.number,
+            accept: PropTypes.string,
+            multiple: PropTypes.bool,
+            data: PropTypes.arrayOf(PropTypes.shape({
+                value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+                label: PropTypes.string.isRequired
+            })),
+        })
+    ).isRequired,
+
     extraFields: PropTypes.array,
+    formsets: PropTypes.arrayOf(
+        PropTypes.shape({
+            entity: PropTypes.string.isRequired,
+            route: PropTypes.string.isRequired,
+            fields: PropTypes.arrayOf(
+                PropTypes.shape({
+                    name: PropTypes.string.isRequired,
+                    label: PropTypes.string.isRequired,
+                    type: PropTypes.string.isRequired,
+                    required: PropTypes.bool.isRequired,
+                    elementType: PropTypes.string.isRequired,
+                    maxLength: PropTypes.number,
+                    minLength: PropTypes.number,
+                    accept: PropTypes.string,
+                    multiple: PropTypes.bool,
+                    data: PropTypes.arrayOf(PropTypes.shape({
+                        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+                        label: PropTypes.string.isRequired
+                    })),
+                })
+            ).isRequired,
+        })
+    ),
 }
 
 export default Table;

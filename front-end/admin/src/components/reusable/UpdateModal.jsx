@@ -6,7 +6,7 @@ import api from '../../api';
 import Modal from './Modal';
 import Form from './Form';
 
-function UpdateModal({ name, fields, route, id, fetchData }) {
+function UpdateModal({ name, fields, formsets, route, id, fetchData }) {
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -42,8 +42,7 @@ function UpdateModal({ name, fields, route, id, fetchData }) {
             <Modal visible={visible} onClose={() => setVisible(false)} title={name}>
                 {loading ? <Loading /> : (
                     <>
-                        <Form method='patch' route={updateRoute} initialData={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} />
-                        {/* formset */}
+                        <Form method='patch' route={updateRoute} initialData={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} />
                     </>
                 )}
             </Modal>
@@ -73,6 +72,30 @@ UpdateModal.propTypes = {
             })),
         })
     ).isRequired,
+
+    formsets: PropTypes.arrayOf(
+        PropTypes.shape({
+            entity: PropTypes.string.isRequired,
+            route: PropTypes.string.isRequired,
+            fields: PropTypes.arrayOf(
+                PropTypes.shape({
+                    name: PropTypes.string.isRequired,
+                    label: PropTypes.string.isRequired,
+                    type: PropTypes.string.isRequired,
+                    required: PropTypes.bool.isRequired,
+                    elementType: PropTypes.string.isRequired,
+                    maxLength: PropTypes.number,
+                    minLength: PropTypes.number,
+                    accept: PropTypes.string,
+                    multiple: PropTypes.bool,
+                    data: PropTypes.arrayOf(PropTypes.shape({
+                        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+                        label: PropTypes.string.isRequired
+                    })),
+                })
+            ).isRequired,
+        })
+    ),
 }
 
 export default UpdateModal;
