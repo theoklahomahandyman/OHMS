@@ -6,13 +6,15 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function SubForm ({ fields, route, initialData, fetchData, isNew }) {
+function SubForm ({ fields, route, initialData, fetchData, isNew, id }) {
     const [data, setData] = useState(initialData || {});
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [editing, setEditing] = useState(false);
 
     const formId = `subform-${Math.random().toString(36).substr(2, 9)}`;
+
+    const isDisabled = !editing && !isNew;
 
     useEffect(() => {
         if (!isNew) {
@@ -27,10 +29,12 @@ function SubForm ({ fields, route, initialData, fetchData, isNew }) {
             if (isNew){
                 await api.post(route, data);
                 toast.success(`${name} Successfully Added!`);
+                setEditing(false);
                 fetchData();
             } else if (editing) {
-                await api.patch(route, data);
+                await api.patch(`${route}${id}/`, data);
                 toast.success(`${name} Successfully Edited!`);
+                setEditing(false);
                 fetchData();
             }
         } catch (error) {
@@ -52,7 +56,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew }) {
         event.preventDefault();
         setLoading(true);
         try {
-            await api.delete(route);
+            await api.delete(`${route}${id}/`);
             toast.success(`${name} Successfully Removed!`);
             fetchData();
         } catch {
@@ -94,49 +98,39 @@ function SubForm ({ fields, route, initialData, fetchData, isNew }) {
         <form id={formId} onSubmit={handleSubmit} className='form'>
             {loading ? (
                 <Loading />
-            ) : editing || isNew ? (
+            ) : (
                 <>
                     <div className='flex-grow-1 d-flex flex-wrap justify-content-center gap-2'>
                         {Array.isArray(fields) && fields.length > 0 ? (
                             fields.map((field, index) => {
                                 if (field.elementType === 'input'){
                                     return (
-                                        <div className="mx-auto" key={index}>
-                                            <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                        <div className='mx-auto' key={index}>
+                                            <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={isDisabled} />
                                         </div>
                                     )
                                 } else {
                                     return (
-                                        <div className="mx-auto" key={index}>
-                                            <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} />
+                                        <div className='mx-auto' key={index}>
+                                            <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} disabled={isDisabled} />
                                         </div>
                                     )
                                 }
                             })
                         ) : <></>}
                     </div>
-                    <div className="d-flex justify-content-center gap-2 mt-3 w-100">
-                        <button className='btn btn-success mx-2' disabled={loading}>Save</button>
-                        <button className='btn btn-danger mx-2' onClick={cancel}>Cancel</button>
-                    </div>
-                </>
-            ) : (
-                <>
-                    <div className='flex-grow-1 d-flex flex-wrap gap-2'>
-                        {Array.isArray(fields) && fields.length > 0 ? (
-                            fields.map((field, index) => {
-                                if (field.elementType === 'input'){
-                                    return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={true} />
-                                } else {
-                                    return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} disabled={true} />
-                                }
-                            })
-                        ) : <></>}
-                    </div>
-                    <div className="d-flex justify-content-end gap-2 mt-3 w-100">
-                        <button className='btn btn-primary' onClick={() => setEditing(true)}>Edit</button>
-                        <button className='btn btn-danger' onClick={handleDelete}>Remove</button>
-                    </div>
+                    {isNew || editing ? (
+                        <div className='d-flex justify-content-center gap-2 mt-3 w-100'>
+                            <button className='btn btn-success mx-2' disabled={loading} type='submit'>Save</button>
+                            <button className='btn btn-danger mx-2' onClick={cancel} type='button'>Cancel</button>
+                        </div>
+                    ) : (
+                        <div className='d-flex justify-content-center gap-2 mt-3 w-100'>
+                            {/* edit button submitting rather than going into edit state */}
+                            {/* <button className='btn btn-primary mx-2' onClick={() => setEditing(true)} type='button'>Edit</button> */}
+                            <button className='btn btn-danger mx-2' onClick={handleDelete} type='button'>Remove</button>
+                        </div>
+                    )}
                 </>
             )}
         </form>
@@ -164,7 +158,8 @@ SubForm.propTypes = {
             })),
         })
     ).isRequired,
-    
+
+    id: PropTypes.number,
     initialData: PropTypes.any,
 };
 

@@ -2,7 +2,6 @@ import ProtectedRoute from './components/reusable/ProtectedRoute';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Dashboard from './pages/Dashboard';
-import Location from './pages/Location';
 import NotFound from './pages/NotFound';
 import Supplier from './pages/Supplier';
 import Material from './pages/Material';
@@ -25,7 +24,6 @@ function App() {
 					<Route path='/service/' element={<ProtectedRoute><Service /></ProtectedRoute>} />
 
 					<Route path='/supplier/' element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
-					<Route path='/supplier/location/:supplier_id/' element={<ProtectedRoute><Location /></ProtectedRoute>} />
 
 					<Route path='/material/' element={<ProtectedRoute><Material /></ProtectedRoute>} />
 

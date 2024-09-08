@@ -5,9 +5,11 @@ import Loading from './Loading';
 import SubForm from './SubForm';
 import api from '../../api';
 
-function FormSet({ entity, fields, route }) {
+function FormSet({ entity, fields, route, id }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
+
+    route = `${route}${id}/`
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -22,7 +24,7 @@ function FormSet({ entity, fields, route }) {
     }, [route]);
 
     useEffect(() => {
-        fetchData
+        fetchData();
     }, [fetchData]);
 
     const addSubForm = () => {
@@ -40,7 +42,7 @@ function FormSet({ entity, fields, route }) {
                 {loading ? <Loading /> : (
                     Array.isArray(data) && data.length > 0 ? (
                         data.map((item, index) => (
-                            <SubForm key={`${index}-${item.pk}-form`} fields={fields} route={route} isNew={false} fetchData={fetchData} initialData={item} />
+                            <SubForm key={`${index}-${item.pk}-form`} fields={fields} route={route} isNew={false} fetchData={fetchData} initialData={item} id={item.id} />
                         ))
                     ) : (
                         <p className="text-center">No {entity}s Yet</p>
@@ -48,13 +50,14 @@ function FormSet({ entity, fields, route }) {
                 )}
             </div>
             <div className='d-flex justify-content-center mt-3'>
-                <button className='btn btn-success text-center' onClick={addSubForm}>Add</button>
+                <button className='btn btn-success text-center' onClick={addSubForm} type='button'>Add</button>
             </div>
         </div>
     )
 }
 
 FormSet.propTypes = {
+    id: PropTypes.number.isRequired,
     entity: PropTypes.string.isRequired,
     route: PropTypes.string.isRequired,
     fields: PropTypes.arrayOf(
