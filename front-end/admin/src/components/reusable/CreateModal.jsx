@@ -6,36 +6,12 @@ import Form from './Form';
 
 function CreateModal({ name, fields, route, fetchData }) {
     const [visible, setVisible] = useState(false);
-    const [errors, setErrors] = useState({});
-    const [data, setData] = useState({});
 
     const handleSuccess = () => {
         fetchData();
         toast.success(`${name} successfully created!`);
         setVisible(false);
-        setData({});
-        setErrors({});
     }
-
-    const handleError = (data) => {
-        const formattedErrors = {};
-        if (typeof data === 'object' && !Array.isArray(data)) {
-            for (let fieldName in data) {
-                if (Object.prototype.hasOwnProperty.call(data, fieldName)) {
-                    const array = data[fieldName];
-                    if (Array.isArray(array)) {
-                        formattedErrors[fieldName] = array;
-                    } else if (typeof array === 'string') {
-                        formattedErrors[fieldName] = [array];
-                    } else {
-                        formattedErrors[fieldName] = ['Unknown error'];
-                    }
-                }
-            }
-        }
-        setErrors(formattedErrors);
-    }
-
 
     return (
         <>
@@ -43,7 +19,7 @@ function CreateModal({ name, fields, route, fetchData }) {
                 <button onClick={() => setVisible(true)} className='btn btn-md btn-success action-btn'>Create</button>
             </div>
             <Modal visible={visible} onClose={() => setVisible(false)} title={name}>
-                <Form method='post' route={route} data={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} onError={handleError} setErrors={setErrors} fields={fields} setData={setData} errors={errors} />
+                <Form method='post' route={route} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} />
             </Modal>
         </>
     )

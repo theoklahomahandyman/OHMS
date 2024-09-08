@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import Loading from './Loading';
@@ -5,8 +6,10 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function Form ({ fields, method, route, data, setData, buttonText, buttonStyle, onSuccess, onError, errors, setErrors, children }) {
+function Form ({ fields, method, route, initialData, buttonText, buttonStyle, onSuccess, children }) {
     const [loading, setLoading] = useState(false);
+    const [data, setData] = useState(initialData || {});
+    const [errors, setErrors] = useState({});
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -28,20 +31,43 @@ function Form ({ fields, method, route, data, setData, buttonText, buttonStyle, 
         } catch (error) {
             if (error.response && error.response.data) {
                 if (setErrors) {
-                    onError(error.response.data, setErrors);
+                    handleError(error.response.data, setErrors);
                 } else {
-                    onError(error.response.data)
+                    handleError(error.response.data)
                 }
             } else {
-                onError({ non_field_errors: ['An unexpected error occured.']}, setErrors);
+                handleError({ non_field_errors: ['An unexpected error occured.']}, setErrors);
             }
         } finally {
             setLoading(false);
         }
     }
 
+    const handleError = (data) => {
+        if (method === 'delete') {
+            toast.error('An error occurred so nothing was deleted. Please try again.');
+        } else {
+            const formattedErrors = {};
+            if (typeof data === 'object' && !Array.isArray(data)) {
+                for (let fieldName in data) {
+                    if (Object.prototype.hasOwnProperty.call(data, fieldName)) {
+                        const array = data[fieldName];
+                        if (Array.isArray(array)) {
+                            formattedErrors[fieldName] = array;
+                        } else if (typeof array === 'string') {
+                            formattedErrors[fieldName] = [array];
+                        } else {
+                            formattedErrors[fieldName] = ['Unknown error'];
+                        }
+                    }
+                }
+            }
+            setErrors(formattedErrors);
+        }
+    }
+
     return (
-        <form onSubmit = {handleSubmit} className='form'>
+        <form onSubmit={handleSubmit} className='form'>
             {loading ? <Loading /> :
                 <div className='modal-body'>
                     {Array.isArray(fields) && fields.length > 0 ? (
@@ -66,14 +92,10 @@ Form.propTypes = {
     children: PropTypes.node,
     method: PropTypes.string.isRequired,
     route: PropTypes.string.isRequired,
-    data: PropTypes.any,
-    setData: PropTypes.func,
-    errors: PropTypes.any,
+    initialData: PropTypes.any,
     buttonText: PropTypes.string.isRequired,
     buttonStyle: PropTypes.string.isRequired,
     onSuccess: PropTypes.func.isRequired,
-    onError: PropTypes.func.isRequired,
-    setErrors: PropTypes.func,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,

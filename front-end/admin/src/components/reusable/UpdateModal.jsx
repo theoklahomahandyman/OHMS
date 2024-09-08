@@ -9,7 +9,6 @@ import Form from './Form';
 function UpdateModal({ name, fields, route, id, fetchData }) {
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [errors, setErrors] = useState({});
     const [data, setData] = useState({});
 
     const updateRoute = `${route}${id}/`;
@@ -33,29 +32,7 @@ function UpdateModal({ name, fields, route, id, fetchData }) {
         fetchData();
         toast.success(`${name} successfully updated!`);
         setVisible(false);
-        setData({});
-        setErrors({});
     }
-
-    const handleError = (data) => {
-        const formattedErrors = {};
-        if (typeof data === 'object' && !Array.isArray(data)) {
-            for (let fieldName in data) {
-                if (Object.prototype.hasOwnProperty.call(data, fieldName)) {
-                    const array = data[fieldName];
-                    if (Array.isArray(array)) {
-                        formattedErrors[fieldName] = array;
-                    } else if (typeof array === 'string') {
-                        formattedErrors[fieldName] = [array];
-                    } else {
-                        formattedErrors[fieldName] = ['Unknown error'];
-                    }
-                }
-            }
-        }
-        setErrors(formattedErrors);
-    }
-
 
     return (
         <>
@@ -64,7 +41,10 @@ function UpdateModal({ name, fields, route, id, fetchData }) {
             </div>
             <Modal visible={visible} onClose={() => setVisible(false)} title={name}>
                 {loading ? <Loading /> : (
-                    <Form method='patch' route={updateRoute} data={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} onError={handleError} setErrors={setErrors} fields={fields} setData={setData} errors={errors} />
+                    <>
+                        <Form method='patch' route={updateRoute} initialData={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} />
+                        {/* formset */}
+                    </>
                 )}
             </Modal>
         </>
