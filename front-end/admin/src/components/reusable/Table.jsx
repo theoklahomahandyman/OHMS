@@ -115,7 +115,7 @@ Table.propTypes = {
         PropTypes.shape({
             name: PropTypes.string.isRequired,
             label: PropTypes.string.isRequired,
-            type: PropTypes.string.isRequired,
+            type: PropTypes.string,
             required: PropTypes.bool.isRequired,
             elementType: PropTypes.string.isRequired,
             maxLength: PropTypes.number,

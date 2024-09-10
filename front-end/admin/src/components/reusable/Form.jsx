@@ -75,7 +75,7 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                         {Array.isArray(fields) && fields.length > 0 ? (
                             fields.map((field, index) => {
                                 if (field.elementType === 'input'){
-                                    return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                    return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
                                 } else {
                                     return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} />
                                 }
@@ -110,7 +110,7 @@ Form.propTypes = {
         PropTypes.shape({
             name: PropTypes.string.isRequired,
             label: PropTypes.string.isRequired,
-            type: PropTypes.string.isRequired,
+            type: PropTypes.string,
             required: PropTypes.bool.isRequired,
             elementType: PropTypes.string.isRequired,
             maxLength: PropTypes.number,
@@ -131,7 +131,7 @@ Form.propTypes = {
                 PropTypes.shape({
                     name: PropTypes.string.isRequired,
                     label: PropTypes.string.isRequired,
-                    type: PropTypes.string.isRequired,
+                    type: PropTypes.string,
                     required: PropTypes.bool.isRequired,
                     elementType: PropTypes.string.isRequired,
                     maxLength: PropTypes.number,

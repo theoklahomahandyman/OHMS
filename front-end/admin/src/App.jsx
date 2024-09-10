@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import Supplier from './pages/Supplier';
+import Purchase from './pages/Purchase';
 import Material from './pages/Material';
 import Customer from './pages/Customer';
 import Service from './pages/Service';
@@ -25,9 +26,12 @@ function App() {
 
 					<Route path='/supplier/' element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
 
+					<Route path='purchase' element={<ProtectedRoute><Purchase /></ProtectedRoute>} />
+
 					<Route path='/material/' element={<ProtectedRoute><Material /></ProtectedRoute>} />
 
 					<Route path='/login/' element={<Login />} />
+					
 					<Route path='*' element={<NotFound />} />
 				</Routes>
 			</BrowserRouter>
