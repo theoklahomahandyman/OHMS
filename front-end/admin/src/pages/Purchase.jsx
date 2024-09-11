@@ -1,7 +1,7 @@
 import Table from '../components/reusable/Table';
 import Page from '../components/reusable/Page';
 import { useState, useEffect } from 'react';
-import toast from 'react-toastify';
+import { toast } from 'react-toastify';
 import api from '../api';
 
 function Purchase() {
@@ -38,27 +38,33 @@ function Purchase() {
 
     // Fetch addresses when supplier is selected
     useEffect(() => {
-        if (supplier) {
-            async function fetchAddresses() {
+        console.log('Selected supplier:', supplier);  // Debugging to check supplier value
+        const fetchAddresses = async () => {
+            if (supplier) {  // Ensure supplier is not null or undefined
+                console.log(`Fetching addresses for supplier: ${supplier}`);  // Debugging to ensure it enters here
                 try {
                     const response = await api.get(`/supplier/addresses/${supplier}`);
                     setAddresses(response.data);
-                } catch {
+                    console.log('Addresses fetched:', response.data);  // Debugging to check if API returns data
+                } catch (error) {
+                    console.error('Error fetching addresses:', error);  // Debugging to log any errors
                     toast.error('No Addresses Found!');
                 }
             }
-            fetchAddresses();
-        }
+        };
+        fetchAddresses();
     }, [supplier]);
 
     // Handle supplier selection change
     const handleSupplierChange = (event) => {
-        setSupplier(event.target.value)
+        const selectedSupplier = event.target.value;
+        console.log('Supplier changed to (ID):', selectedSupplier);  // Confirm event triggers with supplier ID
+        setSupplier(selectedSupplier ? parseInt(selectedSupplier, 10) : null);  // Convert string to integer
     }
 
     const fields = [
-        {name: 'supplier', label: 'Supplier', required: true, elementType: 'select', data: suppliers.map(supplier => ({ value: supplier.id, label: supplier.name })), onChange: handleSupplierChange},
-        {name: 'supplier_address', label: 'Supplier Address', required: true, elementType: 'select', data: {/* data for supplier addresses */}},
+        {name: 'supplier', label: 'Supplier', required: true, elementType: 'select', data: suppliers.map(supplier => ({ value: supplier.id, label: supplier.name })), customChange: handleSupplierChange},
+        {name: 'supplier_address', label: 'Supplier Address', required: true, elementType: 'select', data: addresses.map(address => ({ value: address.id, label: `${address.street_address} ${address.city}, ${address.state} ${address.zip}` }))},
         {name: 'tax', label: 'Tax Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00},
         {name: 'total', label: 'Total Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00},
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
@@ -66,7 +72,7 @@ function Purchase() {
     ];
 
     const materialFields = [
-        {name: 'material', label: 'Material', required: true, elementType: 'select', data: {/* data for materials */}},
+        {name: 'material', label: 'Material', required: true, elementType: 'select', data: materials.map(material => ({ value: material.id, label: material.name }))},
         {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
     ];
