@@ -8,9 +8,7 @@ function Purchase() {
     const [suppliers, setSuppliers] = useState([]);
     const [addresses, setAddresses] = useState([]);
     const [materials, setMaterials] = useState([]);
-    const [supplier, setSupplier] = useState(null);
 
-    // Fetch suppliers on component mount
     useEffect(() => {
         async function fetchSuppliers() {
             try {
@@ -23,7 +21,6 @@ function Purchase() {
         fetchSuppliers();
     }, []);
 
-    // Fetch materials on component mount
     useEffect(() => {
         async function fetchMaterials() {
             try {
@@ -36,30 +33,17 @@ function Purchase() {
         fetchMaterials();
     }, []);
 
-    // Fetch addresses when supplier is selected
-    useEffect(() => {
-        console.log('Selected supplier:', supplier);  // Debugging to check supplier value
-        const fetchAddresses = async () => {
-            if (supplier) {  // Ensure supplier is not null or undefined
-                console.log(`Fetching addresses for supplier: ${supplier}`);  // Debugging to ensure it enters here
-                try {
-                    const response = await api.get(`/supplier/addresses/${supplier}`);
-                    setAddresses(response.data);
-                    console.log('Addresses fetched:', response.data);  // Debugging to check if API returns data
-                } catch (error) {
-                    console.error('Error fetching addresses:', error);  // Debugging to log any errors
-                    toast.error('No Addresses Found!');
-                }
+    const handleSupplierChange = async (event) => {
+        const supplier = event.target.value;
+        setAddresses([])
+        if (supplier) {
+            try {
+                const response = await api.get(`/supplier/addresses/${supplier}`);
+                setAddresses(response.data);
+            } catch {
+                toast.error('No Addresses Found!');
             }
-        };
-        fetchAddresses();
-    }, [supplier]);
-
-    // Handle supplier selection change
-    const handleSupplierChange = (event) => {
-        const selectedSupplier = event.target.value;
-        console.log('Supplier changed to (ID):', selectedSupplier);  // Confirm event triggers with supplier ID
-        setSupplier(selectedSupplier ? parseInt(selectedSupplier, 10) : null);  // Convert string to integer
+        }
     }
 
     const fields = [

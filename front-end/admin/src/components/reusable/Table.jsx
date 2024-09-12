@@ -126,6 +126,7 @@ Table.propTypes = {
                 value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
                 label: PropTypes.string.isRequired
             })),
+            customChange: PropTypes.func,
         })
     ).isRequired,
 

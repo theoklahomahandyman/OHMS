@@ -77,7 +77,7 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                                 if (field.elementType === 'input'){
                                     return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
                                 } else {
-                                    return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} />
+                                    return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} />
                                 }
                             })
 
@@ -121,6 +121,7 @@ Form.propTypes = {
                 value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
                 label: PropTypes.string.isRequired
             })),
+            customChange: PropTypes.func,
         })
     ),
     formsets: PropTypes.arrayOf(
