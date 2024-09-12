@@ -1,16 +1,14 @@
 import Table from '../components/reusable/Table';
 import Page from '../components/reusable/Page';
 import { useState, useEffect } from 'react';
-import toast from 'react-toastify';
+import { toast } from 'react-toastify';
 import api from '../api';
 
 function Purchase() {
     const [suppliers, setSuppliers] = useState([]);
     const [addresses, setAddresses] = useState([]);
     const [materials, setMaterials] = useState([]);
-    const [supplier, setSupplier] = useState(null);
 
-    // Fetch suppliers on component mount
     useEffect(() => {
         async function fetchSuppliers() {
             try {
@@ -23,7 +21,6 @@ function Purchase() {
         fetchSuppliers();
     }, []);
 
-    // Fetch materials on component mount
     useEffect(() => {
         async function fetchMaterials() {
             try {
@@ -36,29 +33,22 @@ function Purchase() {
         fetchMaterials();
     }, []);
 
-    // Fetch addresses when supplier is selected
-    useEffect(() => {
+    const handleSupplierChange = async (event) => {
+        const supplier = event.target.value;
+        setAddresses([])
         if (supplier) {
-            async function fetchAddresses() {
-                try {
-                    const response = await api.get(`/supplier/addresses/${supplier}`);
-                    setAddresses(response.data);
-                } catch {
-                    toast.error('No Addresses Found!');
-                }
+            try {
+                const response = await api.get(`/supplier/addresses/${supplier}`);
+                setAddresses(response.data);
+            } catch {
+                toast.error('No Addresses Found!');
             }
-            fetchAddresses();
         }
-    }, [supplier]);
-
-    // Handle supplier selection change
-    const handleSupplierChange = (event) => {
-        setSupplier(event.target.value)
     }
 
     const fields = [
-        {name: 'supplier', label: 'Supplier', required: true, elementType: 'select', data: suppliers.map(supplier => ({ value: supplier.id, label: supplier.name })), onChange: handleSupplierChange},
-        {name: 'supplier_address', label: 'Supplier Address', required: true, elementType: 'select', data: {/* data for supplier addresses */}},
+        {name: 'supplier', label: 'Supplier', required: true, elementType: 'select', data: suppliers.map(supplier => ({ value: supplier.id, label: supplier.name })), customChange: handleSupplierChange},
+        {name: 'supplier_address', label: 'Supplier Address', required: true, elementType: 'select', data: addresses.map(address => ({ value: address.id, label: `${address.street_address} ${address.city}, ${address.state} ${address.zip}` }))},
         {name: 'tax', label: 'Tax Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00},
         {name: 'total', label: 'Total Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00},
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
@@ -66,7 +56,7 @@ function Purchase() {
     ];
 
     const materialFields = [
-        {name: 'material', label: 'Material', required: true, elementType: 'select', data: {/* data for materials */}},
+        {name: 'material', label: 'Material', required: true, elementType: 'select', data: materials.map(material => ({ value: material.id, label: material.name }))},
         {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
     ];
