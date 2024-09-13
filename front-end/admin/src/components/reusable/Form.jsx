@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 import FormSet from './FormSet';
 import Loading from './Loading';
 import Select from './Select';
@@ -12,16 +12,6 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
     const [data, setData] = useState(initialData || {});
     const [files, setFiles] = useState({});
     const [errors, setErrors] = useState({});
-
-    useEffect(() => {
-        const initialFiles = {};
-        fields.forEach(field => {
-            if (field.type === 'file' && initialData && initialData[field.name]) {
-                initialFiles[field.name] = initialData[field.name]
-            }
-        });
-        setFiles(initialFiles);
-    }, [fields, initialData]);
 
     const handleFileChange = (event) => {
         const { name, files } = event.target;
@@ -108,10 +98,11 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                                     if (field.type === 'file') {
                                         return (
                                             <div key={index}>
-                                                <Input id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setFiles={setFiles} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} customChange={handleFileChange} />
+                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} customChange={handleFileChange} />
+                                                {console.log(files)}
                                                 {files[field.name] && (
                                                     <div className="file-info">
-                                                        <a href={files[field.name]} target="_blank" rel="noopener noreferrer">View Current File</a>
+                                                        <a href={`http://localhost:8000${files[field.name]}`} target="_blank" rel="noopener noreferrer">View Current File</a>
                                                     </div>
                                                 )}
                                             </div>
