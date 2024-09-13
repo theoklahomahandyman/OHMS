@@ -96,7 +96,7 @@ class PurchaseMaterialView(APIView):
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('material_pk', None)
         purchase_material = self.get_object(pk)
         serializer = PurchaseMaterialSerializer(purchase_material, data=request.data, partial=False)
         try:
@@ -107,7 +107,7 @@ class PurchaseMaterialView(APIView):
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('material_pk', None)
         purchase_material = self.get_object(pk)
         serializer = PurchaseMaterialSerializer(purchase_material, data=request.data, partial=True)
         try:
@@ -118,7 +118,7 @@ class PurchaseMaterialView(APIView):
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
+        pk = kwargs.get('material_pk', None)
         purchase_material = self.get_object(pk)
         purchase_material.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

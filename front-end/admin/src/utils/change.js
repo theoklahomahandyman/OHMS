@@ -42,3 +42,11 @@ export const handleChange = (event, setData) => {
         }));
     }
 };
+
+export const handleFileChange = (event, setFiles) => {
+    const { name, files } = event.target;
+    setFiles(prevFiles => ({
+        ...prevFiles,
+        [name]: files[0]
+    }));
+};

@@ -1,5 +1,7 @@
 from rest_framework_simplejwt.views import TokenRefreshView
+from django.conf.urls.static import static
 from django.urls import path, include
+from django.conf import settings
 
 urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='refresh-token'),
@@ -11,4 +13,4 @@ urlpatterns = [
     path('api/purchase/', include('purchase.urls')),
     path('api/service/', include('service.urls')),
     path('api/supplier/', include('supplier.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -10,20 +10,40 @@ import api from '../../api';
 function Form ({ fields, formsets, method, route, id, initialData, buttonText, buttonStyle, onSuccess, children }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(initialData || {});
+    const [files, setFiles] = useState({});
     const [errors, setErrors] = useState({});
+
+    const handleFileChange = (event) => {
+        const { name, files } = event.target;
+        setFiles(prevFiles => ({
+            ...prevFiles,
+            [name]: files[0]
+        }));
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
+        const formData = new FormData();
+        for (const key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                formData.append(key, data[key]);
+            }
+        }
+        for (const key in files) {
+            if (Object.prototype.hasOwnProperty.call(files, key)) {
+                formData.append(key, files[key]);
+            }
+        }
         try {
             if (method === 'post'){
-                const response = await api.post(route, data);
+                const response = await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'patch') {
-                const response = await api.patch(route, data);
+                const response = await api.patch(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'put') {
-                const response = await api.put(route, data);
+                const response = await api.put(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'delete') {
                 const response = await api.delete(route);
@@ -75,7 +95,21 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                         {Array.isArray(fields) && fields.length > 0 ? (
                             fields.map((field, index) => {
                                 if (field.elementType === 'input'){
-                                    return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                    if (field.type === 'file') {
+                                        return (
+                                            <div key={index}>
+                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} customChange={handleFileChange} />
+                                                {console.log(files)}
+                                                {files[field.name] && (
+                                                    <div className="file-info">
+                                                        <a href={`http://localhost:8000${files[field.name]}`} target="_blank" rel="noopener noreferrer">View Current File</a>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    } else {
+                                        return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                    }
                                 } else {
                                     return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} />
                                 }

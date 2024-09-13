@@ -1,8 +1,8 @@
-import { handleChange } from '../../utils/change';
+import { handleChange, handleFileChange } from '../../utils/change';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
-function Input ({ id, label, type, value, required, setData, placeholder, maxLength, minLength, accept, multiple, error, disabled }) {
+function Input ({ id, label, type, value, required, setData, setFiles, placeholder, maxLength, minLength, accept, multiple, error, disabled }) {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -25,11 +25,19 @@ function Input ({ id, label, type, value, required, setData, placeholder, maxLen
         autoCompleteType = undefined;
     }
 
+    const onChange = (event) => {
+        if (type === 'file') {
+            handleFileChange(event, setFiles);
+        } else {
+            handleChange(event, setData);
+        }
+    }
+
     return (
         <div className='form-group text-center'>
             <label htmlFor={label}>{label}</label>
             <div className='input-group'>
-                <input className='form-control' id={id} name={id} type={showPassword ? 'text' : type} value={value} required={required} onChange={(event) => handleChange(event, setData)} placeholder={placeholder} maxLength={maxLength} minLength={minLength} accept={type === 'file' ? accept: undefined} multiple={type === 'file' ? multiple : undefined} disabled={disabled === true ? disabled : false} autoComplete={autoCompleteType} />
+                <input className='form-control' id={id} name={id} type={showPassword ? 'text' : type} value={type === 'file' ? undefined : value} onChange={onChange} required={required} placeholder={placeholder} maxLength={maxLength} minLength={minLength} accept={type === 'file' ? accept: undefined} multiple={type === 'file' ? multiple : undefined} disabled={disabled === true ? disabled : false} autoComplete={autoCompleteType} />
                 {type === 'password' && (<button className='btn btn-outline-secondary' type='button' onClick={togglePasswordVisibility}>{showPassword ? 'Hide' : 'Show'}</button>)}
             </div>
             {error && <div className='alert alert-danger mt-2'>{error}</div>}
@@ -43,7 +51,8 @@ Input.propTypes = {
     type: PropTypes.string.isRequired,
     required: PropTypes.bool.isRequired,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.number]).isRequired,
-    setData: PropTypes.func.isRequired,
+    setData: PropTypes.func,
+    setFiles: PropTypes.func,
     placeholder: PropTypes.string,
     maxLength: PropTypes.number,
     minLength: PropTypes.number,
