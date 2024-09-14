@@ -1,4 +1,6 @@
+from supplier.serializers import SupplierSerializer, SupplierAddressSerializer
 from purchase.models import Purchase, PurchaseMaterial
+from supplier.models import Supplier, SupplierAddress
 from rest_framework import serializers
 
 # Serializer for purchase model
