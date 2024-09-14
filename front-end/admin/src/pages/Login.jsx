@@ -1,42 +1,24 @@
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
-import Loading from '../components/reusable/Loading';
+import Form from '../components/reusable/Form';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import { useState } from 'react';
 import Cookies from 'js-cookie';
-import api from '../api';
 
 function Login() {
-    const [loading, setLoading] = useState(false);
-    const [data, setData] = useState({email: '', password: ''});
-
     const navigate = useNavigate();
 
-    const login = async (event) => {
-        event.preventDefault();
-        setLoading(true);
-        try {
-            const response = await api.post('/user/login/', data);
-            Cookies.set(ACCESS_TOKEN, response.data.access);
-            Cookies.set(REFRESH_TOKEN, response.data.refresh);
-            setData({email: '', password: ''});
-            setLoading(false);
-            navigate('/');
-            setTimeout(() => {
-                toast.success('Welcome!');
-            }, 500);
-        } catch {
-            setLoading(false);
-            toast.warning('Incorrect email or password. Please try again!');
-        }
-    }
+    const fields = [
+        {name: 'email', label: 'Email Address', type: 'email', elementType: 'input', required: true},
+        {name: 'password', label: 'Password', type: 'password', elementType: 'input', required: true}
+    ]
 
-    const handleChange = (event) => {
-        const { id, value } = event.target;
-        setData(prevData => ({
-            ...prevData,
-            [id]: value
-        }));
+    const handleSuccess = (data) => {
+        Cookies.set(ACCESS_TOKEN, data.access);
+        Cookies.set(REFRESH_TOKEN, data.refresh);
+        navigate('/');
+        setTimeout(() => {
+            toast.success('Welcome!');
+        }, 500);
     }
 
     return (
@@ -50,23 +32,11 @@ function Login() {
                                     <i className="fas fa-tools fa-4x mb-3 text-primary"></i>
                                     <h1 className="h3 text-primary mb-4">OHMS</h1>
                                     <h1 className="h4 text-gray-900 mb-4">OHMS Admin Login</h1>
-                                    {loading ? <Loading /> : (
-                                        <div>
-                                            <form className="user">
-                                                <div className="form-group">
-                                                    <input type="email" className="form-control form-control-user" id="email" value={data.email} onChange={handleChange} aria-describedby="emailHelp" placeholder="Enter Email Address..."/>
-                                                </div>
-                                                <div className="form-group">
-                                                    <input type="password" className="form-control form-control-user" id="password" value={data.password} onChange={handleChange} placeholder="Enter Password..."/>
-                                                </div>
-                                                <button type="submit" className="btn btn-primary btn-user btn-block" id="loginButton" onClick={login}>Login</button>
-                                            </form>
-                                            <hr />
-                                            <div className="text-center">
-                                                <a className="small" href="forgot-password.html">Forgot Password?</a>
-                                            </div>
-                                        </div>
-                                    )}
+                                    <Form fields={fields} method='post' route='/user/login/' buttonText='Login' buttonStyle='primary' onSuccess={handleSuccess} />
+                                    <hr />
+                                    <div className="text-center">
+                                        <a className="small" href="forgot-password.html">Forgot Password?</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
