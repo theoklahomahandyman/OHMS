@@ -18,4 +18,4 @@ class SupplierAddress(models.Model):
     notes = models.CharField(blank=True, null=True, max_length=500, validators=[MaxLengthValidator(500)])
 
     def __str__(self):
-        return f'{self.supplier.name} - {self.city} - {self.street_address}'
+        return f'{self.street_address} {self.city}, {self.state} {self.zip}'

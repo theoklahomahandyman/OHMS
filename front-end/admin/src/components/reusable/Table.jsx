@@ -82,7 +82,13 @@ function Table({ name, fields, formsets, extraFields, route }) {
                                         data.map((item, index) => (
                                             <tr className="text-center" key={`${index}-row`}>
                                                 {fields.map((field, index) => (
-                                                    <td key={`${field.name}-${index}-${item.pk}-data`}>{item[field.name]}</td>
+                                                    <td key={`${field.name}-${index}-${item.pk}-data`}>
+                                                        {field.type === 'file' && field.accept === 'image/*' ? (
+                                                            <img src={`http://localhost:8000${item[field.name]}`} alt={field.label} style={{ width: '50px', height: '50px' }} />
+                                                        ) : (
+                                                            item[field.name]
+                                                        )}
+                                                    </td>
                                                 ))}
                                                 {Array.isArray(extraFields) && extraFields.length > 0 ? (
                                                     extraFields.map((field, index) => (
