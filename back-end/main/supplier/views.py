@@ -2,6 +2,7 @@ from supplier.serializers import SupplierSerializer, SupplierAddressSerializer
 from rest_framework.permissions import IsAuthenticated
 from supplier.models import Supplier, SupplierAddress
 from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -63,6 +64,21 @@ class SupplierView(APIView):
         supplier.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+# View to return supplier name only
+class SupplierNameView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        try:
+            return Supplier.objects.get(pk=pk)
+        except Supplier.DoesNotExist:
+            raise NotFound('Supplier Not Found!')
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.pop('pk', None)
+        supplier = self.get_object(pk)
+        return Response({'representation': supplier.name})
+
 # CRUD view for supplier address model
 class SupplierAddressView(APIView):
     permission_classes = [IsAuthenticated]
@@ -122,3 +138,18 @@ class SupplierAddressView(APIView):
         address = self.get_object(pk)
         address.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# View to return supplier address only
+class AddressView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        try:
+            return SupplierAddress.objects.get(pk=pk)
+        except SupplierAddress.DoesNotExist:
+            raise NotFound('Supplier Not Found!')
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.pop('pk', None)
+        address = self.get_object(pk)
+        return Response({'representation': f'{address.street_address} {address.city}, {address.state} {address.zip}'})

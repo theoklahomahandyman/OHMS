@@ -99,7 +99,6 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                                         return (
                                             <div key={index}>
                                                 <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} customChange={handleFileChange} />
-                                                {console.log(data[field.name])}
                                                 {data[field.name] && (
                                                     <div className="file-info">
                                                         <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">View Current File</a>

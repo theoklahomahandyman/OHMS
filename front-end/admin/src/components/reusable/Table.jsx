@@ -12,6 +12,7 @@ import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
 function Table({ name, fields, formsets, extraFields, route }) {
     const [loading, setLoading] = useState(false);
+    const [relatedData, setRelatedData] = useState([]);
     const [data, setData] = useState([]);
 
     const fetchData = useCallback(async () => {
@@ -26,17 +27,42 @@ function Table({ name, fields, formsets, extraFields, route }) {
         }
     }, [route]);
 
+    const fetchRelatedData = async (id, route) => {
+        setLoading(true);
+        try {
+            const response = await api.get(`${route}/${id}/`);
+            return response.data;
+        } catch {
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
     useEffect(() => {
+        const loadRelatedData = async (item, field) => {
+            if (!field.route) return;
+            const id = item[field.name];
+            const result = await fetchRelatedData(id, field.route);
+            setRelatedData(prev => ({ ...prev, [`${item.pk}-${field.name}`]: result }));
+        }
         if (Array.isArray(data) && data.length > 0) {
+            data.forEach(item => {
+                fields.forEach(field => {
+                    if (field.elementType === 'select') {
+                        loadRelatedData(item, field);
+                    }
+                });
+            });
             setTimeout(() => {
                 $('#dataTable').DataTable();
             }, 1);
         }
-    }, [data]);
+    }, [data, fields]);
 
     return (
         <div>
@@ -85,6 +111,8 @@ function Table({ name, fields, formsets, extraFields, route }) {
                                                     <td key={`${field.name}-${index}-${item.pk}-data`}>
                                                         {field.type === 'file' && field.accept === 'image/*' ? (
                                                             <img src={`http://localhost:8000${item[field.name]}`} alt={field.label} style={{ width: '50px', height: '50px' }} />
+                                                        ) : field.elementType === 'select' ? (
+                                                            relatedData[`${item.pk}-${field.name}`]?.representation || <Loading />
                                                         ) : (
                                                             item[field.name]
                                                         )}
@@ -133,6 +161,7 @@ Table.propTypes = {
                 label: PropTypes.string.isRequired
             })),
             customChange: PropTypes.func,
+            route: PropTypes.string,
         })
     ).isRequired,
 
