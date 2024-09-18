@@ -8,6 +8,7 @@ import Purchase from './pages/Purchase';
 import Material from './pages/Material';
 import Customer from './pages/Customer';
 import Service from './pages/Service';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 
 import 'react-toastify/ReactToastify.min.css';
@@ -29,6 +30,8 @@ function App() {
 					<Route path='purchase' element={<ProtectedRoute><Purchase /></ProtectedRoute>} />
 
 					<Route path='/material/' element={<ProtectedRoute><Material /></ProtectedRoute>} />
+
+					<Route path='/profile/' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
 					<Route path='/login/' element={<Login />} />
 					
