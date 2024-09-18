@@ -7,6 +7,8 @@ import Cookies from 'js-cookie';
 function Login() {
     const navigate = useNavigate();
 
+    const customError = 'Email or password incorrect, please try again!';
+
     const fields = [
         {name: 'email', label: 'Email Address', type: 'email', elementType: 'input', required: true},
         {name: 'password', label: 'Password', type: 'password', elementType: 'input', required: true}
@@ -32,7 +34,7 @@ function Login() {
                                     <i className="fas fa-tools fa-4x mb-3 text-primary"></i>
                                     <h1 className="h3 text-primary mb-4">OHMS</h1>
                                     <h1 className="h4 text-gray-900 mb-4">OHMS Admin Login</h1>
-                                    <Form fields={fields} method='post' route='/user/login/' buttonText='Login' buttonStyle='primary' onSuccess={handleSuccess} />
+                                    <Form fields={fields} method='post' route='/user/login/' buttonText='Login' buttonStyle='primary' onSuccess={handleSuccess} customError={customError} />
                                     <hr />
                                     <div className="text-center">
                                         <a className="small" href="forgot-password.html">Forgot Password?</a>

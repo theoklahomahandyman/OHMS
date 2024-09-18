@@ -7,7 +7,7 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function Form ({ fields, formsets, method, route, id, initialData, buttonText, buttonStyle, onSuccess, children }) {
+function Form ({ fields, formsets, method, route, id, initialData, buttonText, buttonStyle, onSuccess, children, customError }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(initialData || {});
     const [files, setFiles] = useState({});
@@ -84,6 +84,9 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                 }
             }
             setErrors(formattedErrors);
+            if (customError !== undefined) {
+                toast.error(customError);
+            }
         }
     }
 
@@ -139,6 +142,7 @@ Form.propTypes = {
     id: PropTypes.number,
     children: PropTypes.node,
     initialData: PropTypes.any,
+    customError: PropTypes.string,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,
