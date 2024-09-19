@@ -54,15 +54,14 @@ function Order() {
         {name: 'callout', label: 'Callout Type', required: false, elementType: 'select', data: calloutChoices},
     ];
 
-    // const materialFields = [
-    //     {name: 'material', label: 'Material', required: true, elementType: 'select', data: materials.map(material => ({ value: material.id, label: material.name }))},
-    //     {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
-    //     {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
-    // ];
+    const costFields = [
+        {name: 'name', label: 'Name', type: 'text', required: true, elementType: 'input', minLength: 2, maxLength: 300},
+        {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input', minValue: 0.0},
+    ];
 
-    // const formsets = [
-    //     {entity: 'Material', route: '/purchase/material/', fields: materialFields}
-    // ]
+    const formsets = [
+        {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields}
+    ]
 
     return (
         <Page>
@@ -70,7 +69,7 @@ function Order() {
             <p className="mb-4 text-center">
                 Work orders are either estimates, or projects whether complete or not.
             </p>
-            <Table fields={fields} name='Work Order' route='/order/' />
+            <Table fields={fields} name='Work Order' route='/order/' formsets={formsets} />
         </Page>
     )
 }

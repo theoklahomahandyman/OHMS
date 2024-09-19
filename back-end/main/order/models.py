@@ -52,6 +52,12 @@ class OrderCost(models.Model):
     name = models.CharField(max_length=300, validators=[MinLengthValidator(2), MaxLengthValidator(300)])
     cost = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Recalculate the order total after saving a cost
+        self.order.total = self.order.calculate_total()
+        self.order.save()
+
 # Order picture model
 class OrderPicture(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='pictures')
@@ -68,6 +74,13 @@ class OrderMaterial(models.Model):
         self.price = self.material.unit_cost * self.quantity
         super().save(*args, **kwargs)
 
+    def save(self, *args, **kwargs):
+        self.price = self.material.unit_cost * self.quantity
+        super().save(*args, **kwargs)
+        # Recalculate the order total after saving a material
+        self.order.total = self.order.calculate_total()
+        self.order.save()
+
 # Order payment model
 class OrderPayment(models.Model):
     class PAYMENT_CHOICES(models.TextChoices):
@@ -75,7 +88,6 @@ class OrderPayment(models.Model):
         CHECK = 'check', 'Check'
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='payments')
     date = models.DateField()
     type = models.CharField(max_length=5, choices=PAYMENT_CHOICES.choices)
     total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
