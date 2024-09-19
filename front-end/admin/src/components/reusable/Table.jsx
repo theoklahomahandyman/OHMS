@@ -109,11 +109,15 @@ function Table({ name, fields, formsets, extraFields, route }) {
                                             <tr className="text-center" key={`${index}-row`}>
                                                 {fields.map((field, index) => (
                                                     <td key={`${field.name}-${index}-${item.pk}-data`}>
-                                                        {field.type === 'checkbox' ? (
+                                                        {field.name === 'callout' ? (
+                                                            <span style={{ color: item[field.name] === '50.0' ? 'green' : 'red' }}>
+                                                                {item[field.name] === '50.0' ? 'Standard' : 'Emergency'}
+                                                            </span>
+                                                        ) :field.type === 'checkbox' ? (
                                                             <span style={{ color: item[field.name] ? 'green' : 'red' }}>{item[field.name] ? 'True' : 'False'}</span>
                                                         ) : field.type === 'file' && field.accept === 'image/*' ? (
                                                             <img src={`http://localhost:8000${item[field.name]}`} alt={field.label} style={{ width: '50px', height: '50px' }} />
-                                                        ) : field.elementType === 'select' ? (
+                                                        ) : field.elementType === 'select' && field.route ? (
                                                             relatedData[`${item.pk}-${field.name}`]?.representation || <Loading />
                                                         ) : (
                                                             item[field.name]

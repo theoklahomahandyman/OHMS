@@ -13,7 +13,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date = models.DateField()
     description = models.CharField(max_length=2000, validators=[MinLengthValidator(2), MaxLengthValidator(2000)])
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, blank=True, null=True)
     hourly_rate = models.FloatField(default=93.0, validators=[MinValueValidator(75.0)])
     hours_worked = models.FloatField(default=3.0, validators=[MinValueValidator(3.0)])
     material_upcharge = models.FloatField(default=25.0, validators=[MinValueValidator(15.0), MaxValueValidator(75.0)])
