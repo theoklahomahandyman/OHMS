@@ -7,11 +7,17 @@ import api from '../api';
 function Order() {
     const [customers, setCustomers] = useState([]);
     const [services, setServices] = useState([]);
+    const [materials, setMaterials] = useState([]);
 
     const calloutChoices = [
         { value: '50.0', label: 'Standard - $50.00' },
-        { value: '175.0', label: 'Emergency - $175.00' }
+        { value: '175.0', label: 'Emergency - $175.00' },
     ];
+
+    const paymentChoices = [
+        { value: 'cash', label: 'Cash' },
+        { value: 'check', label: 'Check' },
+    ]
 
     useEffect(() => {
         async function fetchCustomers() {
@@ -37,6 +43,18 @@ function Order() {
         fetchServices();
     }, []);
 
+    useEffect(() => {
+        async function fetchMaterials() {
+            try {
+                const response = await api.get('/material/');
+                setMaterials(response.data);
+            } catch {
+                toast.error('No Materials Found!');
+            }
+        }
+        fetchMaterials();
+    }, []);
+
     const fields = [
         {name: 'customer', label: 'Customer', required: true, elementType: 'select', data: customers.map(customer => ({ value: customer.id, label: `${customer.first_name} ${customer.last_name}` })), route: '/customer/name'},
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
@@ -59,8 +77,23 @@ function Order() {
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input', minValue: 0.0},
     ];
 
+    const materialFields = [
+        {name: 'material', label: 'Material', required: true, elementType: 'select', data: materials.map(material => ({ value: material.id, label: material.name }))},
+        {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
+    ];
+
+    const paymentFields = [
+        {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
+        {name: 'type', label: 'Payment Type', required: true, elementType: 'select', data: paymentChoices},
+        {name: 'total', label: 'Total', required: true, elementType: 'input', type: 'number', minValue: 0.00},
+        {name: 'notes', label: 'Notes', required: false, elementType: 'input', type: 'text', maxLength: 255},
+
+    ]
+
     const formsets = [
-        {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields}
+        {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields},
+        {entity: 'Material', route: '/order/material/', fields: materialFields},
+        {entity: 'Payment', route: '/order/payment/', fields: paymentFields},
     ]
 
     return (
