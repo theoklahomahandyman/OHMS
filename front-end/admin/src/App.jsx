@@ -10,6 +10,7 @@ import Customer from './pages/Customer';
 import Password from './pages/Password';
 import Service from './pages/Service';
 import Profile from './pages/Profile';
+import Admin from './pages/Admin';
 import Login from './pages/Login';
 
 import 'react-toastify/ReactToastify.min.css';
@@ -36,8 +37,10 @@ function App() {
 
 					<Route path='/profile/' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
+					<Route path='/admin/' element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+
 					<Route path='/login/' element={<Login />} />
-					
+
 					<Route path='*' element={<NotFound />} />
 				</Routes>
 			</BrowserRouter>

@@ -27,13 +27,18 @@ export const formatPhone = (digits) => {
 };
 
 export const handleChange = (event, setData) => {
-    const { name, value } = event.target;
+    const { name, value, type, checked } = event.target;
     if (name === 'phone') {
         const digits = value.replace(/\D/g, '');
         const formattedPhoneNumber = formatPhone(digits)
         setData((prevData) => ({
             ...prevData,
             phone: formattedPhoneNumber
+        }));
+    } else if (type === 'checkbox') {
+        setData((prevData) => ({
+            ...prevData,
+            [name]: checked,
         }));
     } else {
         setData((prevData) => ({
