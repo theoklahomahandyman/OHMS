@@ -35,17 +35,6 @@ class PurchaseView(APIView):
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
-        purchase = self.get_object(pk)
-        serializer = PurchaseSerializer(purchase, data=request.data, partial=False)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ValidationError as error:
-            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-
     def patch(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
         purchase = self.get_object(pk)
@@ -92,17 +81,6 @@ class PurchaseMaterialView(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except ValidationError as error:
-            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get('material_pk', None)
-        purchase_material = self.get_object(pk)
-        serializer = PurchaseMaterialSerializer(purchase_material, data=request.data, partial=False)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 

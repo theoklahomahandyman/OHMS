@@ -36,17 +36,6 @@ class CustomerView(APIView):
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
-        customer = self.get_object(pk)
-        serializer = CustomerSerializer(customer, data=request.data, partial=False)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ValidationError as error:
-            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-
     def patch(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
         customer = self.get_object(pk)
