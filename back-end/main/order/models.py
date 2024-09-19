@@ -30,7 +30,7 @@ class Order(models.Model):
         labor_costs = self.hourly_rate * self.hours_worked
         # Calculate material costs
         materials = OrderMaterial.objects.filter(order__pk=self.pk)
-        total_material_costs = sum(material.price for material in materials)
+        total_material_costs = sum((material.material.unit_cost * material.quantity) for material in materials)
         material_costs = total_material_costs * (1 + self.material_upcharge / 100)
         # Calculate order costs
         costs = OrderCost.objects.filter(order__pk=self.pk)
@@ -68,7 +68,6 @@ class OrderMaterial(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='materials')
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
-    price = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
 
     def save(self, *args, **kwargs):
         self.price = self.material.unit_cost * self.quantity
