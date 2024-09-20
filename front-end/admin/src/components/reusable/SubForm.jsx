@@ -17,15 +17,6 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
 
     const isDisabled = !editing && !isNew;
 
-    const handleFileChange = (event, setFiles) => {
-        const { name, files } = event.target;
-        setFiles(prevFiles => ({
-            ...prevFiles,
-            [name]: [...(prevFiles[name] || []), ...Array.from(files)]
-        }));
-    };
-
-
     useEffect(() => {
         if (!isNew) {
             setEditing(false);
@@ -131,7 +122,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
                                     if (field.type === 'file') {
                                         return (
                                             <div className='mx-auto' key={index}>
-                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} customChange={handleFileChange} disabled={isDisabled} />
+                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={isDisabled} />
                                                 {data[field.name] && (
                                                     <div className="file-info">
                                                         <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
