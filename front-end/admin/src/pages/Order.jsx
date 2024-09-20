@@ -70,6 +70,7 @@ function Order() {
         {name: 'discount', label: 'Discount', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 100.0},
         {name: 'notes', label: 'Notes', type: 'text', required: false, elementType: 'input', maxLength: 10000},
         {name: 'callout', label: 'Callout Type', required: false, elementType: 'select', data: calloutChoices},
+
     ];
 
     const costFields = [
@@ -87,13 +88,17 @@ function Order() {
         {name: 'type', label: 'Payment Type', required: true, elementType: 'select', data: paymentChoices},
         {name: 'total', label: 'Total', required: true, elementType: 'input', type: 'number', minValue: 0.00},
         {name: 'notes', label: 'Notes', required: false, elementType: 'input', type: 'text', maxLength: 255},
+    ]
 
+    const pictureFields = [
+        {name: 'image', label: 'Picture', required: true, elementType: 'input', type: 'file', 'multiple': false, accept: 'image/*'},
     ]
 
     const formsets = [
         {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields},
         {entity: 'Material', route: '/order/material/', fields: materialFields},
         {entity: 'Payment', route: '/order/payment/', fields: paymentFields},
+        {entity: 'Picture', route: '/order/picture/', fields: pictureFields},
     ]
 
     return (

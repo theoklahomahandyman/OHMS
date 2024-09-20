@@ -52,6 +52,6 @@ export const handleFileChange = (event, setFiles) => {
     const { name, files } = event.target;
     setFiles(prevFiles => ({
         ...prevFiles,
-        [name]: files[0]
+        [name]: [...(prevFiles[name] || []), ...Array.from(files)]
     }));
 };

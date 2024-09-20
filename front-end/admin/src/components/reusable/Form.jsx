@@ -13,13 +13,14 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
     const [files, setFiles] = useState({});
     const [errors, setErrors] = useState({});
 
-    const handleFileChange = (event) => {
+    const handleFileChange = (event, setFiles) => {
         const { name, files } = event.target;
         setFiles(prevFiles => ({
             ...prevFiles,
-            [name]: files[0]
+            [name]: [...(prevFiles[name] || []), ...Array.from(files)]
         }));
-    }
+    };
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -104,7 +105,7 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                                                 <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} customChange={handleFileChange} />
                                                 {data[field.name] && (
                                                     <div className="file-info">
-                                                        <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">View Current File</a>
+                                                        <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
                                                     </div>
                                                 )}
                                             </div>

@@ -32,7 +32,7 @@ function FormSet({ entity, fields, route, id }) {
         const newFormWrapper = document.createElement('div');
         list.appendChild(newFormWrapper);
         const root = createRoot(newFormWrapper);
-        root.render(<SubForm fields={fields} route={route} isNew={true} fetchData={fetchData} />);
+        root.render(<SubForm fields={fields} route={route} isNew={true} fetchData={fetchData} name={entity} />);
     }
 
     return (
@@ -42,7 +42,7 @@ function FormSet({ entity, fields, route, id }) {
                 {loading ? <Loading /> : (
                     Array.isArray(data) && data.length > 0 ? (
                         data.map((item, index) => (
-                            <SubForm key={`${index}-${item.pk}-form`} fields={fields} route={route} isNew={false} fetchData={fetchData} initialData={item} id={item.id} />
+                            <SubForm key={`${index}-${item.pk}-form`} fields={fields} route={route} isNew={false} fetchData={fetchData} initialData={item} id={item.id} name={entity} />
                         ))
                     ) : (
                         <p className="text-center">No {entity}s Yet</p>

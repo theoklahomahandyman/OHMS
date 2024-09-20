@@ -50,7 +50,7 @@ Input.propTypes = {
     label: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     required: PropTypes.bool.isRequired,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.number, PropTypes.bool]).isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.number, PropTypes.bool, PropTypes.array]).isRequired,
     setData: PropTypes.func,
     setFiles: PropTypes.func,
     placeholder: PropTypes.string,

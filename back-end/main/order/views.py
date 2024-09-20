@@ -135,8 +135,10 @@ class OrderPictureView(APIView):
 
     def post(self, request, *args, **kwargs):
         order_pk = kwargs.pop('order_pk', None)
-        request.data['order'] = order_pk
-        serializer = OrderPictureSerializer(data=request.data)
+        data = request.data.copy()
+        data['order'] = order_pk
+        print(data, flush=True)
+        serializer = OrderPictureSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
