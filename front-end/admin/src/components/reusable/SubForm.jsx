@@ -6,8 +6,9 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function SubForm ({ fields, route, initialData, fetchData, isNew, id }) {
+function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
     const [data, setData] = useState(initialData || {});
+    const [files, setFiles] = useState({});
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -15,6 +16,15 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id }) {
     const formId = `subform-${Math.random().toString(36).substr(2, 9)}`;
 
     const isDisabled = !editing && !isNew;
+
+    const handleFileChange = (event, setFiles) => {
+        const { name, files } = event.target;
+        setFiles(prevFiles => ({
+            ...prevFiles,
+            [name]: [...(prevFiles[name] || []), ...Array.from(files)]
+        }));
+    };
+
 
     useEffect(() => {
         if (!isNew) {
@@ -25,14 +35,28 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
+        const formData = new FormData();
+        for (const key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                formData.append(key, data[key]);
+            }
+        }
+        for (const key in files) {
+            if (Object.prototype.hasOwnProperty.call(files, key)) {
+                formData.append(key, files[key]);
+            }
+        }
+        console.log(formData)
+        console.log(Array.from(formData.entries()))
+
         try {
             if (isNew){
-                await api.post(route, data);
+                await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success(`${name} Successfully Added!`);
                 setEditing(false);
                 fetchData();
             } else if (editing) {
-                await api.patch(`${route}${id}/`, data);
+                await api.patch(`${route}${id}/`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success(`${name} Successfully Edited!`);
                 setEditing(false);
                 fetchData();
@@ -95,7 +119,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id }) {
     }
 
     return (
-        <form id={formId} onSubmit={handleSubmit} className='form'>
+        <form id={formId} onSubmit={handleSubmit} className='form' encType='multipart/form-data'>
             {loading ? (
                 <Loading />
             ) : (
@@ -104,15 +128,28 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id }) {
                         {Array.isArray(fields) && fields.length > 0 ? (
                             fields.map((field, index) => {
                                 if (field.elementType === 'input'){
-                                    return (
-                                        <div className='mx-auto' key={index}>
-                                            <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={isDisabled} />
-                                        </div>
-                                    )
+                                    if (field.type === 'file') {
+                                        return (
+                                            <div className='mx-auto' key={index}>
+                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} customChange={handleFileChange} disabled={isDisabled} />
+                                                {data[field.name] && (
+                                                    <div className="file-info">
+                                                        <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    } else {
+                                        return (
+                                            <div className="mx-auto" key={index}>
+                                                <Input id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={isDisabled} />
+                                            </div>
+                                        )
+                                    }
                                 } else {
                                     return (
-                                        <div className='mx-auto' key={index}>
-                                            <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} disabled={isDisabled} />
+                                        <div className="mx-auto" key={index}>
+                                            <Select id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} disabled={isDisabled} />
                                         </div>
                                     )
                                 }
@@ -139,6 +176,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id }) {
 
 SubForm.propTypes = {
     route: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
     fetchData: PropTypes.func.isRequired,
     isNew: PropTypes.bool.isRequired,
     fields: PropTypes.arrayOf(

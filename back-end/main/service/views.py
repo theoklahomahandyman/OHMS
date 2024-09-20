@@ -1,6 +1,7 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from service.serializers import ServiceSerializer
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from service.models import Service
@@ -35,17 +36,6 @@ class ServiceView(APIView):
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
-        service = self.get_object(pk)
-        serializer = ServiceSerializer(service, data=request.data, partial=False)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ValidationError as error:
-            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-
     def patch(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
         service = self.get_object(pk)
@@ -62,3 +52,18 @@ class ServiceView(APIView):
         service = self.get_object(pk)
         service.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# View to return service name only
+class ServiceNameView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        try:
+            return Service.objects.get(pk=pk)
+        except Service.DoesNotExist:
+            raise NotFound('Service Not Found!')
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.pop('pk', None)
+        service = self.get_object(pk)
+        return Response({'representation': service.name})

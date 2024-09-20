@@ -1,6 +1,7 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from customer.serializers import CustomerSerializer
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from customer.models import Customer
@@ -12,7 +13,7 @@ class CustomerView(APIView):
     def get_object(self, pk=None):
         customer = Customer.objects.get(pk=pk)
         return customer
-        
+
     def get(self, request, *args, **kwargs):
         pk = kwargs.pop('pk', None)
         if pk:
@@ -35,17 +36,6 @@ class CustomerView(APIView):
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get('pk', None)
-        customer = self.get_object(pk)
-        serializer = CustomerSerializer(customer, data=request.data, partial=False)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ValidationError as error:
-            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-
     def patch(self, request, *args, **kwargs):
         pk = kwargs.get('pk', None)
         customer = self.get_object(pk)
@@ -62,3 +52,18 @@ class CustomerView(APIView):
         customer = self.get_object(pk)
         customer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# View to return customer name only
+class CustomerNameView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        try:
+            return Customer.objects.get(pk=pk)
+        except Customer.DoesNotExist:
+            raise NotFound('Customer Not Found!')
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.pop('pk', None)
+        customer = self.get_object(pk)
+        return Response({'representation': f'{customer.first_name} {customer.last_name}'})

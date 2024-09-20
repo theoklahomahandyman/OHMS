@@ -13,7 +13,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date = models.DateField()
     description = models.CharField(max_length=2000, validators=[MinLengthValidator(2), MaxLengthValidator(2000)])
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, blank=True, null=True)
     hourly_rate = models.FloatField(default=93.0, validators=[MinValueValidator(75.0)])
     hours_worked = models.FloatField(default=3.0, validators=[MinValueValidator(3.0)])
     material_upcharge = models.FloatField(default=25.0, validators=[MinValueValidator(15.0), MaxValueValidator(75.0)])
@@ -30,7 +30,7 @@ class Order(models.Model):
         labor_costs = self.hourly_rate * self.hours_worked
         # Calculate material costs
         materials = OrderMaterial.objects.filter(order__pk=self.pk)
-        total_material_costs = sum(material.price for material in materials)
+        total_material_costs = sum((material.material.unit_cost * material.quantity) for material in materials)
         material_costs = total_material_costs * (1 + self.material_upcharge / 100)
         # Calculate order costs
         costs = OrderCost.objects.filter(order__pk=self.pk)
@@ -52,6 +52,12 @@ class OrderCost(models.Model):
     name = models.CharField(max_length=300, validators=[MinLengthValidator(2), MaxLengthValidator(300)])
     cost = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Recalculate the order total after saving a cost
+        self.order.total = self.order.calculate_total()
+        self.order.save()
+
 # Order picture model
 class OrderPicture(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='pictures')
@@ -62,11 +68,17 @@ class OrderMaterial(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='materials')
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
-    price = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
 
     def save(self, *args, **kwargs):
         self.price = self.material.unit_cost * self.quantity
         super().save(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.price = self.material.unit_cost * self.quantity
+        super().save(*args, **kwargs)
+        # Recalculate the order total after saving a material
+        self.order.total = self.order.calculate_total()
+        self.order.save()
 
 # Order payment model
 class OrderPayment(models.Model):
@@ -75,7 +87,6 @@ class OrderPayment(models.Model):
         CHECK = 'check', 'Check'
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='payments')
     date = models.DateField()
     type = models.CharField(max_length=5, choices=PAYMENT_CHOICES.choices)
     total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
