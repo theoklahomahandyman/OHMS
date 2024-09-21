@@ -9,6 +9,10 @@ function Purchase() {
     const [addresses, setAddresses] = useState([]);
     const [materials, setMaterials] = useState([]);
 
+    const heading = 'Purchases';
+
+    const text = 'Purchases are acquisitions of materials from suppliers. They are used to increase inventory levels for materials.';
+
     useEffect(() => {
         async function fetchSuppliers() {
             try {
@@ -66,11 +70,7 @@ function Purchase() {
     ]
 
     return (
-        <Page>
-            <h1 className="h3 mb-2 text-gray-800 text-center">Purchases</h1>
-            <p className="mb-4 text-center">
-                Purchases are acquisitions of materials from suppliers. They are used to increase inventory levels for materials.
-            </p>
+        <Page heading={heading} text={text}>
             <Table fields={fields} name='Purchase' route='/purchase/' formsets={formsets} />
         </Page>
     )

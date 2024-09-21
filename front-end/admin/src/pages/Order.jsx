@@ -9,6 +9,10 @@ function Order() {
     const [services, setServices] = useState([]);
     const [materials, setMaterials] = useState([]);
 
+    const heading = 'Work Orders';
+
+    const text = 'Work orders are either estimates, or projects whether complete or not.';
+
     const calloutChoices = [
         { value: '50.0', label: 'Standard - $50.00' },
         { value: '175.0', label: 'Emergency - $175.00' },
@@ -102,11 +106,7 @@ function Order() {
     ]
 
     return (
-        <Page>
-            <h1 className="h3 mb-2 text-gray-800 text-center">Work Orders</h1>
-            <p className="mb-4 text-center">
-                Work orders are either estimates, or projects whether complete or not.
-            </p>
+        <Page heading={heading} text={text}>
             <Table fields={fields} name='Work Order' route='/order/' formsets={formsets} />
         </Page>
     )

@@ -5,6 +5,10 @@ import { toast } from 'react-toastify';
 
 
 function Password() {
+    const heading = 'Password';
+
+    const text = 'Please use this page to update your password.';
+
     const route = '/user/';
 
     const navigate = useNavigate();
@@ -14,15 +18,13 @@ function Password() {
         { name: 'confirm_password', label: 'Confirm Password', type: 'password', required: true, elementType: 'input', minLength: 10 },
     ];
 
-    const handleSuccess = (data) => {
+    const handleSuccess = () => {
         toast.success('Password successfully updated!');
         navigate('/');
     }
 
     return (
-        <Page>
-            <h1 className="h3 mb-2 text-gray-800 text-center">Password</h1>
-            <p className="mb-4 text-center">Please use this page to update your password.</p>
+        <Page heading={heading} text={text}>
             <Form fields={fields} method='patch' route={route} buttonText='Update Password' buttonStyle='success' onSuccess={handleSuccess} />
         </Page>
     )

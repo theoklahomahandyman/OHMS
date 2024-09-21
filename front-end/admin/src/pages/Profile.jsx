@@ -11,6 +11,10 @@ function Profile() {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
 
+    const heading = 'Profile';
+
+    const text = 'Please use this page to update your profile information.';
+
     const route = '/user/';
 
     const navigate = useNavigate();
@@ -41,15 +45,13 @@ function Profile() {
         { name: 'phone', label: 'Phone Number', type: 'text', required: true, elementType: 'input', maxLength: 17, minLength: 16 },
     ];
 
-    const handleSuccess = (data) => {
+    const handleSuccess = () => {
         toast.success('Profile successfully updated!');
         navigate('/');
     }
 
     return (
-        <Page>
-            <h1 className="h3 mb-2 text-gray-800 text-center">Profile</h1>
-            <p className="mb-4 text-center">Please use this page to update your profile information.</p>
+        <Page heading={heading} text={text}>
             {loading ? <Loading /> : (
                 <Form fields={fields} method='patch' route={route} buttonText='Update Profile' buttonStyle='success' onSuccess={handleSuccess} initialData={data} />
             )}
