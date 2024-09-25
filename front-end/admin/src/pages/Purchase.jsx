@@ -71,7 +71,7 @@ function Purchase() {
 
     return (
         <Page heading={heading} text={text}>
-            <Table fields={fields} name='Purchase' route='/purchase/' formsets={formsets} />
+            <Table fields={fields} name='Purchase' route='/purchase/' updateType='page' formsets={formsets} />
         </Page>
     )
 }

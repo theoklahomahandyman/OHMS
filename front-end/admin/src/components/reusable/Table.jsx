@@ -10,7 +10,7 @@ import $ from 'jquery';
 import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
-function Table({ name, fields, formsets, extraFields, route }) {
+function Table({ name, fields, formsets, extraFields, route, updateType }) {
     const [loading, setLoading] = useState(false);
     const [relatedData, setRelatedData] = useState([]);
     const [data, setData] = useState([]);
@@ -129,7 +129,11 @@ function Table({ name, fields, formsets, extraFields, route }) {
                                                         <td key={`${field.name}-${index}${item.pk}-extra`}>{item[field.name]}</td>
                                                     ))
                                                 ) : <></>}
-                                                <td key={`edit-${item.id}`}><UpdateModal name={name} fields={fields} route={route} id={item.id} fetchData={fetchData} formsets={formsets} /></td>
+                                                {updateType === 'page' ? (
+                                                    <td key={`edit-${item.id}`}><a href={`${route}${item.id}`} className='btn btn-md btn-primary action-btn'>Edit</a></td>
+                                                ) : (
+                                                    <td key={`edit-${item.id}`}><UpdateModal name={name} fields={fields} route={route} id={item.id} fetchData={fetchData} formsets={formsets} /></td>
+                                                )}
                                                 <td key={`delete-${item.id}`}><DeleteModal name={name} route={route} id={item.id} fetchData={fetchData} /></td>
                                             </tr>
                                         ))
@@ -171,6 +175,7 @@ Table.propTypes = {
         })
     ).isRequired,
 
+    updateType: PropTypes.string,
     extraFields: PropTypes.array,
     formsets: PropTypes.arrayOf(
         PropTypes.shape({
