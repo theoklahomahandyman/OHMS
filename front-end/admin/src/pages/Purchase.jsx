@@ -7,7 +7,6 @@ import api from '../api';
 function Purchase() {
     const [suppliers, setSuppliers] = useState([]);
     const [addresses, setAddresses] = useState([]);
-    const [materials, setMaterials] = useState([]);
 
     const heading = 'Purchases';
 
@@ -23,18 +22,6 @@ function Purchase() {
             }
         }
         fetchSuppliers();
-    }, []);
-
-    useEffect(() => {
-        async function fetchMaterials() {
-            try {
-                const response = await api.get('/material/');
-                setMaterials(response.data);
-            } catch {
-                toast.error('No Materials Found!');
-            }
-        }
-        fetchMaterials();
     }, []);
 
     const handleSupplierChange = async (event) => {
@@ -59,19 +46,9 @@ function Purchase() {
         {name: 'reciept', label: 'Reciept', required: true, elementType: 'input', type: 'file', multiple: false, accept: 'image/*'},
     ];
 
-    const materialFields = [
-        {name: 'material', label: 'Material', required: true, elementType: 'select', data: materials.map(material => ({ value: material.id, label: material.name }))},
-        {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
-        {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
-    ];
-
-    const formsets = [
-        {entity: 'Material', route: '/purchase/material/', fields: materialFields}
-    ]
-
     return (
         <Page heading={heading} text={text}>
-            <Table fields={fields} name='Purchase' route='/purchase/' updateType='page' formsets={formsets} />
+            <Table fields={fields} name='Purchase' route='/purchase/' updateType='page' />
         </Page>
     )
 }
