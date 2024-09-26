@@ -84,44 +84,36 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
 
     return (
         <>
-            <form onSubmit={handleSubmit} className='form'>
-                {loading ? <Loading /> :
-                    <div className='modal-body'>
+            <form onSubmit={handleSubmit} className="form">
+                {loading ? <Loading /> : (
+                    <div className="row">
                         {Array.isArray(fields) && fields.length > 0 ? (
-                            fields.map((field, index) => {
-                                if (field.elementType === 'input'){
-                                    if (field.type === 'file') {
-                                        return (
-                                            <div key={index}>
-                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
-                                                {data[field.name] && (
-                                                    <div className="file-info">
-                                                        <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
-                                                    </div>
-                                                )}
-                                            </div>
+                            fields.map((field, index) => (
+                                <div key={index} className="col-md-6 mx-auto mb-3">
+                                    {field.elementType === 'input' ? (
+                                        field.type === 'file' ? (
+                                            <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                        ) : (
+                                            <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
                                         )
-                                    } else {
-                                        return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
-                                    }
-                                } else {
-                                    return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} />
-                                }
-                            })
-
-                        ) : <></>}
+                                    ) : (
+                                        <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} />
+                                    )}
+                                </div>
+                            ))
+                        ) : null}
                         {children}
                     </div>
-                }
-                <button className={`btn btn-${buttonStyle} mb-3 mx-auto d-block`} disabled={loading} type='submit'>{buttonText}</button>
+                )}
+                <button className={`btn btn-${buttonStyle} mb-3 mx-auto d-block`} disabled={loading} type="submit">
+                    {buttonText}
+                </button>
             </form>
-            {Array.isArray(formsets) && formsets.length > 0 ? (
-                formsets.map((formset, index) => {
-                    return <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} id={id} />
-                })
-            ) : <></>}
+            {Array.isArray(formsets) && formsets.length > 0 ? formsets.map((formset, index) => (
+                <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} id={id} />
+            )) : null}
         </>
-    )
+    );
 }
 
 Form.propTypes = {
