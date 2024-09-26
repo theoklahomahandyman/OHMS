@@ -37,9 +37,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
                 formData.append(key, files[key]);
             }
         }
-        console.log(formData)
-        console.log(Array.from(formData.entries()))
-
+        
         try {
             if (isNew){
                 await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' }});

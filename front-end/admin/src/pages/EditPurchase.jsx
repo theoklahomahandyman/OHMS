@@ -16,10 +16,11 @@ function EditPurchase() {
 
     const navigate = useNavigate();
     const { id } = useParams();
-    const updateRoute = `/purchase/${id}`;
+    const updateRoute = `/purchase/${id}/`;
 
-    const heading = '';
-    const text = '';
+    const purchaseID = `OHMS-${id}-PUR`;
+    const heading = `Edit Purchase ${purchaseID}`;
+    const text = `Please use this page to edit any information relating to purchase order ${purchaseID}, including adding materials purchased. The cost field when adding a material should be the total amount spent on the selected material alone. The unit cost, inventory level, and total field will update automatically.`;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -96,7 +97,7 @@ function EditPurchase() {
         {name: 'supplier', label: 'Supplier', required: true, elementType: 'select', data: suppliers.map(supplier => ({ value: supplier.id, label: supplier.name })), customChange: handleSupplierChange, route: 'supplier/name'},
         {name: 'supplier_address', label: 'Supplier Address', required: true, elementType: 'select', data: addresses.map(address => ({ value: address.id, label: `${address.street_address} ${address.city}, ${address.state} ${address.zip}` })), route: '/supplier/address'},
         {name: 'tax', label: 'Tax Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00},
-        {name: 'total', label: 'Total Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00},
+        {name: 'total', label: 'Total Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
         {name: 'reciept', label: 'Reciept', required: true, elementType: 'input', type: 'file', multiple: false, accept: 'image/*'},
     ];
@@ -114,7 +115,7 @@ function EditPurchase() {
     return (
         <Page heading={heading} text={text}>
             {loading ? <Loading /> : (
-                <Form method='patch' route={updateRoute} initialData={data} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} />
+                <Form method='patch' route={updateRoute} initialData={data} initialFiles={{reciept: data['reciept']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} />
             )}
         </Page>
     )

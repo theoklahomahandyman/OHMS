@@ -92,9 +92,16 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                                 <div key={index} className="col-md-6 mx-auto mb-3">
                                     {field.elementType === 'input' ? (
                                         field.type === 'file' ? (
-                                            <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                            <>
+                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                                {data[field.name] && (
+                                                    <div className="file-info">
+                                                        <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
+                                                    </div>
+                                                )}
+                                            </>
                                         ) : (
-                                            <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
+                                            <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled} />
                                         )
                                     ) : (
                                         <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} />
@@ -143,6 +150,7 @@ Form.propTypes = {
                 label: PropTypes.string.isRequired
             })),
             customChange: PropTypes.func,
+            disabled: PropTypes.bool,
         })
     ),
     formsets: PropTypes.arrayOf(
