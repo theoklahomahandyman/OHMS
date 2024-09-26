@@ -15,13 +15,10 @@ function EditPurchase() {
     const [data, setData] = useState({});
 
     const navigate = useNavigate();
-
     const { id } = useParams();
-
     const updateRoute = `/purchase/${id}`;
 
     const heading = '';
-
     const text = '';
 
     useEffect(() => {
@@ -62,6 +59,20 @@ function EditPurchase() {
         }
         fetchMaterials();
     }, []);
+
+    useEffect(() => {
+        const fetchSupplierAddresses = async () => {
+            if (data.supplier) {
+                try {
+                    const response = await api.get(`/supplier/addresses/${data.supplier}`);
+                    setAddresses(response.data);
+                } catch {
+                    toast.error('No Addresses Found!');
+                }
+            }
+        };
+        fetchSupplierAddresses();
+    }, [data.supplier])
 
     const handleSupplierChange = async (event) => {
         const supplier = event.target.value;
