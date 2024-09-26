@@ -7,7 +7,10 @@ import api from '../api';
 function Purchase() {
     const [suppliers, setSuppliers] = useState([]);
     const [addresses, setAddresses] = useState([]);
-    const [materials, setMaterials] = useState([]);
+
+    const heading = 'Purchases';
+
+    const text = 'Purchases are acquisitions of materials from suppliers. They are used to increase inventory levels for materials.';
 
     useEffect(() => {
         async function fetchSuppliers() {
@@ -19,18 +22,6 @@ function Purchase() {
             }
         }
         fetchSuppliers();
-    }, []);
-
-    useEffect(() => {
-        async function fetchMaterials() {
-            try {
-                const response = await api.get('/material/');
-                setMaterials(response.data);
-            } catch {
-                toast.error('No Materials Found!');
-            }
-        }
-        fetchMaterials();
     }, []);
 
     const handleSupplierChange = async (event) => {
@@ -55,23 +46,9 @@ function Purchase() {
         {name: 'reciept', label: 'Reciept', required: true, elementType: 'input', type: 'file', multiple: false, accept: 'image/*'},
     ];
 
-    const materialFields = [
-        {name: 'material', label: 'Material', required: true, elementType: 'select', data: materials.map(material => ({ value: material.id, label: material.name }))},
-        {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
-        {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
-    ];
-
-    const formsets = [
-        {entity: 'Material', route: '/purchase/material/', fields: materialFields}
-    ]
-
     return (
-        <Page>
-            <h1 className="h3 mb-2 text-gray-800 text-center">Purchases</h1>
-            <p className="mb-4 text-center">
-                Purchases are acquisitions of materials from suppliers. They are used to increase inventory levels for materials.
-            </p>
-            <Table fields={fields} name='Purchase' route='/purchase/' formsets={formsets} />
+        <Page heading={heading} text={text}>
+            <Table fields={fields} name='Purchase' route='/purchase/' updateType='page' />
         </Page>
     )
 }

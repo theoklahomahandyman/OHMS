@@ -1,6 +1,7 @@
 import ProtectedRoute from './components/reusable/ProtectedRoute';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import EditPurchase from './pages/EditPurchase';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import Supplier from './pages/Supplier';
@@ -30,7 +31,8 @@ function App() {
 
 					<Route path='/supplier/' element={<ProtectedRoute><Supplier /></ProtectedRoute>} />
 
-					<Route path='purchase' element={<ProtectedRoute><Purchase /></ProtectedRoute>} />
+					<Route path='/purchase/' element={<ProtectedRoute><Purchase /></ProtectedRoute>} />
+					<Route path='/purchase/:id/' element={<ProtectedRoute><EditPurchase /></ProtectedRoute>} />
 
 					<Route path='/material/' element={<ProtectedRoute><Material /></ProtectedRoute>} />
 

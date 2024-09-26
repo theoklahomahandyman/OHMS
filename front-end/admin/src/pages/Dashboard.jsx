@@ -1,9 +1,12 @@
 import Page from '../components/reusable/Page';
 
 function Dashboard() {
+    const heading = 'Oklahoma Handyman Service Dashboard';
+
+    const text = 'This is the main management dashboard. Please use this page to reach any other pages in the administration area.';
+
     return (
-        <Page>
-            <h1 className="h3 mb-4 text-gray-800 text-center">Oklahoma Handyman Service Dashboard</h1>
+        <Page heading={heading} text={text}>
             <div className="row">
                 {/* <!-- Admin Dashboard Card --> */}
                 <div className="col-lg-3 col-md-6 mb-4">

@@ -2,6 +2,9 @@ import Table from '../components/reusable/Table';
 import Page from '../components/reusable/Page';
 
 function Customer() {
+    const heading = 'Customers';
+
+    const text = 'Customers are the party that recieves the service provided in the work order and must be specified in an order.';
 
     const fields = [
         {name: 'first_name', label: 'First Name', type: 'text', required: true, elementType: 'input', maxLength: 100, minLength: 2},
@@ -12,11 +15,7 @@ function Customer() {
     ];
 
     return (
-        <Page>
-            <h1 className="h3 mb-2 text-gray-800 text-center">Customers</h1>
-            <p className="mb-4 text-center">
-                Customers are the party that recieves the service provided in the work order and must be specified in an order.
-            </p>
+        <Page heading={heading} text={text}>
             <Table fields={fields} name='Customer' route='/customer/' />
         </Page>
     )

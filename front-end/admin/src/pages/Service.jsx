@@ -2,6 +2,9 @@ import Table from '../components/reusable/Table';
 import Page from '../components/reusable/Page';
 
 function Service() {
+    const heading = 'Service Types';
+
+    const text = 'Service Types are used to classify the different service types available to be used in work orders. They are available to users when filling out the contact form to classify the general need of the job.';
 
     const fields = [
         {name: 'name', label: 'Service Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
@@ -9,12 +12,7 @@ function Service() {
     ];
 
     return (
-        <Page>
-            <h1 className="h3 mb-2 text-gray-800 text-center">Service Types</h1>
-            <p className="mb-4 text-center">
-                Service Types are used to classify the different service types available to be used in work orders.
-                They are available to users when filling out the contact form to classify the general need of the job.
-            </p>
+        <Page heading={heading} text={text}>
             <Table fields={fields} name='Service Type' route='/service/' />
         </Page>
     )

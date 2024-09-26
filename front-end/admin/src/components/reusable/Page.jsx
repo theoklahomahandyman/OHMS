@@ -4,7 +4,7 @@ import SideBar from '../SideBar';
 import Footer from '../Footer';
 import Nav from '../Nav';
 
-function Page({ children }) {
+function Page({ heading, text, children }) {
     const [toggle, setToggle] = useState('navbar-nav bg-gradient-primary sidebar sidebar-dark accordion');
 
     const toggleSideBar = () => {
@@ -23,6 +23,8 @@ function Page({ children }) {
                     <div id='content'>
                         <Nav toggleSideBar={toggleSideBar} />
                         <div className="container-fluid">
+                            {heading ? <h1 className="h3 mb-2 text-gray-800 text-center">{heading}</h1> : <></>}
+                            {text ? <p className="mb-4 text-center">{text}</p> : <></>}
                             {children}
                         </div>
                     </div>
@@ -37,6 +39,8 @@ function Page({ children }) {
 }
 
 Page.propTypes = {
+    heading: PropTypes.string,
+    text: PropTypes.string,
     children: PropTypes.any
 }
 
