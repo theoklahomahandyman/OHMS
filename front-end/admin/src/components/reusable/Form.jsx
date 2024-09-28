@@ -89,7 +89,7 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                     <div className="row">
                         {Array.isArray(fields) && fields.length > 0 ? (
                             fields.map((field, index) => (
-                                <div key={index} className="col-md-6 mx-auto mb-3">
+                                <div key={index} className="col-6 mx-auto mb-3">
                                     {field.elementType === 'input' ? (
                                         field.type === 'file' ? (
                                             <>
