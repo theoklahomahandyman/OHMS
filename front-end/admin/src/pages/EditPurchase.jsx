@@ -1,8 +1,8 @@
+import { useState, useEffect, useCallback } from 'react';
 import Loading from '../components/reusable/Loading';
 import Page from '../components/reusable/Page';
 import Form from '../components/reusable/Form';
 import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import api from '../api';
@@ -16,26 +16,28 @@ function EditPurchase() {
 
     const navigate = useNavigate();
     const { id } = useParams();
-    const updateRoute = `/purchase/${id}/`;
+    const baseRoute = '/purchase/'
+    const updateRoute = `${baseRoute}${id}/`;
 
     const purchaseID = `OHMS-${id}-PUR`;
     const heading = `Edit Purchase ${purchaseID}`;
     const text = `Please use this page to edit any information relating to purchase order ${purchaseID}, including adding materials purchased. The cost field when adding a material should be the total amount spent on the selected material alone. The unit cost, inventory level, and total field will update automatically.`;
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const response = await api.get(updateRoute);
-                setData(response.data || {});
-            } catch {
-                setData({});
-            } finally {
-                setLoading(false);
-            }
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await api.get(updateRoute);
+            setData(response.data || {});
+        } catch {
+            setData({});
+        } finally {
+            setLoading(false);
         }
-        fetchData();
     }, [updateRoute]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     useEffect(() => {
         async function fetchSuppliers() {
@@ -115,7 +117,7 @@ function EditPurchase() {
     return (
         <Page heading={heading} text={text}>
             {loading ? <Loading /> : (
-                <Form method='patch' route={updateRoute} initialData={data} initialFiles={{reciept: data['reciept']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} />
+                <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} initialFiles={{reciept: data['reciept']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} fetchData={fetchData} />
             )}
         </Page>
     )

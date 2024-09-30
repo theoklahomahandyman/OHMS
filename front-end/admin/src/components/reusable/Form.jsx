@@ -7,7 +7,7 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function Form ({ fields, formsets, method, route, id, initialData, buttonText, buttonStyle, onSuccess, children, customError }) {
+function Form ({ fields, formsets, method, route, baseRoute, id, initialData, buttonText, buttonStyle, onSuccess, children, customError, fetchData }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(initialData || {});
     const [files, setFiles] = useState({});
@@ -85,6 +85,16 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
         }
     }
 
+    const removeImage = async (id) => {
+        try {
+            api.delete(`${baseRoute}image/${id}/`);
+            toast.success('Image successfully removed!');
+            fetchData();
+        } catch (error) {
+            toast.error(error);
+        }
+    }
+
     return (
         <>
             <form onSubmit={handleSubmit} className="form" encType='multipart/form-data'>
@@ -100,8 +110,9 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                                                 {(field.name === 'uploaded_images') && (data.images) && (data.images.length > 0) && (
                                                     <div className="file-info">
                                                         {data.images.map((image, index) => (
-                                                            <div key={index}>
+                                                            <div key={index} className='mb-3'>
                                                                 <a href={`http://localhost:8000${image.image}`} target="_blank" rel="noopener noreferrer">{image.image.split('/').pop()}</a>
+                                                                <button className="btn btn-sm btn-danger ml-2" type='button' onClick={() => removeImage(image.id)}>Remove</button>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -119,7 +130,7 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                         {children}
                     </div>
                 )}
-                <button className={`btn btn-${buttonStyle} mb-3 mx-auto d-block`} disabled={loading} type="submit">
+                <button className={`btn btn-lg btn-${buttonStyle} mb-3 mx-auto d-block`} disabled={loading} type="submit">
                     {buttonText}
                 </button>
             </form>
@@ -141,6 +152,8 @@ Form.propTypes = {
     children: PropTypes.node,
     initialData: PropTypes.any,
     customError: PropTypes.string,
+    baseRoute: PropTypes.string,
+    fetchData: PropTypes.func,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,
