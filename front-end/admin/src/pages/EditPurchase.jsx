@@ -99,7 +99,7 @@ function EditPurchase() {
         {name: 'tax', label: 'Tax Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00},
         {name: 'total', label: 'Total Amount', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
-        {name: 'uploaded_images', label: 'Reciept', required: true, elementType: 'input', type: 'file'},
+        {name: 'uploaded_images', label: 'Reciept', required: false, elementType: 'input', type: 'file'},
     ];
 
     const materialFields = [

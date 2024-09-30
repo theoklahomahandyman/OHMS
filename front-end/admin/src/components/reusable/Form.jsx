@@ -137,7 +137,7 @@ Form.propTypes = {
     buttonStyle: PropTypes.string.isRequired,
     onSuccess: PropTypes.func.isRequired,
 
-    id: PropTypes.number,
+    id: PropTypes.any,
     children: PropTypes.node,
     initialData: PropTypes.any,
     customError: PropTypes.string,

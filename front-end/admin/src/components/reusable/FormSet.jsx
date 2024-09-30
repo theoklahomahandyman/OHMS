@@ -57,7 +57,7 @@ function FormSet({ entity, fields, route, id }) {
 }
 
 FormSet.propTypes = {
-    id: PropTypes.number.isRequired,
+    id: PropTypes.any.isRequired,
     entity: PropTypes.string.isRequired,
     route: PropTypes.string.isRequired,
     fields: PropTypes.arrayOf(
