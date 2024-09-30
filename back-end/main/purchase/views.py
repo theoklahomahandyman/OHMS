@@ -1,5 +1,5 @@
-from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer
-from purchase.models import Purchase, PurchaseMaterial
+from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseRecieptSerializer
+from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -50,6 +50,18 @@ class PurchaseView(APIView):
         pk = kwargs.get('pk', None)
         purchase = self.get_object(pk)
         purchase.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PurchaseRecieptView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        return PurchaseReciept.objects.get(pk=pk)
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        reciept = self.get_object(pk)
+        reciept.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 # CRUD view for purchase material model

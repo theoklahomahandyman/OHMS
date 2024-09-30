@@ -7,7 +7,7 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function Form ({ fields, formsets, method, route, id, initialData, buttonText, buttonStyle, onSuccess, children, customError }) {
+function Form ({ fields, formsets, method, route, baseRoute, id, initialData, buttonText, buttonStyle, onSuccess, children, customError, fetchData }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(initialData || {});
     const [files, setFiles] = useState({});
@@ -22,13 +22,15 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                 formData.append(key, data[key]);
             }
         }
-        for (const key in files) {
-            if (Object.prototype.hasOwnProperty.call(files, key)) {
-                formData.append(key, files[key]);
-            }
+        if (files.uploaded_images) {
+            const uploadedImages = Array.isArray(files.uploaded_images) ? files.uploaded_images : [files.uploaded_images];
+            uploadedImages.forEach((file) => {
+                formData.append('uploaded_images', file);
+            });
         }
         try {
             if (method === 'post'){
+                console.log(files)
                 const response = await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'patch') {
@@ -42,6 +44,7 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                 onSuccess(response)
             }
         } catch (error) {
+            console.log(error.response.data)
             if (error.response && error.response.data) {
                 if (setErrors) {
                     handleError(error.response.data, setErrors);
@@ -82,46 +85,60 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
         }
     }
 
+    const removeImage = async (id) => {
+        try {
+            api.delete(`${baseRoute}image/${id}/`);
+            toast.success('Image successfully removed!');
+            fetchData();
+        } catch (error) {
+            toast.error(error);
+        }
+    }
+
     return (
         <>
-            <form onSubmit={handleSubmit} className='form'>
-                {loading ? <Loading /> :
-                    <div className='modal-body'>
+            <form onSubmit={handleSubmit} className="form" encType='multipart/form-data'>
+                {loading ? <Loading /> : (
+                    <div className="row">
                         {Array.isArray(fields) && fields.length > 0 ? (
-                            fields.map((field, index) => {
-                                if (field.elementType === 'input'){
-                                    if (field.type === 'file') {
-                                        return (
-                                            <div key={index}>
+                            fields.map((field, index) => (
+                                <div key={index} className="col-6 mx-auto mb-3">
+                                    {field.elementType === 'input' ? (
+                                        field.type === 'file' ? (
+                                            <>
                                                 <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
-                                                {data[field.name] && (
+                                                {(field.name === 'uploaded_images') && (data.images) && (data.images.length > 0) && (
                                                     <div className="file-info">
-                                                        <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
+                                                        {data.images.map((image, index) => (
+                                                            <div key={index} className='mb-3'>
+                                                                <a href={`http://localhost:8000${image.image}`} target="_blank" rel="noopener noreferrer">{image.image.split('/').pop()}</a>
+                                                                <button className="btn btn-sm btn-danger ml-2" type='button' onClick={() => removeImage(image.id)}>Remove</button>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 )}
-                                            </div>
+                                            </>
+                                        ) : (
+                                            <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled} />
                                         )
-                                    } else {
-                                        return <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
-                                    }
-                                } else {
-                                    return <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} />
-                                }
-                            })
-
-                        ) : <></>}
+                                    ) : (
+                                        <Select key={index} id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} />
+                                    )}
+                                </div>
+                            ))
+                        ) : null}
                         {children}
                     </div>
-                }
-                <button className={`btn btn-${buttonStyle} mb-3 mx-auto d-block`} disabled={loading} type='submit'>{buttonText}</button>
+                )}
+                <button className={`btn btn-lg btn-${buttonStyle} mb-3 mx-auto d-block`} disabled={loading} type="submit">
+                    {buttonText}
+                </button>
             </form>
-            {Array.isArray(formsets) && formsets.length > 0 ? (
-                formsets.map((formset, index) => {
-                    return <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} id={id} />
-                })
-            ) : <></>}
+            {Array.isArray(formsets) && formsets.length > 0 ? formsets.map((formset, index) => (
+                <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} id={id} />
+            )) : null}
         </>
-    )
+    );
 }
 
 Form.propTypes = {
@@ -131,10 +148,12 @@ Form.propTypes = {
     buttonStyle: PropTypes.string.isRequired,
     onSuccess: PropTypes.func.isRequired,
 
-    id: PropTypes.number,
+    id: PropTypes.any,
     children: PropTypes.node,
     initialData: PropTypes.any,
     customError: PropTypes.string,
+    baseRoute: PropTypes.string,
+    fetchData: PropTypes.func,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,
@@ -151,6 +170,7 @@ Form.propTypes = {
                 label: PropTypes.string.isRequired
             })),
             customChange: PropTypes.func,
+            disabled: PropTypes.bool,
         })
     ),
     formsets: PropTypes.arrayOf(

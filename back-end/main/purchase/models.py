@@ -10,21 +10,25 @@ class Purchase(models.Model):
     tax = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     date = models.DateField()
-    reciept = models.ImageField(upload_to='media/purchases/')
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
             # Save first to ensure instance has a primary key for searching for purchase materials
             if not self.pk:
-                self.total = self.tax        
+                self.total = self.tax
             super().save(*args, **kwargs)
 
     def __str__(self):
         return f'OHMS{self.pk}-PUR'
-    
-# Material purchase model
+
+# Purchase reciept model
+class PurchaseReciept(models.Model):
+    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='purchases')
+
+# Purchase material model
 class PurchaseMaterial(models.Model):
-    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE)
+    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='materials')
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     cost = models.FloatField(validators=[MinValueValidator(0.0)])
