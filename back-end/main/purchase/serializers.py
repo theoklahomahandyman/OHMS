@@ -23,8 +23,17 @@ class PurchaseSerializer(serializers.ModelSerializer):
             PurchaseReciept.objects.create(purchase=purchase, image=image)
         return purchase
 
-    def update(self, validated_data):
-        pass
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop('uploaded_images', [])
+        instance.supplier = validated_data.get('supplier', instance.supplier)
+        instance.supplier_address = validated_data.get('supplier_address', instance.supplier_address)
+        instance.tax = validated_data.get('tax', instance.tax)
+        instance.total = validated_data.get('total', instance.total)
+        instance.date = validated_data.get('date', instance.date)
+        instance.save()
+        for image in uploaded_images:
+            PurchaseReciept.objects.create(purchase=instance, image=image)
+        return instance
 
 # Serializer for purchase material model
 class PurchaseMaterialSerializer(serializers.ModelSerializer):
