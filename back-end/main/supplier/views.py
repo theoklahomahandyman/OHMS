@@ -91,8 +91,9 @@ class SupplierAddressView(APIView):
 
     def post(self, request, *args, **kwargs):
         supplier_pk = kwargs.pop('supplier_pk', None)
-        request.data['supplier'] = supplier_pk
-        serializer = SupplierAddressSerializer(data=request.data)
+        data = request.data.copy()
+        data['supplier'] = supplier_pk
+        serializer = SupplierAddressSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()

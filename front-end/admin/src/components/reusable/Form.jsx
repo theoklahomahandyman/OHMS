@@ -22,13 +22,15 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                 formData.append(key, data[key]);
             }
         }
-        for (const key in files) {
-            if (Object.prototype.hasOwnProperty.call(files, key)) {
-                formData.append(key, files[key]);
-            }
+        if (files.uploaded_images) {
+            const uploadedImages = Array.isArray(files.uploaded_images) ? files.uploaded_images : [files.uploaded_images];
+            uploadedImages.forEach((file) => {
+                formData.append('uploaded_images', file);
+            });
         }
         try {
             if (method === 'post'){
+                console.log(files)
                 const response = await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'patch') {
@@ -42,6 +44,7 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                 onSuccess(response)
             }
         } catch (error) {
+            console.log(error.response.data)
             if (error.response && error.response.data) {
                 if (setErrors) {
                     handleError(error.response.data, setErrors);
@@ -84,7 +87,7 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
 
     return (
         <>
-            <form onSubmit={handleSubmit} className="form">
+            <form onSubmit={handleSubmit} className="form" encType='multipart/form-data'>
                 {loading ? <Loading /> : (
                     <div className="row">
                         {Array.isArray(fields) && fields.length > 0 ? (
@@ -94,9 +97,13 @@ function Form ({ fields, formsets, method, route, id, initialData, buttonText, b
                                         field.type === 'file' ? (
                                             <>
                                                 <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} />
-                                                {data[field.name] && (
+                                                {(field.name === 'uploaded_images') && (data.images) && (data.images.length > 0) && (
                                                     <div className="file-info">
-                                                        <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
+                                                        {data.images.map((image, index) => (
+                                                            <div key={index}>
+                                                                <a href={`http://localhost:8000${image.image}`} target="_blank" rel="noopener noreferrer">{image.image.split('/').pop()}</a>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 )}
                                             </>

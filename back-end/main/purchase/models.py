@@ -24,7 +24,7 @@ class Purchase(models.Model):
 # Purchase reciept model
 class PurchaseReciept(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='reciepts')
-    reciept = models.ImageField(upload_to='purchases')
+    image = models.ImageField(upload_to='purchases')
 
 # Purchase material model
 class PurchaseMaterial(models.Model):

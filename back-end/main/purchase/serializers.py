@@ -1,14 +1,30 @@
-from supplier.serializers import SupplierSerializer, SupplierAddressSerializer
-from purchase.models import Purchase, PurchaseMaterial
-from supplier.models import Supplier, SupplierAddress
+from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept
 from rest_framework import serializers
+
+# Serializer for purchase reciept model
+class PurchaseRecieptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseReciept
+        fields = ['id', 'purchase', 'image']
 
 # Serializer for purchase model
 class PurchaseSerializer(serializers.ModelSerializer):
+    images = PurchaseRecieptSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False), write_only=True)
 
     class Meta:
         model = Purchase
-        fields = ['id', 'supplier', 'supplier_address', 'tax', 'total', 'date', 'reciept']
+        fields = ['id', 'supplier', 'supplier_address', 'tax', 'total', 'date', 'images', 'uploaded_images']
+
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop('uploaded_images', [])
+        purchase = Purchase.objects.create(**validated_data)
+        for image in uploaded_images:
+            PurchaseReciept.objects.create(purchase=purchase, image=image)
+        return purchase
+
+    def update(self, validated_data):
+        pass
 
 # Serializer for purchase material model
 class PurchaseMaterialSerializer(serializers.ModelSerializer):

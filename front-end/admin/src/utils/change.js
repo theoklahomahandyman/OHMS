@@ -50,8 +50,9 @@ export const handleChange = (event, setData) => {
 
 export const handleFileChange = (event, setFiles) => {
     const { name, files } = event.target;
+    const filesArray = Array.from(files);
     setFiles(prevFiles => ({
         ...prevFiles,
-        [name]: files[0]
+        [name]: filesArray
     }));
 };

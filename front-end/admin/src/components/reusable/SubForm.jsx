@@ -37,7 +37,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
                 formData.append(key, files[key]);
             }
         }
-        
+
         try {
             if (isNew){
                 await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
