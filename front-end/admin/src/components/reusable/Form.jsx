@@ -7,7 +7,7 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function Form ({ fields, formsets, method, route, baseRoute, id, initialData, buttonText, buttonStyle, onSuccess, children, customError, fetchData }) {
+function Form ({ fields, formsets, method, route, baseRoute, id, initialData, buttonText, buttonStyle, onSuccess, children, customError }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(initialData || {});
     const [files, setFiles] = useState({});
@@ -88,8 +88,8 @@ function Form ({ fields, formsets, method, route, baseRoute, id, initialData, bu
     const removeImage = async (id) => {
         try {
             api.delete(`${baseRoute}image/${id}/`);
+            window.location.reload();
             toast.success('Image successfully removed!');
-            fetchData();
         } catch (error) {
             toast.error(error);
         }
@@ -153,7 +153,6 @@ Form.propTypes = {
     initialData: PropTypes.any,
     customError: PropTypes.string,
     baseRoute: PropTypes.string,
-    fetchData: PropTypes.func,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,
