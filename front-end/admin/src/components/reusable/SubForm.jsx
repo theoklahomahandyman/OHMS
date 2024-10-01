@@ -43,6 +43,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
                 await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success(`${name} Successfully Added!`);
                 setEditing(false);
+                setData({});
                 fetchData();
             } else if (editing) {
                 await api.patch(`${route}${id}/`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
