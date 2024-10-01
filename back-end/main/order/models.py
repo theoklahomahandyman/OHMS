@@ -60,7 +60,7 @@ class OrderCost(models.Model):
 
 # Order picture model
 class OrderPicture(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='pictures')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='orders')
 
 # Order material model

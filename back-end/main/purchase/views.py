@@ -87,8 +87,9 @@ class PurchaseMaterialView(APIView):
 
     def post(self, request, *args, **kwargs):
         purchase_pk = kwargs.pop('purchase_pk', None)
-        request.data['purchase'] = purchase_pk
-        serializer = PurchaseMaterialSerializer(data=request.data)
+        data = request.data.copy()
+        data['purchase'] = purchase_pk
+        serializer = PurchaseMaterialSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()

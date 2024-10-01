@@ -21,7 +21,7 @@ function EditPurchase() {
 
     const purchaseID = `OHMS-${id}-PUR`;
     const heading = `Edit Purchase ${purchaseID}`;
-    const text = `Please use this page to edit any information relating to purchase order ${purchaseID}, including adding materials purchased. The cost field when adding a material should be the total amount spent on the selected material alone. The unit cost, inventory level, and total field will update automatically.`;
+    const text = `Please use this page to edit any information relating to purchase order ${purchaseID}, including adding materials purchased. The cost field when adding a material should be the total amount spent on the selected material alone. The unit cost, inventory level, and total fields will update automatically.`;
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -117,7 +117,7 @@ function EditPurchase() {
     return (
         <Page heading={heading} text={text}>
             {loading ? <Loading /> : (
-                <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} initialFiles={{reciept: data['reciept']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} fetchData={fetchData} />
+                <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} initialFiles={{images: data['images']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} fetchData={fetchData} />
             )}
         </Page>
     )
