@@ -63,6 +63,18 @@ class OrderView(APIView):
         order.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class OrderPictureView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        return OrderPicture.objects.get(pk=pk)
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        picture = self.get_object(pk)
+        picture.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 ## CRUD view for order cost model
 class OrderCostView(APIView):
     permission_classes = [IsAuthenticated]
@@ -86,8 +98,9 @@ class OrderCostView(APIView):
 
     def post(self, request, *args, **kwargs):
         order_pk = kwargs.pop('order_pk', None)
-        request.data['order'] = order_pk
-        serializer = OrderCostSerializer(data=request.data)
+        data = request.data.copy()
+        data['order'] = order_pk
+        serializer = OrderCostSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -110,57 +123,6 @@ class OrderCostView(APIView):
         pk = kwargs.get('cost_pk', None)
         cost = self.get_object(pk)
         cost.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-## CRUD view for order picture model
-class OrderPictureView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self, pk=None):
-        return OrderPicture.objects.get(pk=pk)
-
-    def get(self, request, *args, **kwargs):
-        order_pk = kwargs.pop('order_pk', None)
-        picture_pk = kwargs.pop('picture_pk', None)
-        if picture_pk:
-            try:
-                picture = self.get_object(picture_pk)
-                serializer = OrderPictureSerializer(picture)
-            except OrderPicture.DoesNotExist:
-                return Response({'detail': 'Order Picture Not Found.'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            pictures = OrderPicture.objects.filter(order__pk=order_pk)
-            serializer = OrderPictureSerializer(pictures, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, *args, **kwargs):
-        order_pk = kwargs.pop('order_pk', None)
-        data = request.data.copy()
-        data['order'] = order_pk
-        print(data, flush=True)
-        serializer = OrderPictureSerializer(data=data)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except ValidationError as error:
-            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, *args, **kwargs):
-        pk = kwargs.get('picture_pk', None)
-        picture = self.get_object(pk)
-        serializer = OrderPictureSerializer(picture, data=request.data, partial=True)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ValidationError as error:
-            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, *args, **kwargs):
-        pk = kwargs.get('picture_pk', None)
-        picture = self.get_object(pk)
-        picture.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 ## CRUD view for order material model
@@ -186,8 +148,9 @@ class OrderMaterialView(APIView):
 
     def post(self, request, *args, **kwargs):
         order_pk = kwargs.pop('order_pk', None)
-        request.data['order'] = order_pk
-        serializer = OrderMaterialSerializer(data=request.data)
+        data = request.data.copy()
+        data['order'] = order_pk
+        serializer = OrderMaterialSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -235,8 +198,9 @@ class OrderPaymentView(APIView):
 
     def post(self, request, *args, **kwargs):
         order_pk = kwargs.pop('order_pk', None)
-        request.data['order'] = order_pk
-        serializer = OrderPaymentSerializer(data=request.data)
+        data = request.data.copy()
+        data['order'] = order_pk
+        serializer = OrderPaymentSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()

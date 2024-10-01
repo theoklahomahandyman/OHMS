@@ -78,7 +78,11 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
                                 <thead>
                                     <tr>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-header`} className='text-center'>{field.label}</th>
+                                            field.type === 'file' ? (
+                                                <></>
+                                            ) : (
+                                                <th key={`${field.name}-${index}-footer`} className='text-center'>{field.label}</th>
+                                            )
                                         ))}
                                         {Array.isArray(extraFields) && extraFields.length > 0 ? (
                                             extraFields.map((field, index) => (
@@ -92,7 +96,11 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
                                 <tfoot>
                                     <tr>
                                         {fields.map((field, index) => (
-                                            <th key={`${field.name}-${index}-footer`} className='text-center'>{field.label}</th>
+                                            field.type === 'file' ? (
+                                                <></>
+                                            ) : (
+                                                <th key={`${field.name}-${index}-footer`} className='text-center'>{field.label}</th>
+                                            )
                                         ))}
                                         {Array.isArray(extraFields) && extraFields.length > 0 ? (
                                             extraFields.map((field, index) => (
@@ -108,21 +116,21 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
                                         data.map((item, index) => (
                                             <tr className="text-center" key={`${index}-row`}>
                                                 {fields.map((field, index) => (
-                                                    <td key={`${field.name}-${index}-${item.pk}-data`}>
-                                                        {field.name === 'callout' ? (
-                                                            <span style={{ color: item[field.name] === '50.0' ? 'green' : 'red' }}>
-                                                                {item[field.name] === '50.0' ? 'Standard' : 'Emergency'}
-                                                            </span>
-                                                        ) :field.type === 'checkbox' ? (
-                                                            <span style={{ color: item[field.name] ? 'green' : 'red' }}>{item[field.name] ? 'True' : 'False'}</span>
-                                                        ) : field.type === 'file' && field.accept === 'image/*' ? (
-                                                            <img src={`http://localhost:8000${item[field.name]}`} alt={field.label} style={{ width: '50px', height: '50px' }} />
-                                                        ) : field.elementType === 'select' && field.route ? (
-                                                            relatedData[`${item.pk}-${field.name}`]?.representation || <Loading />
-                                                        ) : (
-                                                            item[field.name]
-                                                        )}
-                                                    </td>
+                                                    field.type !== 'file' && (
+                                                        <td key={`${field.name}-${index}-${item.pk}-data`}>
+                                                            {field.name === 'callout' ? (
+                                                                <span style={{ color: item[field.name] === '50.0' ? 'green' : 'red' }}>
+                                                                    {item[field.name] === '50.0' ? 'Standard' : 'Emergency'}
+                                                                </span>
+                                                            ) : field.type === 'checkbox' ? (
+                                                                <span style={{ color: item[field.name] ? 'green' : 'red' }}>{item[field.name] ? 'True' : 'False'}</span>
+                                                            ) : field.elementType === 'select' && field.route ? (
+                                                                relatedData[`${item.pk}-${field.name}`]?.representation || <Loading />
+                                                            ) : (
+                                                                item[field.name]
+                                                            )}
+                                                        </td>
+                                                    )
                                                 ))}
                                                 {Array.isArray(extraFields) && extraFields.length > 0 ? (
                                                     extraFields.map((field, index) => (

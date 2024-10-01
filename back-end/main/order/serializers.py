@@ -5,7 +5,7 @@ from rest_framework import serializers
 class OrderPictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderPicture
-        fields = ['id', 'order', 'picture']
+        fields = ['id', 'order', 'image']
 
 # Serializer for order model
 class OrderSerializer(serializers.ModelSerializer):
@@ -22,6 +22,27 @@ class OrderSerializer(serializers.ModelSerializer):
         for image in uploaded_images:
             OrderPicture.objects.create(order=order, image=image)
         return order
+
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop('uploaded_images', [])
+        instance.customer = validated_data.get('customer', instance.customer)
+        instance.callout = validated_data.get('callout', instance.callout)
+        instance.date = validated_data.get('date', instance.date)
+        instance.description = validated_data.get('description', instance.description)
+        instance.service = validated_data.get('service', instance.service)
+        instance.hourly_rate = validated_data.get('hourly_rate', instance.hourly_rate)
+        instance.hours_worked = validated_data.get('hours_worked', instance.hours_worked)
+        instance.material_upcharge = validated_data.get('material_upcharge', instance.material_upcharge)
+        instance.tax = validated_data.get('tax', instance.tax)
+        instance.total = validated_data.get('total', instance.total)
+        instance.completed = validated_data.get('completed', instance.completed)
+        instance.paid = validated_data.get('paid', instance.paid)
+        instance.discount = validated_data.get('discount', instance.discount)
+        instance.notes = validated_data.get('notes', instance.notes)
+        instance.save()
+        for image in uploaded_images:
+            OrderPicture.objects.create(order=instance, image=image)
+        return instance
 
 # Serializer for order cost model
 class OrderCostSerializer(serializers.ModelSerializer):
