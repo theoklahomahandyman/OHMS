@@ -1,4 +1,4 @@
-from order.models import Order, OrderCost, OrderMaterial, OrderPicture, OrderPayment
+from order.models import Order, OrderCost, OrderMaterial, OrderPicture, OrderPayment, OrderWorkLog
 from rest_framework import serializers
 
 # Serializer for order picture model
@@ -31,18 +31,21 @@ class OrderSerializer(serializers.ModelSerializer):
         instance.description = validated_data.get('description', instance.description)
         instance.service = validated_data.get('service', instance.service)
         instance.hourly_rate = validated_data.get('hourly_rate', instance.hourly_rate)
-        instance.hours_worked = validated_data.get('hours_worked', instance.hours_worked)
         instance.material_upcharge = validated_data.get('material_upcharge', instance.material_upcharge)
         instance.tax = validated_data.get('tax', instance.tax)
-        instance.total = validated_data.get('total', instance.total)
         instance.completed = validated_data.get('completed', instance.completed)
-        instance.paid = validated_data.get('paid', instance.paid)
         instance.discount = validated_data.get('discount', instance.discount)
         instance.notes = validated_data.get('notes', instance.notes)
         instance.save()
         for image in uploaded_images:
             OrderPicture.objects.create(order=instance, image=image)
         return instance
+
+# Serializer for order work log model
+class OrderWorkLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderWorkLog
+        fields = ['id', 'order', 'start', 'end']
 
 # Serializer for order cost model
 class OrderCostSerializer(serializers.ModelSerializer):

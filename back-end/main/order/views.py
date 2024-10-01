@@ -1,5 +1,5 @@
-from order.serializers import OrderSerializer, OrderCostSerializer, OrderPictureSerializer, OrderMaterialSerializer, OrderPaymentSerializer
-from order.models import Order, OrderCost, OrderPicture, OrderMaterial, OrderPayment
+from order.serializers import OrderSerializer, OrderCostSerializer, OrderPictureSerializer, OrderMaterialSerializer, OrderPaymentSerializer, OrderWorkLogSerializer
+from order.models import Order, OrderCost, OrderPicture, OrderMaterial, OrderPayment, OrderWorkLog
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -75,6 +75,59 @@ class OrderPictureView(APIView):
         picture.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+## CRUD view for order work log model
+class OrderWorkLogView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        return OrderWorkLog.objects.get(pk=pk)
+
+    def get(self, request, *args, **kwargs):
+        order_pk = kwargs.pop('order_pk', None)
+        work_log_pk = kwargs.pop('work_log_pk', None)
+        if work_log_pk:
+            try:
+                work_log = self.get_object(work_log_pk)
+                serializer = OrderWorkLogSerializer(work_log)
+            except OrderWorkLog.DoesNotExist:
+                return Response({'detail': 'Order Work Log Not Found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            work_logs = OrderWorkLog.objects.filter(order__pk=order_pk)
+            serializer = OrderWorkLogSerializer(work_logs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        order_pk = kwargs.pop('order_pk', None)
+        data = request.data.copy()
+        data['order'] = order_pk
+        serializer = OrderWorkLogSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        pk = kwargs.get('work_log_pk', None)
+        work_log = self.get_object(pk)
+        serializer = OrderWorkLogSerializer(work_log, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('work_log_pk', None)
+        work_log = self.get_object(pk)
+        work_log.delete()
+        work_log.order.hours_worked = work_log.order.calculate_hours_worked()
+        work_log.order.total = work_log.order.calculate_total()
+        work_log.order.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 ## CRUD view for order cost model
 class OrderCostView(APIView):
     permission_classes = [IsAuthenticated]
@@ -123,6 +176,8 @@ class OrderCostView(APIView):
         pk = kwargs.get('cost_pk', None)
         cost = self.get_object(pk)
         cost.delete()
+        cost.order.total = cost.order.calculate_total()
+        cost.order.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 ## CRUD view for order material model
@@ -173,6 +228,8 @@ class OrderMaterialView(APIView):
         pk = kwargs.get('material_pk', None)
         material = self.get_object(pk)
         material.delete()
+        material.order.total = material.order.calculate_total()
+        material.order.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 ## CRUD view for order payment model
@@ -223,4 +280,5 @@ class OrderPaymentView(APIView):
         pk = kwargs.get('payment_pk', None)
         payment = self.get_object(pk)
         payment.delete()
+        payment.order.determine_paid()
         return Response(status=status.HTTP_204_NO_CONTENT)

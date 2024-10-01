@@ -47,7 +47,7 @@ function Order() {
         {name: 'description', label: 'Description', type: 'text', required: false, elementType: 'input', maxLength: 2000},
         {name: 'service', label: 'Service', required: true, elementType: 'select', data: services.map(service => ({ value: service.id, label: service.name })), route: '/service/name'},
         {name: 'hourly_rate', label: 'Hourly Rate', required: false, elementType: 'input', type: 'number', minValue: 75.0},
-        {name: 'hours_worked', label: 'Hours Worked', required: false, elementType: 'input', type: 'number', minValue: 3.0},
+        {name: 'hours_worked', label: 'Hours Worked', required: false, elementType: 'input', type: 'number', minValue: 3.0, disabled: true},
         {name: 'material_upcharge', label: 'Material Upcharge', required: false, elementType: 'input', type: 'number', minValue: 15.0, maxValue: 75.0},
         {name: 'tax', label: 'Tax', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 20.0},
         {name: 'total', label: 'Total', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},

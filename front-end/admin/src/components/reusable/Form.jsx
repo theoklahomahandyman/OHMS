@@ -88,7 +88,6 @@ function Form ({ fields, formsets, method, route, baseRoute, id, initialData, bu
     const removeImage = async (id) => {
         try {
             api.delete(`${baseRoute}image/${id}/`);
-            window.location.reload();
             toast.success('Image successfully removed!');
         } catch (error) {
             toast.error(error);
