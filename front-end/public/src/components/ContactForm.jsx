@@ -6,7 +6,6 @@ import api from '../api';
 function ContactForm() {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({ first_name: '', last_name: '', email: '', phone: '', description: '' });
-    const [files, setFiles] = useState({ uploaded_images: [] });
     const [data, setData] = useState({ first_name: '', last_name: '', email: '', phone: '', description: '' });
 
     const [confirmEmail, setConfirmEmail] = useState('');
@@ -31,14 +30,12 @@ function ContactForm() {
 
     const onSuccess = () => {
         setData({ first_name: '', last_name: '', email: '', phone: '', description: '' });
-        setFiles({ uploaded_images: [] });
         setErrors({ first_name: '', last_name: '', email: '', phone: '', description: '' });
         setConfirmEmail('');
         toast.success('Your request has been successfully submitted. We will be in touch soon!');
     }
 
     const handleError = (data) => {
-        console.log('error response: ', data)
         const formattedErrors = {};
         if (typeof data === 'object' && !Array.isArray(data)) {
             for (let fieldName in data) {
@@ -49,7 +46,6 @@ function ContactForm() {
                     } else if (typeof array === 'string') {
                         formattedErrors[fieldName] = [array];
                     } else {
-                        console.log(data)
                         formattedErrors[fieldName] = ['Unknown error'];
                     }
                 }
@@ -103,13 +99,6 @@ function ContactForm() {
         }
     };
 
-    const handleFileChange = (event) => {
-        const { files } = event.target;
-        const filesArray = Array.from(files);
-        setFiles({ uploaded_images: filesArray });
-    };
-
-
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
@@ -118,11 +107,6 @@ function ContactForm() {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
                 formData.append(key, data[key]);
             }
-        }
-        if (files.uploaded_images && files.uploaded_images.length > 0) {
-            files.uploaded_images.forEach((file) => {
-                formData.append('uploaded_images', file);
-            });
         }
         try {
             const response = await api.post('/order/public/', formData);
@@ -151,51 +135,44 @@ function ContactForm() {
                                     <>
                                         <div className="row mb-3">
                                             {/* <!-- First name input --> */}
-                                            <div className="form-group col-md-6">
+                                            <div className="form-group col-md-6 mb-2">
                                                 <input type="text" id="first_name" name="first_name" value={data['first_name']} onChange={handleChange} className="form-control" required placeholder="John" minLength="2" maxLength="100" />
                                             </div>
                                             {errors['first_name'] && <div className='alert alert-danger mt-2'>{errors['first_name']}</div>}
                                             {/* <!-- Last name input --> */}
-                                            <div className="form-group col-md-6">
+                                            <div className="form-group col-md-6 mb-2">
                                                 <input type="text" id="last_name" name="last_name" value={data['last_name']} onChange={handleChange} className="form-control" required placeholder="Doe" minLength="2" maxLength="100" />
                                             </div>
                                             {errors['last_name'] && <div className='alert alert-danger mt-2'>{errors['last_name']}</div>}
                                         </div>
                                         <div className="row mb-3">
                                             {/* <!-- Email input --> */}
-                                            <div className="form-group col-md-6">
+                                            <div className="form-group col-md-6 mb-2">
                                                 <input type="email" id="email" name="email" value={data['email']} onChange={handleChange} className="form-control" required placeholder="johndoe@example.com" minLength="8" maxLength="255" />
                                             </div>
                                             {errors['email'] && <div className='alert alert-danger mt-2'>{errors['email']}</div>}
                                             {/* <!-- Confirm email input --> */}
-                                            <div className="form-group col-md-6">
+                                            <div className="form-group col-md-6 mb-2">
                                                 <input type="email" id="confirm_email" name="confirm_email" value={confirmEmail} onChange={() => setConfirmEmail(event.target.value)} className="form-control" required placeholder="johndoe@example.com" minLength="8" maxLength="255" />
                                             </div>
                                             {errors['confirm_email'] && <div className='alert alert-danger mt-2'>{errors['confirm_email']}</div>}
                                         </div>
                                         <div className="row mb-3">
                                             {/* <!-- Phone number input --> */}
-                                            <div className="form-group col-md-6">
+                                            <div className="form-group col-md-12 mb-2">
                                                 <input type="text" id="phone" name="phone" value={data['phone']} onChange={handleChange} className="form-control" required placeholder="1 (234) 567-8901" minLength="16" maxLength="17" />
                                             </div>
                                             {errors['phone'] && <div className='alert alert-danger mt-2'>{errors['phone']}</div>}
-                                            {/* <!-- Optional pictures input --> */}
-                                            <div className="form-group col-md-6">
-                                                <input type="file" accept='image/*' id="uploaded_images" name="uploaded_images" onChange={handleFileChange} className="form-control" multiple />
-                                            </div>
-                                            {errors['uploaded_images'] && <div className='alert alert-danger mt-2'>{errors['uploaded_images']}</div>}
                                         </div>
                                         <div className="row mb-3">
                                             {/* <!-- Description input --> */}
-                                            <div className="form-group col-12">
+                                            <div className="form-group col-12 mb-2">
                                                 <textarea id="description" name="description" value={data['description']} onChange={handleChange} className="form-control" required placeholder="Please write a description of the project..." minLength="2" maxLength="2000"></textarea>
                                             </div>
                                             {errors['description'] && <div className='alert alert-danger mt-2'>{errors['description']}</div>}
                                         </div>
-                                        <div className="row mb-3">
-                                            {/* <!-- Submit button --> */}
-                                            <button id="submit" className="btn btn-primary" type="submit">Submit</button>
-                                        </div>
+                                        {/* <!-- Submit button --> */}
+                                        <button id="submit" className="btn btn-primary" type="submit">Submit</button>
                                     </>
                                 )}
                             </form>
