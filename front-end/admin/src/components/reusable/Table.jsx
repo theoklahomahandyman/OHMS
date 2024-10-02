@@ -78,7 +78,7 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
                                 <thead>
                                     <tr>
                                         {fields.map((field, index) => (
-                                            field.type === 'file' ? (
+                                            field.type === 'file' || field.name === 'notes' || field.name === 'description' ? (
                                                 <></>
                                             ) : (
                                                 <th key={`${field.name}-${index}-footer`} className='text-center'>{field.label}</th>
@@ -96,7 +96,7 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
                                 <tfoot>
                                     <tr>
                                         {fields.map((field, index) => (
-                                            field.type === 'file' ? (
+                                            field.type === 'file' || field.name === 'notes' || field.name === 'description' ? (
                                                 <></>
                                             ) : (
                                                 <th key={`${field.name}-${index}-footer`} className='text-center'>{field.label}</th>
@@ -116,7 +116,7 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
                                         data.map((item, index) => (
                                             <tr className="text-center" key={`${index}-row`}>
                                                 {fields.map((field, index) => (
-                                                    field.type !== 'file' && (
+                                                    field.type !== 'file' && field.name !== 'notes' && field.name !== 'description' && (
                                                         <td key={`${field.name}-${index}-${item.pk}-data`}>
                                                             {field.name === 'callout' ? (
                                                                 <span style={{ color: item[field.name] === '50.0' ? 'green' : 'red' }}>
