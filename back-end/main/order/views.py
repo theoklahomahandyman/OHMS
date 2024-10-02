@@ -39,7 +39,9 @@ class PublicView(APIView):
         order_data = {
             'service': service.pk,
             'customer': customer.pk,
+            'date': request.data['date'],
             'description': request.data['description'],
+            'notes': '',
         }
         order_serializer = OrderSerializer(data=order_data)
         try:

@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
+import TextArea from './TextArea';
 import { useState } from 'react';
 import FormSet from './FormSet';
 import Loading from './Loading';
@@ -101,7 +102,7 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, bu
                     <div className="row">
                         {Array.isArray(fields) && fields.length > 0 ? (
                             fields.map((field, index) => (
-                                <div key={index} className="col-6 mx-auto mb-3">
+                                <div key={index} className='col-auto mx-auto mb-3'>
                                     {field.elementType === 'input' ? (
                                         field.type === 'file' ? (
                                             <>
@@ -117,6 +118,8 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, bu
                                                     </div>
                                                 )}
                                             </>
+                                        ) : field.name === 'description' || field.name === 'notes' ? (
+                                            <TextArea key={index} id={field.name} label={field.label || field.name} value={data[field.name]} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} error={errors[field.name]} disabled={field.disabled} />
                                         ) : (
                                             <Input key={index} id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled} />
                                         )
