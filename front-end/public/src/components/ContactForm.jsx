@@ -5,8 +5,8 @@ import api from '../api';
 
 function ContactForm() {
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState({ first_name: '', last_name: '', email: '', phone: '', description: '' });
-    const [data, setData] = useState({ first_name: '', last_name: '', email: '', phone: '', description: '' });
+    const [errors, setErrors] = useState({ first_name: '', last_name: '', email: '', phone: '', date: '', description: '' });
+    const [data, setData] = useState({ first_name: '', last_name: '', email: '', phone: '', date: '', description: '' });
 
     const [confirmEmail, setConfirmEmail] = useState('');
 
@@ -29,8 +29,8 @@ function ContactForm() {
     }, [data, confirmEmail]);
 
     const onSuccess = () => {
-        setData({ first_name: '', last_name: '', email: '', phone: '', description: '' });
-        setErrors({ first_name: '', last_name: '', email: '', phone: '', description: '' });
+        setData({ first_name: '', last_name: '', email: '', phone: '', date: '', description: '' });
+        setErrors({ first_name: '', last_name: '', email: '', phone: '', date: '', description: '' });
         setConfirmEmail('');
         toast.success('Your request has been successfully submitted. We will be in touch soon!');
     }
@@ -159,10 +159,15 @@ function ContactForm() {
                                         </div>
                                         <div className="row mb-3">
                                             {/* <!-- Phone number input --> */}
-                                            <div className="form-group col-md-12 mb-2">
+                                            <div className="form-group col-md-6 mb-2">
                                                 <input type="text" id="phone" name="phone" value={data['phone']} onChange={handleChange} className="form-control" required placeholder="1 (234) 567-8901" minLength="16" maxLength="17" />
                                             </div>
                                             {errors['phone'] && <div className='alert alert-danger mt-2'>{errors['phone']}</div>}
+                                            {/* <!-- Date input --> */}
+                                            <div className="form-group col-md-6 mb-2">
+                                                <input type="date" id="date" name="date" value={data['date']} onChange={handleChange} className="form-control" required />
+                                            </div>
+                                            {errors['date'] && <div className='alert alert-danger mt-2'>{errors['date']}</div>}
                                         </div>
                                         <div className="row mb-3">
                                             {/* <!-- Description input --> */}
