@@ -22,7 +22,7 @@ TextArea.propTypes = {
     id: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
     required: PropTypes.bool.isRequired,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.number, PropTypes.bool, PropTypes.array]).isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.number, PropTypes.bool, PropTypes.array]),
     setData: PropTypes.func,
     placeholder: PropTypes.string,
     maxLength: PropTypes.number,

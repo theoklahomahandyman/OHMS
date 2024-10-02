@@ -110,6 +110,7 @@ function EditOrder() {
         {name: 'tax_total', label: 'Tax Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'subtotal', label: 'Subtotal ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'total', label: 'Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
+        {name: 'payment_total', label: 'Payment Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'working_total', label: 'Total Due ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'description', label: 'Description', type: 'text', required: false, elementType: 'input', maxLength: 2000},
         {name: 'notes', label: 'Notes', type: 'text', required: false, elementType: 'input', maxLength: 10000},
