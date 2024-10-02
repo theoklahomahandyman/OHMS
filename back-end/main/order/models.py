@@ -1,4 +1,5 @@
 from django.core.validators import MinValueValidator, MaxValueValidator, MinLengthValidator, MaxLengthValidator
+from django.core.exceptions import ValidationError
 from customer.models import Customer
 from material.models import Material
 from service.models import Service
@@ -11,11 +12,20 @@ class Order(models.Model):
         EMERGENCY = '175.0', 'Emergency - $175.00'
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=2000, validators=[MinLengthValidator(2), MaxLengthValidator(2000)])
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, blank=True, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
     hourly_rate = models.FloatField(default=93.0, validators=[MinValueValidator(75.0)])
     hours_worked = models.FloatField(default=3.0, validators=[MinValueValidator(3.0)])
+    """
+        labor_total
+        material_total
+        line_total
+        tax_total
+        discount_total
+        payment_total
+        working_total
+    """
     material_upcharge = models.FloatField(default=25.0, validators=[MinValueValidator(15.0), MaxValueValidator(75.0)])
     tax = models.FloatField(default=12.0, validators=[MinValueValidator(0.0), MaxValueValidator(20.0)])
     total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
@@ -41,10 +51,43 @@ class Order(models.Model):
         total = subtotal + tax_amount - discount_amount
         return max(total, 0)
 
+    def calculate_hours_worked(self):
+        work_logs = OrderWorkLog.objects.filter(order=self)
+        total_hours = sum((log.end - log.start).total_seconds() / 3600 for log in work_logs)
+        return max(total_hours, 3.0)
+
+    def determine_paid(self):
+        total_payments = sum(payment.total for payment in OrderPayment.objects.filter(order=self))
+        if total_payments >= self.total:
+            return True
+        else:
+            return False
+
     def save(self, *args, **kwargs):
-        # Automatically calculate total
-        self.total = self.calculate_total()
         super().save(*args, **kwargs)
+        self.hours_worked = self.calculate_hours_worked()
+        self.total = self.calculate_total()
+
+# Order work log model
+class OrderWorkLog(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='work_logs')
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+
+    def clean(self):
+        # Ensure the end time is after the start time
+        if self.end <= self.start:
+            raise ValidationError('The start time must be before the end time.')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+        # Recalculate the hours worked and order total after saving the work log
+        self.order.hours_worked = self.order.calculate_hours_worked()
+        self.order.total = self.order.calculate_total()
+        # Redetermine paid after saving the work log
+        self.order.paid = self.order.determine_paid()
+        self.order.save()
 
 # Order cost model
 class OrderCost(models.Model):
@@ -54,8 +97,9 @@ class OrderCost(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Recalculate the order total after saving a cost
+        # Recalculate the order total and redetermine paid after saving a cost
         self.order.total = self.order.calculate_total()
+        self.order.paid = self.order.determine_paid()
         self.order.save()
 
 # Order picture model
@@ -70,14 +114,10 @@ class OrderMaterial(models.Model):
     quantity = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
 
     def save(self, *args, **kwargs):
-        self.price = self.material.unit_cost * self.quantity
         super().save(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.price = self.material.unit_cost * self.quantity
-        super().save(*args, **kwargs)
-        # Recalculate the order total after saving a material
+        # Recalculate the order total and redetermine paid after saving a material
         self.order.total = self.order.calculate_total()
+        self.order.paid = self.order.determine_paid()
         self.order.save()
 
 # Order payment model
@@ -94,8 +134,5 @@ class OrderPayment(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        order = self.order
-        total_payments = sum(payment.total for payment in OrderPayment.objects.filter(order=order))
-        if total_payments >= order.total:
-            order.paid = True
-            order.save()
+        self.order.paid = self.order.determine_paid()
+        self.order.save()

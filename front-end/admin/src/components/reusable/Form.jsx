@@ -7,7 +7,7 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function Form ({ fields, formsets, method, route, baseRoute, id, initialData, buttonText, buttonStyle, onSuccess, children, customError }) {
+function Form ({ id, fields, formsets, method, route, baseRoute, initialData, buttonText, buttonStyle, onSuccess, customError, children }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(initialData || {});
     const [files, setFiles] = useState({});
@@ -88,7 +88,6 @@ function Form ({ fields, formsets, method, route, baseRoute, id, initialData, bu
     const removeImage = async (id) => {
         try {
             api.delete(`${baseRoute}image/${id}/`);
-            window.location.reload();
             toast.success('Image successfully removed!');
         } catch (error) {
             toast.error(error);
@@ -162,8 +161,6 @@ Form.propTypes = {
             elementType: PropTypes.string.isRequired,
             maxLength: PropTypes.number,
             minLength: PropTypes.number,
-            accept: PropTypes.string,
-            multiple: PropTypes.bool,
             data: PropTypes.arrayOf(PropTypes.shape({
                 value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
                 label: PropTypes.string.isRequired
@@ -185,12 +182,12 @@ Form.propTypes = {
                     elementType: PropTypes.string.isRequired,
                     maxLength: PropTypes.number,
                     minLength: PropTypes.number,
-                    accept: PropTypes.string,
-                    multiple: PropTypes.bool,
                     data: PropTypes.arrayOf(PropTypes.shape({
                         value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
                         label: PropTypes.string.isRequired
                     })),
+                    customChange: PropTypes.func,
+                    disabled: PropTypes.bool,
                 })
             ).isRequired,
         })

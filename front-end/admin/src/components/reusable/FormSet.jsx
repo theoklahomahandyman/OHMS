@@ -9,13 +9,29 @@ function FormSet({ entity, fields, route, id }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
 
-    route = `${route}${id}/`
+    route = `${route}${id}/`;
+
+    const formatDate = (isoString) => {
+        const date = new Date(isoString);
+        return date.toISOString().slice(0, 16);
+    };
 
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
             const response = await api.get(route);
-            setData(response.data || [])
+            const responseData = response.data || [];
+            if (Array.isArray(responseData) && response.data.length > 0) {
+                responseData.forEach(item => {
+                    if (item.start) {
+                        item.start = formatDate(item.start);
+                    }
+                    if (item.end) {
+                        item.end = formatDate(item.end);
+                    }
+                })
+            }
+            setData(responseData)
         } catch {
             setData([]);
         } finally {
@@ -69,12 +85,12 @@ FormSet.propTypes = {
             elementType: PropTypes.string.isRequired,
             maxLength: PropTypes.number,
             minLength: PropTypes.number,
-            accept: PropTypes.string,
-            multiple: PropTypes.bool,
             data: PropTypes.arrayOf(PropTypes.shape({
                 value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
                 label: PropTypes.string.isRequired
             })),
+            customChange: PropTypes.func,
+            disabled: PropTypes.bool,
         })
     ).isRequired,
 }

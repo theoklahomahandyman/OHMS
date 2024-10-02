@@ -31,7 +31,7 @@ function EditOrder() {
     const paymentChoices = [
         { value: 'cash', label: 'Cash' },
         { value: 'check', label: 'Check' },
-    ]
+    ];
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -95,22 +95,22 @@ function EditOrder() {
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
         {name: 'description', label: 'Description', type: 'text', required: false, elementType: 'input', maxLength: 2000},
         {name: 'service', label: 'Service', required: true, elementType: 'select', data: services.map(service => ({ value: service.id, label: service.name })), route: '/service/name'},
-        {name: 'hourly_rate', label: 'Hourly Rate', required: false, elementType: 'input', type: 'number', minValue: 75.0},
-        {name: 'hours_worked', label: 'Hours Worked', required: false, elementType: 'input', type: 'number', minValue: 3.0},
-        {name: 'material_upcharge', label: 'Material Upcharge', required: false, elementType: 'input', type: 'number', minValue: 15.0, maxValue: 75.0},
-        {name: 'tax', label: 'Tax', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 20.0},
-        {name: 'total', label: 'Total', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'completed', label: 'Complete', required: false, elementType: 'input', type: 'checkbox'},
         {name: 'paid', label: 'Paid', required: false, elementType: 'input', type: 'checkbox', disabled: true},
-        {name: 'discount', label: 'Discount', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 100.0},
+        {name: 'discount', label: 'Discount (%)', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 100.0},
         {name: 'notes', label: 'Notes', type: 'text', required: false, elementType: 'input', maxLength: 10000},
         {name: 'callout', label: 'Callout Type', required: false, elementType: 'select', data: calloutChoices},
         {name: 'uploaded_images', label: 'Pictures', required: false, elementType: 'input', type: 'file'},
+        {name: 'hourly_rate', label: 'Hourly Rate ($)', required: false, elementType: 'input', type: 'number', minValue: 75.0},
+        {name: 'hours_worked', label: 'Hours Worked', required: false, elementType: 'input', type: 'number', minValue: 3.0, disabled: true},
+        {name: 'material_upcharge', label: 'Material Upcharge (%)', required: false, elementType: 'input', type: 'number', minValue: 15.0, maxValue: 75.0},
+        {name: 'tax', label: 'Tax (%)', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 20.0},
+        {name: 'total', label: 'Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
     ];
 
     const costFields = [
         {name: 'name', label: 'Name', type: 'text', required: true, elementType: 'input', minLength: 2, maxLength: 300},
-        {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input', minValue: 0.0},
+        {name: 'cost', label: 'Cost ($)', type: 'number', required: true, elementType: 'input', minValue: 0.0},
     ];
 
     const materialFields = [
@@ -121,14 +121,21 @@ function EditOrder() {
     const paymentFields = [
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
         {name: 'type', label: 'Payment Type', required: true, elementType: 'select', data: paymentChoices},
-        {name: 'total', label: 'Total', required: true, elementType: 'input', type: 'number', minValue: 0.00},
+        {name: 'total', label: 'Total ($)', required: true, elementType: 'input', type: 'number', minValue: 0.00},
         {name: 'notes', label: 'Notes', required: false, elementType: 'input', type: 'text', maxLength: 255},
-    ]
+    ];
+
+    const workLogFields = [
+        {name: 'start', label: 'Start Time', required: true, elementType: 'input', type: 'datetime-local'},
+        {name: 'end', label: 'End Time', required: true, elementType: 'input', type: 'datetime-local'},
+    ];
+
     const formsets = [
         {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields},
         {entity: 'Material', route: '/order/material/', fields: materialFields},
+        {entity: 'Work Log', route: '/order/worklog/', fields: workLogFields},
         {entity: 'Payment', route: '/order/payment/', fields: paymentFields},
-    ]
+    ];
 
     return (
         <Page heading={heading} text={text}>
