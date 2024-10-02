@@ -46,17 +46,17 @@ function Order() {
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
         {name: 'description', label: 'Description', type: 'text', required: false, elementType: 'input', maxLength: 2000},
         {name: 'service', label: 'Service', required: true, elementType: 'select', data: services.map(service => ({ value: service.id, label: service.name })), route: '/service/name'},
-        {name: 'hourly_rate', label: 'Hourly Rate', required: false, elementType: 'input', type: 'number', minValue: 75.0},
-        {name: 'hours_worked', label: 'Hours Worked', required: false, elementType: 'input', type: 'number', minValue: 3.0, disabled: true},
-        {name: 'material_upcharge', label: 'Material Upcharge', required: false, elementType: 'input', type: 'number', minValue: 15.0, maxValue: 75.0},
-        {name: 'tax', label: 'Tax', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 20.0},
-        {name: 'total', label: 'Total', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'completed', label: 'Complete', required: false, elementType: 'input', type: 'checkbox'},
         {name: 'paid', label: 'Paid', required: false, elementType: 'input', type: 'checkbox', disabled: true},
-        {name: 'discount', label: 'Discount', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 100.0},
+        {name: 'discount', label: 'Discount (%)', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 100.0},
         {name: 'notes', label: 'Notes', type: 'text', required: false, elementType: 'input', maxLength: 10000},
         {name: 'callout', label: 'Callout Type', required: false, elementType: 'select', data: calloutChoices},
         {name: 'uploaded_images', label: 'Pictures', required: false, elementType: 'input', type: 'file'},
+        {name: 'hourly_rate', label: 'Hourly Rate ($)', required: false, elementType: 'input', type: 'number', minValue: 75.0},
+        {name: 'hours_worked', label: 'Hours Worked', required: false, elementType: 'input', type: 'number', minValue: 3.0, disabled: true},
+        {name: 'material_upcharge', label: 'Material Upcharge (%)', required: false, elementType: 'input', type: 'number', minValue: 15.0, maxValue: 75.0},
+        {name: 'tax', label: 'Tax (%)', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 20.0},
+        {name: 'total', label: 'Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
     ];
 
     return (

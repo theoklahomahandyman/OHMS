@@ -12,11 +12,20 @@ class Order(models.Model):
         EMERGENCY = '175.0', 'Emergency - $175.00'
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=2000, validators=[MinLengthValidator(2), MaxLengthValidator(2000)])
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, blank=True, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
     hourly_rate = models.FloatField(default=93.0, validators=[MinValueValidator(75.0)])
     hours_worked = models.FloatField(default=3.0, validators=[MinValueValidator(3.0)])
+    """
+        labor_total
+        material_total
+        line_total
+        tax_total
+        discount_total
+        payment_total
+        working_total
+    """
     material_upcharge = models.FloatField(default=25.0, validators=[MinValueValidator(15.0), MaxValueValidator(75.0)])
     tax = models.FloatField(default=12.0, validators=[MinValueValidator(0.0), MaxValueValidator(20.0)])
     total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
@@ -55,9 +64,9 @@ class Order(models.Model):
             return False
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         self.hours_worked = self.calculate_hours_worked()
         self.total = self.calculate_total()
-        super().save(*args, **kwargs)
 
 # Order work log model
 class OrderWorkLog(models.Model):

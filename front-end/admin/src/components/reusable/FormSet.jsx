@@ -85,12 +85,12 @@ FormSet.propTypes = {
             elementType: PropTypes.string.isRequired,
             maxLength: PropTypes.number,
             minLength: PropTypes.number,
-            accept: PropTypes.string,
-            multiple: PropTypes.bool,
             data: PropTypes.arrayOf(PropTypes.shape({
                 value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
                 label: PropTypes.string.isRequired
             })),
+            customChange: PropTypes.func,
+            disabled: PropTypes.bool,
         })
     ).isRequired,
 }

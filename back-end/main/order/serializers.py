@@ -10,7 +10,7 @@ class OrderPictureSerializer(serializers.ModelSerializer):
 # Serializer for order model
 class OrderSerializer(serializers.ModelSerializer):
     images = OrderPictureSerializer(many=True, read_only=True)
-    uploaded_images = serializers.ListField(child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False), write_only=True)
+    uploaded_images = serializers.ListField(child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False), write_only=True, required=False)
 
     class Meta:
         model = Order
