@@ -14,7 +14,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'callout', 'date', 'description', 'service', 'hourly_rate', 'hours_worked', 'material_upcharge', 'tax', 'total', 'completed', 'paid', 'discount', 'notes', 'images', 'uploaded_images']
+        fields = ['id', 'customer', 'callout', 'date', 'description', 'service', 'hourly_rate', 'hours_worked', 'labor_total', 'material_upcharge', 'material_total', 'line_total', 'subtotal', 'tax', 'tax_total','completed', 'paid', 'discount', 'discount_total', 'total', 'payment_total', 'working_total', 'notes', 'images', 'uploaded_images']
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])

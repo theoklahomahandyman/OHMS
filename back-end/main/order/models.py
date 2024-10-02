@@ -17,48 +17,60 @@ class Order(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     hourly_rate = models.FloatField(default=93.0, validators=[MinValueValidator(75.0)])
     hours_worked = models.FloatField(default=3.0, validators=[MinValueValidator(3.0)])
-    """
-        labor_total
-        material_total
-        line_total
-        tax_total
-        discount_total
-        payment_total
-        working_total
-    """
+    labor_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     material_upcharge = models.FloatField(default=25.0, validators=[MinValueValidator(15.0), MaxValueValidator(75.0)])
+    material_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    line_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    subtotal = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     tax = models.FloatField(default=12.0, validators=[MinValueValidator(0.0), MaxValueValidator(20.0)])
-    total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    tax_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     completed = models.BooleanField(default=False)
     paid = models.BooleanField(default=False)
     discount = models.FloatField(default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
+    discount_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    payment_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    working_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
     notes = models.CharField(max_length=10000, validators=[MaxLengthValidator(10000)], null=True, blank=True)
     callout = models.FloatField(choices=CALLOUT_CHOICES.choices, default=CALLOUT_CHOICES.STANDARD)
-
-    def calculate_total(self):
-        # Calculate labor costs
-        labor_costs = self.hourly_rate * self.hours_worked
-        # Calculate material costs
-        materials = OrderMaterial.objects.filter(order__pk=self.pk)
-        total_material_costs = sum((material.material.unit_cost * material.quantity) for material in materials)
-        material_costs = total_material_costs * (1 + self.material_upcharge / 100)
-        # Calculate order costs
-        costs = OrderCost.objects.filter(order__pk=self.pk)
-        order_costs = sum(cost.cost for cost in costs)
-        subtotal = labor_costs + material_costs + order_costs + float(self.callout)
-        tax_amount = (self.tax / 100) * subtotal
-        discount_amount = (self.discount / 100) * subtotal
-        total = subtotal + tax_amount - discount_amount
-        return max(total, 0)
 
     def calculate_hours_worked(self):
         work_logs = OrderWorkLog.objects.filter(order=self)
         total_hours = sum((log.end - log.start).total_seconds() / 3600 for log in work_logs)
         return max(total_hours, 3.0)
 
+    def calculate_labor_total(self):
+        return max(self.hourly_rate * self.hours_worked, 0.0)
+
+    def calculate_material_total(self):
+        materials = OrderMaterial.objects.filter(order__pk=self.pk)
+        total_material_costs = sum((material.material.unit_cost * material.quantity) for material in materials)
+        return max(total_material_costs * (1 + self.material_upcharge / 100), 0.0)
+
+    def calculate_line_total(self):
+        costs = OrderCost.objects.filter(order__pk=self.pk)
+        return max(sum(cost.cost for cost in costs), 0.0)
+
+    def calculate_subtotal(self):
+        return max(self.labor_total + self.material_total + self.line_total + float(self.callout), 0)
+
+    def calculate_tax_total(self):
+        return max((self.tax / 100) * self.subtotal, 0.0)
+
+    def calculate_discount_total(self):
+        return max((self.discount / 100) * self.subtotal, 0.0)
+
+    def calculate_total(self):
+        return max(self.subtotal + self.tax_total - self.discount_total, 0.0)
+
+    def calculate_payment_total(self):
+        return max(sum(payment.total for payment in OrderPayment.objects.filter(order=self)), 0.0)
+
+    def calculate_working_total(self):
+        return max(self.total - self.payment_total, 0.0)
+
     def determine_paid(self):
-        total_payments = sum(payment.total for payment in OrderPayment.objects.filter(order=self))
-        if total_payments >= self.total:
+        if self.working_total == 0:
             return True
         else:
             return False
@@ -66,7 +78,17 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.hours_worked = self.calculate_hours_worked()
+        self.labor_total = self.calculate_labor_total()
+        self.material_total = self.calculate_material_total()
+        self.line_total = self.calculate_line_total()
+        self.subtotal = self.calculate_subtotal()
+        self.tax_total = self.calculate_tax_total()
+        self.discount_total = self.calculate_discount_total()
         self.total = self.calculate_total()
+        self.payment_total = self.calculate_payment_total()
+        self.working_total = self.calculate_working_total()
+        self.paid = self.determine_paid()
+        super().save()
 
 # Order work log model
 class OrderWorkLog(models.Model):
@@ -82,11 +104,7 @@ class OrderWorkLog(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
-        # Recalculate the hours worked and order total after saving the work log
-        self.order.hours_worked = self.order.calculate_hours_worked()
-        self.order.total = self.order.calculate_total()
-        # Redetermine paid after saving the work log
-        self.order.paid = self.order.determine_paid()
+        # Recalculate the order fields after saving the work log
         self.order.save()
 
 # Order cost model
@@ -97,9 +115,7 @@ class OrderCost(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Recalculate the order total and redetermine paid after saving a cost
-        self.order.total = self.order.calculate_total()
-        self.order.paid = self.order.determine_paid()
+        # Recalculate the order fields after saving a cost
         self.order.save()
 
 # Order picture model
@@ -115,9 +131,7 @@ class OrderMaterial(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Recalculate the order total and redetermine paid after saving a material
-        self.order.total = self.order.calculate_total()
-        self.order.paid = self.order.determine_paid()
+        # Recalculate the order fields after saving a material
         self.order.save()
 
 # Order payment model
@@ -134,5 +148,5 @@ class OrderPayment(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.order.paid = self.order.determine_paid()
+        # Recalculate the order fields after saving a payment
         self.order.save()

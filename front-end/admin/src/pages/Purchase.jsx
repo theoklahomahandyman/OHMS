@@ -6,6 +6,7 @@ import api from '../api';
 
 function Purchase() {
     const [suppliers, setSuppliers] = useState([]);
+    const [supplierAddresses, setSupplierAddresses] = useState([]);
     const [addresses, setAddresses] = useState([]);
 
     const heading = 'Purchases';
@@ -24,6 +25,28 @@ function Purchase() {
         fetchSuppliers();
     }, []);
 
+    useEffect(() => {
+        const fetchAddresses = async () => {
+            if (suppliers.length > 0) {
+                const updatedAddresses = [];
+                await Promise.all(suppliers.map(async (supplier) => {
+                    try {
+                        const response = await api.get(`/supplier/address/${supplier.id}/`);
+                        updatedAddresses.push({
+                            id: supplier.id,
+                            ...response.data
+                        });
+                    } catch {
+                        toast.error('No Addresses Found!');
+                    }
+                }));
+                setSupplierAddresses(updatedAddresses);
+            }
+        };
+        fetchAddresses();
+    }, [suppliers]);
+
+
     const handleSupplierChange = async (event) => {
         const supplier = event.target.value;
         setAddresses([])
@@ -37,6 +60,11 @@ function Purchase() {
         }
     }
 
+    const relatedData = [
+        {name: 'supplier', data: suppliers},
+        {name: 'supplier_address', data: supplierAddresses},
+    ];
+
     const fields = [
         {name: 'supplier', label: 'Supplier', required: true, elementType: 'select', data: suppliers.map(supplier => ({ value: supplier.id, label: supplier.name })), customChange: handleSupplierChange, route: 'supplier/name'},
         {name: 'supplier_address', label: 'Supplier Address', required: true, elementType: 'select', data: addresses.map(address => ({ value: address.id, label: `${address.street_address} ${address.city}, ${address.state} ${address.zip}` })), route: '/supplier/address'},
@@ -48,7 +76,7 @@ function Purchase() {
 
     return (
         <Page heading={heading} text={text}>
-            <Table fields={fields} name='Purchase' route='/purchase/' updateType='page' />
+            <Table fields={fields} name='Purchase' route='/purchase/' updateType='page' relatedData={relatedData} />
         </Page>
     )
 }

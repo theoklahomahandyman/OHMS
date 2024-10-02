@@ -10,9 +10,8 @@ import $ from 'jquery';
 import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css'
 
-function Table({ name, fields, formsets, extraFields, route, updateType }) {
+function Table({ name, fields, formsets, extraFields, route, updateType, relatedData }) {
     const [loading, setLoading] = useState(false);
-    const [relatedData, setRelatedData] = useState([]);
     const [data, setData] = useState([]);
 
     const fetchData = useCallback(async () => {
@@ -27,42 +26,37 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
         }
     }, [route]);
 
-    const fetchRelatedData = async (id, route) => {
-        setLoading(true);
-        try {
-            const response = await api.get(`${route}/${id}/`);
-            return response.data;
-        } catch {
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    }
-
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
     useEffect(() => {
-        const loadRelatedData = async (item, field) => {
-            if (!field.route) return;
-            const id = item[field.name];
-            const result = await fetchRelatedData(id, field.route);
-            setRelatedData(prev => ({ ...prev, [`${item.pk}-${field.name}`]: result }));
-        }
         if (Array.isArray(data) && data.length > 0) {
-            data.forEach(item => {
-                fields.forEach(field => {
-                    if (field.elementType === 'select') {
-                        loadRelatedData(item, field);
-                    }
-                });
-            });
             setTimeout(() => {
                 $('#dataTable').DataTable();
             }, 1);
         }
-    }, [data, fields]);
+    }, [data]);
+
+    const getRelatedData = (field, itemId) => {
+        const related = relatedData.find(rel => rel.name === field.name);
+        if (related) {
+            const match = related.data.find(relItem => relItem.id === itemId);
+            if (field.name === 'supplier_address') {
+                return match && match.representation ? match.representation : 'N/A'; // Use the correct key for the address data
+            } else if (field.name === 'service') {
+                return match ? match.name : 'N/A';
+            } else if (field.name === 'supplier') {
+                return match ? match.name : 'N/A';
+            } else if (field.name === 'customer') {
+                return match ? `${match.first_name} ${match.last_name}` : 'N/A';
+            }
+        } else {
+            console.warn(`Related data for field: ${field.name} not found.`);
+        }
+        return 'N/A';
+    };
+
 
     return (
         <div>
@@ -116,27 +110,31 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
                                         data.map((item, index) => (
                                             <tr className="text-center" key={`${index}-row`}>
                                                 {fields.map((field, index) => (
-                                                    field.type !== 'file' && field.name !== 'notes' && field.name !== 'description' && (
-                                                        <td key={`${field.name}-${index}-${item.pk}-data`}>
-                                                            {field.name === 'callout' ? (
+                                                    field.type === 'file' || field.name === 'notes' || field.name === 'description' ? (
+                                                        null  // Skip rendering for notes and description
+                                                    ) : (
+                                                        <td key={`${field.name}-${index}-${item.id}`}>
+                                                            {field.name === 'customer' || field.name === 'service' || field.name === 'supplier' || field.name === 'supplier_address' ? (
+                                                                getRelatedData(field, item[field.name])
+                                                            ) : field.name === 'callout' ? (
                                                                 <span style={{ color: item[field.name] === '50.0' ? 'green' : 'red' }}>
                                                                     {item[field.name] === '50.0' ? 'Standard' : 'Emergency'}
                                                                 </span>
                                                             ) : field.type === 'checkbox' ? (
-                                                                <span style={{ color: item[field.name] ? 'green' : 'red' }}>{item[field.name] ? 'True' : 'False'}</span>
-                                                            ) : field.elementType === 'select' && field.route ? (
-                                                                relatedData[`${item.pk}-${field.name}`]?.representation || <Loading />
+                                                                <span style={{ color: item[field.name] ? 'green' : 'red' }}>
+                                                                    {item[field.name] ? 'True' : 'False'}
+                                                                </span>
                                                             ) : (
-                                                                item[field.name]
+                                                                item[field.name] || 'N/A'
                                                             )}
                                                         </td>
                                                     )
                                                 ))}
-                                                {Array.isArray(extraFields) && extraFields.length > 0 ? (
+                                                {Array.isArray(extraFields) && extraFields.length > 0 && (
                                                     extraFields.map((field, index) => (
                                                         <td key={`${field.name}-${index}${item.pk}-extra`}>{item[field.name]}</td>
                                                     ))
-                                                ) : <></>}
+                                                )}
                                                 {updateType === 'page' ? (
                                                     <td key={`edit-${item.id}`}><a href={`${route}${item.id}`} className='btn btn-md btn-primary action-btn'>Edit</a></td>
                                                 ) : (
@@ -151,6 +149,7 @@ function Table({ name, fields, formsets, extraFields, route, updateType }) {
                                         </tr>
                                     )}
                                 </tbody>
+
                             </table>
                         </div>
                     )}
@@ -183,6 +182,12 @@ Table.propTypes = {
         })
     ).isRequired,
 
+    relatedData: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string.isRequired,
+            data: PropTypes.any.isRequired,
+        })
+    ),
     updateType: PropTypes.string,
     extraFields: PropTypes.array,
     formsets: PropTypes.arrayOf(
