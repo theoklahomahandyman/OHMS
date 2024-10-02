@@ -93,12 +93,10 @@ function EditOrder() {
     const fields = [
         {name: 'customer', label: 'Customer', required: true, elementType: 'select', data: customers.map(customer => ({ value: customer.id, label: `${customer.first_name} ${customer.last_name}` })), route: '/customer/name'},
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
-        {name: 'description', label: 'Description', type: 'text', required: false, elementType: 'input', maxLength: 2000},
         {name: 'service', label: 'Service', required: true, elementType: 'select', data: services.map(service => ({ value: service.id, label: service.name })), route: '/service/name'},
         {name: 'completed', label: 'Complete', required: false, elementType: 'input', type: 'checkbox'},
         {name: 'paid', label: 'Paid', required: false, elementType: 'input', type: 'checkbox', disabled: true},
         {name: 'discount', label: 'Discount (%)', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 100.0},
-        {name: 'notes', label: 'Notes', type: 'text', required: false, elementType: 'input', maxLength: 10000},
         {name: 'callout', label: 'Callout Type', required: false, elementType: 'select', data: calloutChoices},
         {name: 'uploaded_images', label: 'Pictures', required: false, elementType: 'input', type: 'file'},
         {name: 'hourly_rate', label: 'Hourly Rate ($)', required: false, elementType: 'input', type: 'number', minValue: 75.0},
@@ -106,6 +104,8 @@ function EditOrder() {
         {name: 'material_upcharge', label: 'Material Upcharge (%)', required: false, elementType: 'input', type: 'number', minValue: 15.0, maxValue: 75.0},
         {name: 'tax', label: 'Tax (%)', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 20.0},
         {name: 'total', label: 'Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
+        {name: 'description', label: 'Description', type: 'text', required: false, elementType: 'input', maxLength: 2000},
+        {name: 'notes', label: 'Notes', type: 'text', required: false, elementType: 'input', maxLength: 10000},
     ];
 
     const costFields = [
