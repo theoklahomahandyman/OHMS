@@ -52,18 +52,3 @@ class ServiceView(APIView):
         service = self.get_object(pk)
         service.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-# View to return service name only
-class ServiceNameView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self, pk=None):
-        try:
-            return Service.objects.get(pk=pk)
-        except Service.DoesNotExist:
-            raise NotFound('Service Not Found!')
-
-    def get(self, request, *args, **kwargs):
-        pk = kwargs.pop('pk', None)
-        service = self.get_object(pk)
-        return Response({'representation': service.name})

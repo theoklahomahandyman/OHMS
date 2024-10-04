@@ -69,7 +69,7 @@ class TestServiceSerializer(TestCase):
 
 # Tests for service view
 class TestServiceView(APITestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.client = APIClient()
@@ -85,7 +85,7 @@ class TestServiceView(APITestCase):
         cls.list_url = reverse('service-list')
         cls.detail_url = lambda pk: reverse('service-detail', kwargs={'pk': pk})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
-        
+
     ## Test get service not found
     def test_get_service_not_found(self):
         self.client.force_authenticate(user=self.user)
@@ -151,57 +151,26 @@ class TestServiceView(APITestCase):
     ## Test update service with empty data
     def test_update_service_empty_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.service.pk), data=self.empty_data)
+        response = self.client.patch(self.detail_url(self.service.pk), data=self.empty_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('name', response.data)
 
     ## Test update service with short data
     def test_update_service_short_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.service.pk), data=self.short_data)
+        response = self.client.patch(self.detail_url(self.service.pk), data=self.short_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('name', response.data)
 
     ## Test update service with long data
     def test_update_service_long_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.service.pk), data=self.long_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('name', response.data)
-        self.assertIn('description', response.data)
-
-    ## Test update service success
-    def test_update_service_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.service.pk), data=self.update_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        service = Service.objects.get(pk=self.service.pk)
-        self.assertEqual(service.name, self.update_data['name'])
-        self.assertEqual(service.description, self.update_data['description'])
-
-    ## Test partial update service with empty data
-    def test_partial_update_service_empty_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.service.pk), data=self.empty_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('name', response.data)
-
-    ## Test partial update service with short data
-    def test_partial_update_service_short_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.service.pk), data=self.short_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('name', response.data)
-
-    ## Test partial update service with long data
-    def test_partial_update_service_long_data(self):
-        self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.service.pk), data=self.long_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('name', response.data)
 
-    ## Test partial update service success
-    def test_partial_update_service_success(self):
+    ## Test update service success
+    def test_update_service_success(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.service.pk), data=self.patch_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

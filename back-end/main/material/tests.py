@@ -9,7 +9,7 @@ from user.models import User
 
 # Tests for material models
 class TestMaterialModels(TestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet')
@@ -20,7 +20,7 @@ class TestMaterialModels(TestCase):
 
 # Tests for material serializer
 class TestMaterialSerializers(TestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet')
@@ -59,7 +59,7 @@ class TestMaterialSerializers(TestCase):
         self.assertIn('size', serializer.validated_data)
 
 class TestMaterialView(APITestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.client = APIClient()
@@ -150,7 +150,7 @@ class TestMaterialView(APITestCase):
     ## Test update material with empty data
     def test_update_material_empty_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.material.pk), data=self.empty_data)
+        response = self.client.patch(self.detail_url(self.material.pk), data=self.empty_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('name', response.data)
         self.assertIn('size', response.data)
@@ -158,7 +158,7 @@ class TestMaterialView(APITestCase):
     ## Test update material with short data
     def test_update_material_short_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.material.pk), data=self.short_data)
+        response = self.client.patch(self.detail_url(self.material.pk), data=self.short_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('name', response.data)
         self.assertIn('size', response.data)
@@ -166,7 +166,7 @@ class TestMaterialView(APITestCase):
     ## Test update material with long data
     def test_update_material_long_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.material.pk), data=self.long_data)
+        response = self.client.patch(self.detail_url(self.material.pk), data=self.long_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('name', response.data)
         self.assertIn('size', response.data)
@@ -174,41 +174,6 @@ class TestMaterialView(APITestCase):
 
     ## Test update material success
     def test_update_material_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.material.pk), data=self.update_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        material = Material.objects.get(name=self.update_data['name'], size=self.update_data['size'])
-        self.assertEqual(material.name, self.update_data['name'])
-        self.assertEqual(material.size, self.update_data['size'])
-        self.assertEqual(material.description, self.update_data['description'])
-
-    ## Test partial update material with empty data
-    def test_partial_update_material_empty_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.material.pk), data=self.empty_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('name', response.data)
-        self.assertIn('size', response.data)
-
-    ## Test partial update material with short data
-    def test_partial_update_material_short_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.material.pk), data=self.short_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('name', response.data)
-        self.assertIn('size', response.data)
-
-    ## Test partial update material with long data
-    def test_partial_update_material_long_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.material.pk), data=self.long_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('name', response.data)
-        self.assertIn('size', response.data)
-        self.assertIn('description', response.data)
-
-    ## Test partial update material success
-    def test_partial_update_material_success(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.material.pk), data=self.patch_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
