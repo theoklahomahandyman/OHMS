@@ -53,21 +53,6 @@ class SupplierView(APIView):
         supplier.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# View to return supplier name only
-class SupplierNameView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self, pk=None):
-        try:
-            return Supplier.objects.get(pk=pk)
-        except Supplier.DoesNotExist:
-            raise NotFound('Supplier Not Found!')
-
-    def get(self, request, *args, **kwargs):
-        pk = kwargs.pop('pk', None)
-        supplier = self.get_object(pk)
-        return Response({'representation': supplier.name})
-
 # CRUD view for supplier address model
 class SupplierAddressView(APIView):
     permission_classes = [IsAuthenticated]
@@ -123,12 +108,9 @@ class AddressView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk=None):
-        try:
-            return SupplierAddress.objects.get(pk=pk)
-        except SupplierAddress.DoesNotExist:
-            raise NotFound('Supplier Not Found!')
+        return SupplierAddress.objects.get(pk=pk)
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.pop('pk', None)
         address = self.get_object(pk)
-        return Response({'representation': f'{address.street_address} {address.city}, {address.state} {address.zip}'})
+        return Response({'representation': address.__str__()})

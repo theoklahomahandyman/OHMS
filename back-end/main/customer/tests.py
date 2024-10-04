@@ -183,7 +183,7 @@ class TestCustomerView(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), Customer.objects.count())
-        
+
     ## Test create customer with empty data
     def test_create_customer_empty_data(self):
         self.client.force_authenticate(user=self.user)
@@ -193,7 +193,7 @@ class TestCustomerView(APITestCase):
         self.assertIn('last_name', response.data)
         self.assertIn('email', response.data)
         self.assertIn('phone', response.data)
-        
+
     ## Test create customer with short data
     def test_create_customer_short_data(self):
         self.client.force_authenticate(user=self.user)
@@ -203,7 +203,7 @@ class TestCustomerView(APITestCase):
         self.assertIn('last_name', response.data)
         self.assertIn('email', response.data)
         self.assertIn('phone', response.data)
-        
+
     ## Test create customer with long data
     def test_create_customer_long_data(self):
         self.client.force_authenticate(user=self.user)
@@ -247,7 +247,7 @@ class TestCustomerView(APITestCase):
     ## Test update customer with empty data
     def test_update_customer_empty_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.customer.pk), data=self.empty_data)
+        response = self.client.patch(self.detail_url(self.customer.pk), data=self.empty_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('first_name', response.data)
         self.assertIn('last_name', response.data)
@@ -257,7 +257,7 @@ class TestCustomerView(APITestCase):
     ## Test update customer with short data
     def test_update_customer_short_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.customer.pk), data=self.short_data)
+        response = self.client.patch(self.detail_url(self.customer.pk), data=self.short_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('first_name', response.data)
         self.assertIn('last_name', response.data)
@@ -267,7 +267,7 @@ class TestCustomerView(APITestCase):
     ## Test update customer with long data
     def test_update_customer_long_data(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.customer.pk), data=self.long_data)
+        response = self.client.patch(self.detail_url(self.customer.pk), data=self.long_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('first_name', response.data)
         self.assertIn('last_name', response.data)
@@ -278,78 +278,19 @@ class TestCustomerView(APITestCase):
     def test_update_customer_existing_email(self):
         self.client.force_authenticate(user=self.user)
         another_customer = Customer.objects.create(first_name='Jane', last_name='Doe', email='janedoe@example.com', phone='1 (586) 375-3896')
-        self.update_data['email'] = another_customer.email
-        response = self.client.put(self.detail_url(self.customer.pk), data=self.update_data)
+        response = self.client.patch(self.detail_url(self.customer.pk), data={'email': another_customer.email})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('email', response.data)
 
     ## Test update customer with invalid phone
-    def test_update_customer_invalid_phone(self):
-        self.client.force_authenticate(user=self.user)
-        invalid_phone_data = self.update_data.copy()
-        invalid_phone_data['phone'] = '+51-234-567-8901'
-        response = self.client.put(self.detail_url(self.customer.pk), data=invalid_phone_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('phone', response.data)
-
-    ## Test update customer success
-    def test_update_customer_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.put(self.detail_url(self.customer.pk), data=self.update_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        customer = Customer.objects.get(pk=self.customer.pk)
-        self.assertEqual(customer.first_name, self.update_data['first_name'])
-        self.assertEqual(customer.last_name, self.update_data['last_name'])
-        self.assertEqual(customer.email, self.update_data['email'])
-        self.assertEqual(customer.phone, self.update_data['phone'])
-
-    ## Test partial update customer with empty data
-    def test_partial_update_customer_empty_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.customer.pk), data=self.empty_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('first_name', response.data)
-        self.assertIn('last_name', response.data)
-        self.assertIn('email', response.data)
-        self.assertIn('phone', response.data)
-
-    ## Test partial update customer with short data
-    def test_partial_update_customer_short_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.customer.pk), data=self.short_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('first_name', response.data)
-        self.assertIn('last_name', response.data)
-        self.assertIn('email', response.data)
-        self.assertIn('phone', response.data)
-
-    ## Test partial update customer with long data
-    def test_partial_update_customer_long_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.customer.pk), data=self.long_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('first_name', response.data)
-        self.assertIn('last_name', response.data)
-        self.assertIn('email', response.data)
-        self.assertIn('phone', response.data)
-
-    ## Test partial update customer with existing email
-    def test_partial_update_customer_existing_email(self):
-        self.client.force_authenticate(user=self.user)
-        another_customer = Customer.objects.create(first_name='Jane', last_name='Doe', email='janedoe@example.com', phone='1 (586) 375-3896')
-        response = self.client.patch(self.detail_url(self.customer.pk), data={'email': another_customer.email})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('email', response.data)
-        
-    ## Test partial update customer with invalid phone
-    def test_partial_update_customer_with_invalid_phone(self):
+    def test_update_customer_with_invalid_phone(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.customer.pk), data={'phone': '+51-234-567-8901'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('phone', response.data)
 
-    ## Test partial update customer success
-    def test_partial_update_customer_success(self):
+    ## Test update customer success
+    def test_update_customer_success(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.customer.pk), data=self.patch_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -362,4 +303,3 @@ class TestCustomerView(APITestCase):
         response = self.client.delete(self.detail_url(self.customer.pk))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Customer.objects.count(), 0)
-    

@@ -12,7 +12,7 @@ class Order(models.Model):
         EMERGENCY = '175.0', 'Emergency - $175.00'
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    date = models.DateField(blank=True, null=True)
+    date = models.DateField()
     description = models.CharField(max_length=2000, validators=[MinLengthValidator(2), MaxLengthValidator(2000)])
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     hourly_rate = models.FloatField(default=93.0, validators=[MinValueValidator(75.0)])
