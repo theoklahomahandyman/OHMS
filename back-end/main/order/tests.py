@@ -1,4 +1,4 @@
-from order.serializers import OrderSerializer, OrderWorkLogSerializer, OrderCostSerializer, OrderPictureSerializer, OrderMaterialSerializer, OrderPaymentSerializer
+from order.serializers import OrderSerializer, OrderCostSerializer, OrderPictureSerializer, OrderMaterialSerializer, OrderPaymentSerializer
 from order.models import Order, OrderWorkLog, OrderCost, OrderPicture, OrderMaterial, OrderPayment
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
@@ -7,6 +7,7 @@ from supplier.models import Supplier, SupplierAddress
 from django.contrib.auth.hashers import make_password
 from django.contrib.staticfiles.finders import find
 from django.core.exceptions import ValidationError
+from rest_framework.fields import DateTimeField
 from customer.models import Customer
 from material.models import Material
 from service.models import Service
@@ -400,6 +401,13 @@ class TestOrderPaymentSerializer(TestCase):
         self.assertIn('total', serializer.validated_data)
         self.assertIn('notes', serializer.validated_data)
 
+# Tests for public view
+class TestPublicView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        pass
+
 # Tests for order view
 class TestOrderView(APITestCase):
 
@@ -559,6 +567,94 @@ class TestOrderView(APITestCase):
         response = self.client.delete(self.detail_url(self.order.pk))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Order.objects.count(), 0)
+
+# Tests for order work log view
+class TestOrderWorkLogView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.date = timezone.now().date()
+        cls.service = Service.objects.create(name='test service')
+        cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@email.com', phone='1 (234) 567-8901', notes='test customer')
+        cls.order = Order.objects.create(customer=cls.customer, date=cls.date, description='test description', service=cls.service, hourly_rate=50.0, hours_worked=1.25, material_upcharge=9.25, tax=13.5, total=0.0, completed=False, paid=False, discount=1.75, notes='test order', callout=Order.CALLOUT_CHOICES.STANDARD)
+        cls.order_work_log = OrderWorkLog.objects.create(order=cls.order, start=timezone.now() - timezone.timedelta(hours=16), end=timezone.now() - timezone.timedelta(hours=5))
+        cls.empty_data = {'start': '', 'end': ''}
+        cls.create_data = {'start': timezone.now() - timezone.timedelta(hours=6), 'end': timezone.now() - timezone.timedelta(hours=2)}
+        cls.update_data = {'start': timezone.now() - timezone.timedelta(hours=8), 'end': timezone.now() - timezone.timedelta(minutes=15)}
+        cls.patch_data = {'end': timezone.now() + timezone.timedelta(hours=3)}
+        cls.list_url = lambda order_pk: reverse('order-work-log-list', kwargs={'order_pk': order_pk})
+        cls.detail_url = lambda order_pk, work_log_pk: reverse('order-work-log-detail', kwargs={'order_pk': order_pk, 'work_log_pk':work_log_pk})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    ## Test get order work log not found
+    def test_get_order_work_log_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.order.pk, 79027269))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Order Work Log Not Found.')
+
+    ## Test get order work log success
+    def test_get_order_work_log_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.order.pk, self.order_work_log.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        dt_field = DateTimeField()
+        expected_start = dt_field.to_representation(self.order_work_log.start)
+        expected_end = dt_field.to_representation(self.order_work_log.end)
+        self.assertEqual(response.data['order'], self.order_work_log.order.pk)
+        self.assertEqual(response.data['start'], expected_start)
+        self.assertEqual(response.data['end'], expected_end)
+
+    ## Test get order work logs success
+    def test_get_order_work_logs_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.order.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), OrderWorkLog.objects.filter(order=self.order).count())
+
+    ## Test create order work log with empty data
+    def test_create_order_work_log_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.order.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('start', response.data)
+        self.assertIn('end', response.data)
+
+    ## Test create order work log success
+    def test_create_order_work_log_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.order.pk), data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(OrderWorkLog.objects.count(), 2)
+        work_log = OrderWorkLog.objects.get(order=self.order, start=self.create_data['start'], end=self.create_data['end'])
+        self.assertEqual(work_log.order, self.order)
+        self.assertEqual(work_log.start, self.create_data['start'])
+        self.assertEqual(work_log.end, self.create_data['end'])
+
+    ## Test update order work log with empty data
+    def test_update_order_work_log_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order.pk, self.order_work_log.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('start', response.data)
+        self.assertIn('end', response.data)
+
+    ## Test update order work log success
+    def test_update_order_work_log_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order.pk, self.order_work_log.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        work_log = OrderWorkLog.objects.get(pk=self.order_work_log.pk)
+        self.assertEqual(work_log.end, self.patch_data['end'])
+
+    ## Test delete order work log success
+    def test_delete_order_work_log_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.order.pk, self.order_work_log.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(OrderWorkLog.objects.count(), 0)
 
 # Tests for order cost view
 class TestOrderCostView(APITestCase):
