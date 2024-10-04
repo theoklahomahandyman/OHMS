@@ -406,7 +406,63 @@ class TestPublicView(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        cls.client = APIClient()
+        cls.long_string = 'a' * 2001
+        cls.date = timezone.now().date()
+        cls.empty_customer_data = {'first_name': '', 'last_name': '', 'email': '', 'phone': '', 'date': cls.date, 'description': 'test description'}
+        cls.short_customer_data = {'first_name': 'f', 'last_name': 'l', 'email': 't@e.com', 'phone': '12345678901', 'date': cls.date, 'description': 'test description'}
+        cls.long_customer_data = {'first_name': cls.long_string, 'last_name': cls.long_string, 'email': f'{cls.long_string}@email.com', 'phone': cls.long_string, 'date': cls.date, 'description': 'test description'}
+        cls.empty_order_data = {'first_name': 'first', 'last_name': 'last', 'email': 'test@email.com', 'phone': '1 (583) 201-3820', 'date': '', 'description': ''}
+        cls.short_order_data = {'first_name': 'first', 'last_name': 'last', 'email': 'test@email.com', 'phone': '1 (583) 201-3820', 'date': '1', 'description': 't'}
+        cls.long_order_data = {'first_name': 'first', 'last_name': 'last', 'email': 'test@email.com', 'phone': '1 (583) 201-3820', 'date': cls.long_string, 'description': cls.long_string}
+        cls.create_data = {'first_name': 'first', 'last_name': 'last', 'email': 'firstlast@email.com', 'phone': '1 (405) 685-9354', 'date': cls.date, 'description': 'test desctiption'}
+        cls.url = reverse('order-public')
+
+    def test_public_customer_empty_data(self):
+        response = self.client.post(self.url, data=self.empty_customer_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('first_name', response.data)
+        self.assertIn('last_name', response.data)
+        self.assertIn('email', response.data)
+        self.assertIn('phone', response.data)
+
+    def test_public_customer_short_data(self):
+        response = self.client.post(self.url, data=self.short_customer_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('first_name', response.data)
+        self.assertIn('last_name', response.data)
+        self.assertIn('email', response.data)
+        self.assertIn('phone', response.data)
+
+    def test_public_customer_long_data(self):
+        response = self.client.post(self.url, data=self.long_customer_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('first_name', response.data)
+        self.assertIn('last_name', response.data)
+        self.assertIn('email', response.data)
+        self.assertIn('phone', response.data)
+
+    def test_public_order_empty_data(self):
+        response = self.client.post(self.url, data=self.empty_order_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('date', response.data)
+        self.assertIn('description', response.data)
+
+    def test_public_order_short_data(self):
+        response = self.client.post(self.url, data=self.short_order_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('date', response.data)
+        self.assertIn('description', response.data)
+
+    def test_public_order_long_data(self):
+        response = self.client.post(self.url, data=self.long_order_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('date', response.data)
+        self.assertIn('description', response.data)
+
+    def test_public_success(self):
+        response = self.client.post(self.url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 # Tests for order view
 class TestOrderView(APITestCase):
