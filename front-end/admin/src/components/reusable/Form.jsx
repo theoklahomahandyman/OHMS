@@ -8,7 +8,7 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function Form ({ id, fields, formsets, method, route, baseRoute, initialData, buttonText, buttonStyle, onSuccess, customError, children }) {
+function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fetchData, buttonText, buttonStyle, onSuccess, customError, children }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(initialData || {});
     const [files, setFiles] = useState({});
@@ -90,6 +90,10 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, bu
     const removeImage = async (id) => {
         try {
             api.delete(`${baseRoute}image/${id}/`);
+            setData((prevState) => ({
+                ...prevState,
+                images: prevState.images.filter((image) => image.id !== id),
+            }));
             toast.success('Image successfully removed!');
         } catch (error) {
             toast.error(error);
@@ -138,7 +142,7 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, bu
                 </button>
             </form>
             {Array.isArray(formsets) && formsets.length > 0 ? formsets.map((formset, index) => (
-                <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} id={id} />
+                <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} id={id} fetchRelatedData={fetchData} />
             )) : null}
         </>
     );
@@ -154,6 +158,7 @@ Form.propTypes = {
     id: PropTypes.any,
     children: PropTypes.node,
     initialData: PropTypes.any,
+    fetchData: PropTypes.func,
     customError: PropTypes.string,
     baseRoute: PropTypes.string,
     fields: PropTypes.arrayOf(
