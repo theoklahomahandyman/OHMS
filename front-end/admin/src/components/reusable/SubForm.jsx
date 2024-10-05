@@ -6,7 +6,7 @@ import Select from './Select';
 import Input from './Input';
 import api from '../../api';
 
-function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
+function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isNew, id, name }) {
     const [data, setData] = useState(initialData || {});
     const [files, setFiles] = useState({});
     const [errors, setErrors] = useState({});
@@ -42,6 +42,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
             if (isNew){
                 await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success(`${name} Successfully Added!`);
+                fetchRelatedData();
                 setEditing(false);
                 setData({});
                 fetchData();
@@ -72,6 +73,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
         try {
             await api.delete(`${route}${id}/`);
             toast.success(`${name} Successfully Removed!`);
+            fetchRelatedData();
             fetchData();
         } catch {
             toast.error('An error occurred so nothing was deleted. Please try again.')
@@ -168,6 +170,7 @@ SubForm.propTypes = {
     route: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     fetchData: PropTypes.func.isRequired,
+    fetchRelatedData: PropTypes.func.isRequired,
     isNew: PropTypes.bool.isRequired,
     fields: PropTypes.arrayOf(
         PropTypes.shape({

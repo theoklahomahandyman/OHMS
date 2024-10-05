@@ -33,42 +33,42 @@ class Order(models.Model):
     payment_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
     working_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
     notes = models.CharField(max_length=10000, validators=[MaxLengthValidator(10000)], null=True, blank=True)
-    callout = models.DecimalField(max_digits=10, decimal_places=2, choices=CALLOUT_CHOICES.choices, default=CALLOUT_CHOICES.STANDARD)
+    callout = models.FloatField(choices=CALLOUT_CHOICES.choices, default=CALLOUT_CHOICES.STANDARD)
 
     def calculate_hours_worked(self):
         work_logs = OrderWorkLog.objects.filter(order=self)
         total_hours = sum((log.end - log.start).total_seconds() / 3600 for log in work_logs)
-        return max(total_hours, 3.0)
+        return max(float(total_hours), 3.0)
 
     def calculate_labor_total(self):
-        return max(self.hourly_rate * self.hours_worked, 0.0)
+        return max(float(self.hourly_rate) * float(self.hours_worked), 0.0)
 
     def calculate_material_total(self):
         materials = OrderMaterial.objects.filter(order__pk=self.pk)
         total_material_costs = sum((material.material.unit_cost * material.quantity) for material in materials)
-        return max(total_material_costs * (1 + self.material_upcharge / 100), 0.0)
+        return max(float(total_material_costs) * (1 + float(self.material_upcharge) / 100), 0.0)
 
     def calculate_line_total(self):
         costs = OrderCost.objects.filter(order__pk=self.pk)
-        return max(sum(cost.cost for cost in costs), 0.0)
+        return max(float(sum(cost.cost for cost in costs)), 0.0)
 
     def calculate_subtotal(self):
-        return max(self.labor_total + self.material_total + self.line_total + float(self.callout), 0)
+        return max(float(self.labor_total) + float(self.material_total) + float(self.line_total) + float(self.callout), 0)
 
     def calculate_tax_total(self):
-        return max((self.tax / 100) * self.subtotal, 0.0)
+        return max((float(self.tax) / 100) * float(self.subtotal), 0.0)
 
     def calculate_discount_total(self):
-        return max((self.discount / 100) * self.subtotal, 0.0)
+        return max((float(self.discount) / 100) * float(self.subtotal), 0.0)
 
     def calculate_total(self):
-        return max(self.subtotal + self.tax_total - self.discount_total, 0.0)
+        return max(float(self.subtotal) + float(self.tax_total) - float(self.discount_total), 0.0)
 
     def calculate_payment_total(self):
-        return max(sum(payment.total for payment in OrderPayment.objects.filter(order=self)), 0.0)
+        return max(float(sum(payment.total for payment in OrderPayment.objects.filter(order=self))), 0.0)
 
     def calculate_working_total(self):
-        return max(self.total - self.payment_total, 0.0)
+        return max(float(self.total) - float(self.payment_total), 0.0)
 
     def determine_paid(self):
         if self.working_total == 0:

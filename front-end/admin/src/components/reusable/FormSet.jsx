@@ -5,7 +5,7 @@ import Loading from './Loading';
 import SubForm from './SubForm';
 import api from '../../api';
 
-function FormSet({ entity, fields, route, id }) {
+function FormSet({ entity, fields, route, fetchRelatedData, id }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
 
@@ -48,7 +48,7 @@ function FormSet({ entity, fields, route, id }) {
         const newFormWrapper = document.createElement('div');
         list.appendChild(newFormWrapper);
         const root = createRoot(newFormWrapper);
-        root.render(<SubForm fields={fields} route={route} isNew={true} fetchData={fetchData} name={entity} />);
+        root.render(<SubForm fields={fields} route={route} isNew={true} fetchData={fetchData} fetchRelatedData={fetchRelatedData} name={entity} />);
     }
 
     return (
@@ -58,7 +58,7 @@ function FormSet({ entity, fields, route, id }) {
                 {loading ? <Loading /> : (
                     Array.isArray(data) && data.length > 0 ? (
                         data.map((item, index) => (
-                            <SubForm key={`${index}-${item.pk}-form`} fields={fields} route={route} isNew={false} fetchData={fetchData} initialData={item} id={item.id} name={entity} />
+                            <SubForm key={`${index}-${item.pk}-form`} fields={fields} route={route} isNew={false} fetchData={fetchData} fetchRelatedData={fetchRelatedData} initialData={item} id={item.id} name={entity} />
                         ))
                     ) : (
                         <p className="text-center">No {entity}s Yet</p>
@@ -76,6 +76,7 @@ FormSet.propTypes = {
     id: PropTypes.any.isRequired,
     entity: PropTypes.string.isRequired,
     route: PropTypes.string.isRequired,
+    fetchRelatedData: PropTypes.func.isRequired,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,

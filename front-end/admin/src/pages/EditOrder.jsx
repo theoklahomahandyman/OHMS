@@ -25,8 +25,8 @@ function EditOrder() {
     const text = `Please use this page to edit any information relating to order ${orderID}, including adding materials used, line item costs, and payments. The inventory level for materials, paid, and total fields will update automatically.`;
 
     const calloutChoices = [
-        { value: '50.0', label: 'Standard - $50.00' },
-        { value: '175.0', label: 'Emergency - $175.00' },
+        { value: 50.0, label: 'Standard - $50.00' },
+        { value: 175.0, label: 'Emergency - $175.00' },
     ];
 
     const paymentChoices = [
@@ -167,7 +167,7 @@ function EditOrder() {
     return (
         <Page heading={heading} text={text}>
             {loading ? <Loading /> : (
-                <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} initialFiles={{images: data['images']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} />
+                <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} fetchData={fetchData} initialFiles={{images: data['images']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} />
             )}
         </Page>
     )
