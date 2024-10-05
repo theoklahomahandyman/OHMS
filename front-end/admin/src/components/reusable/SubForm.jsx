@@ -121,7 +121,7 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
                                     if (field.type === 'file') {
                                         return (
                                             <div className='mx-auto' key={index}>
-                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={isDisabled} />
+                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled || isDisabled} />
                                                 {data[field.name] && (
                                                     <div className="file-info">
                                                         <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
@@ -132,14 +132,14 @@ function SubForm ({ fields, route, initialData, fetchData, isNew, id, name }) {
                                     } else {
                                         return (
                                             <div className="mx-auto" key={index}>
-                                                <Input id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={isDisabled} />
+                                                <Input id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled || isDisabled} />
                                             </div>
                                         )
                                     }
                                 } else {
                                     return (
                                         <div className="mx-auto" key={index}>
-                                            <Select id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} disabled={isDisabled} />
+                                            <Select id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} disabled={field.disabled || isDisabled} />
                                         </div>
                                     )
                                 }
