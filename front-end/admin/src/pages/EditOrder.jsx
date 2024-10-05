@@ -11,6 +11,7 @@ function EditOrder() {
     const [customers, setCustomers] = useState([]);
     const [services, setServices] = useState([]);
     const [materials, setMaterials] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
 
@@ -85,6 +86,18 @@ function EditOrder() {
         fetchMaterials();
     }, []);
 
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const response = await api.get('/user/admin/');
+                setUsers(response.data);
+            } catch {
+                toast.error('No Users Found!');
+            }
+        }
+        fetchUsers()
+    }, []);
+
     const handleSuccess = () => {
         navigate('/order/');
         toast.success('Order successfully updated!');
@@ -133,6 +146,11 @@ function EditOrder() {
         {name: 'notes', label: 'Notes', required: false, elementType: 'input', type: 'text', maxLength: 255},
     ];
 
+    const workerFields = [
+        {name: 'user', label: 'Worker', required: true, elementType: 'select',  data: users.map(user => ({ value: user.id, label: `${user.first_name} ${user.last_name}`}))},
+        {name: 'total', label: 'Pay ($)', required: false, elementType: 'input', type: 'number', disabled: true}
+    ];
+
     const workLogFields = [
         {name: 'start', label: 'Start Time', required: true, elementType: 'input', type: 'datetime-local'},
         {name: 'end', label: 'End Time', required: true, elementType: 'input', type: 'datetime-local'},
@@ -143,6 +161,7 @@ function EditOrder() {
         {entity: 'Material', route: '/order/material/', fields: materialFields},
         {entity: 'Work Log', route: '/order/worklog/', fields: workLogFields},
         {entity: 'Payment', route: '/order/payment/', fields: paymentFields},
+        {entity: 'Worker', route: '/order/worker/', fields: workerFields},
     ];
 
     return (

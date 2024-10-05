@@ -1,5 +1,5 @@
-from order.serializers import OrderSerializer, OrderCostSerializer, OrderMaterialSerializer, OrderPaymentSerializer, OrderWorkLogSerializer
-from order.models import Order, OrderCost, OrderPicture, OrderMaterial, OrderPayment, OrderWorkLog
+from order.serializers import OrderSerializer, OrderCostSerializer, OrderMaterialSerializer, OrderPaymentSerializer, OrderWorkLogSerializer, OrderWorkerSerializer
+from order.models import Order, OrderCost, OrderPicture, OrderMaterial, OrderPayment, OrderWorkLog, OrderWorker
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ValidationError
 from customer.serializers import CustomerSerializer
@@ -315,4 +315,54 @@ class OrderPaymentView(APIView):
         payment = self.get_object(pk)
         payment.delete()
         payment.order.determine_paid()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+## CRUD view for order worker model
+class OrderWorkerView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        return OrderWorker.objects.get(pk=pk)
+
+    def get(self, request, *args, **kwargs):
+        order_pk = kwargs.pop('order_pk', None)
+        worker_pk = kwargs.pop('worker_pk', None)
+        if worker_pk:
+            try:
+                worker = self.get_object(worker_pk)
+                serializer = OrderWorkerSerializer(worker)
+            except OrderWorker.DoesNotExist:
+                return Response({'detail': 'Order Worker Not Found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            workers = OrderWorker.objects.filter(order__pk=order_pk)
+            serializer = OrderWorkerSerializer(workers, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        order_pk = kwargs.pop('order_pk', None)
+        data = request.data.copy()
+        data['order'] = order_pk
+        serializer = OrderWorkerSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        pk = kwargs.get('worker_pk', None)
+        worker = self.get_object(pk)
+        serializer = OrderWorkerSerializer(worker, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('worker_pk', None)
+        worker = self.get_object(pk)
+        worker.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
