@@ -7,8 +7,8 @@ from material.models import Material
 class Purchase(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     supplier_address = models.ForeignKey(SupplierAddress, on_delete=models.CASCADE)
-    tax = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
-    total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
     date = models.DateField()
 
     def save(self, *args, **kwargs):
@@ -31,7 +31,7 @@ class PurchaseMaterial(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='materials')
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)])
-    cost = models.FloatField(validators=[MinValueValidator(0.0)])
+    cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -40,12 +40,10 @@ class PurchaseMaterial(models.Model):
                 new_unit_cost = self.cost / self.quantity
             else:
                 new_unit_cost = 0.0
-
             # Update material unit cost
             self.material.unit_cost = new_unit_cost
             self.material.available_quantity += self.quantity
             self.material.save()
-
             # Handle purchase total updates
             if self.pk:
                 original = PurchaseMaterial.objects.get(pk=self.pk)
@@ -53,7 +51,6 @@ class PurchaseMaterial(models.Model):
             else:
                 self.purchase.total += self.cost
             self.purchase.save()
-
             super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

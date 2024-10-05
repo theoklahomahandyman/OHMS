@@ -31,10 +31,11 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, bu
         }
         try {
             if (method === 'post'){
-                console.log(files)
+                console.log(data)
                 const response = await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'patch') {
+                console.log(data)
                 const response = await api.patch(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'put') {

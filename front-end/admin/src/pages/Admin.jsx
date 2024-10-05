@@ -11,6 +11,7 @@ function Admin() {
         {name: 'last_name', label: 'Last Name', type: 'text', required: true, elementType: 'input', maxLength: 100, minLength: 2},
         {name: 'email', label: 'Email', type: 'email', required: true, elementType: 'input', maxLength: 255, minLength: 8},
         {name: 'phone', label: 'Phone Number', type: 'text', required: true, elementType: 'input', maxLength: 17, minLength: 16},
+        {name: 'pay_rate', label: 'Pay Rate', type: 'number', required: true, elementType: 'input', minValue: 0.0},
         {name: 'is_active', label: 'Active', type: 'checkbox', required: false, elementType: 'input'},
     ];
 

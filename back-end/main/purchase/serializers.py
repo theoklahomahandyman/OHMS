@@ -37,7 +37,6 @@ class PurchaseSerializer(serializers.ModelSerializer):
 
 # Serializer for purchase material model
 class PurchaseMaterialSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = PurchaseMaterial
         fields = ['id', 'purchase', 'material', 'quantity', 'cost']

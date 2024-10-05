@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from customer.models import Customer
 from material.models import Material
 from service.models import Service
+from user.models import User
 from django.db import models
 
 # Order model
@@ -15,24 +16,24 @@ class Order(models.Model):
     date = models.DateField()
     description = models.CharField(max_length=2000, validators=[MinLengthValidator(2), MaxLengthValidator(2000)])
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    hourly_rate = models.FloatField(default=93.0, validators=[MinValueValidator(75.0)])
-    hours_worked = models.FloatField(default=3.0, validators=[MinValueValidator(3.0)])
-    labor_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
-    material_upcharge = models.FloatField(default=25.0, validators=[MinValueValidator(15.0), MaxValueValidator(75.0)])
-    material_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
-    line_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
-    subtotal = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
-    tax = models.FloatField(default=12.0, validators=[MinValueValidator(0.0), MaxValueValidator(20.0)])
-    tax_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, default=93.0, validators=[MinValueValidator(75.0)])
+    hours_worked = models.DecimalField(max_digits=10, decimal_places=2, default=3.0, validators=[MinValueValidator(3.0)])
+    labor_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    material_upcharge = models.DecimalField(max_digits=10, decimal_places=2, default=25.0, validators=[MinValueValidator(15.0), MaxValueValidator(75.0)])
+    material_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    line_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    tax = models.DecimalField(max_digits=10, decimal_places=2, default=12.0, validators=[MinValueValidator(0.0), MaxValueValidator(20.0)])
+    tax_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
     completed = models.BooleanField(default=False)
     paid = models.BooleanField(default=False)
-    discount = models.FloatField(default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
-    discount_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
-    total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
-    payment_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
-    working_total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
+    discount_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    payment_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    working_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
     notes = models.CharField(max_length=10000, validators=[MaxLengthValidator(10000)], null=True, blank=True)
-    callout = models.FloatField(choices=CALLOUT_CHOICES.choices, default=CALLOUT_CHOICES.STANDARD)
+    callout = models.DecimalField(max_digits=10, decimal_places=2, choices=CALLOUT_CHOICES.choices, default=CALLOUT_CHOICES.STANDARD)
 
     def calculate_hours_worked(self):
         work_logs = OrderWorkLog.objects.filter(order=self)
@@ -111,7 +112,7 @@ class OrderWorkLog(models.Model):
 class OrderCost(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='costs')
     name = models.CharField(max_length=300, validators=[MinLengthValidator(2), MaxLengthValidator(300)])
-    cost = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -143,10 +144,20 @@ class OrderPayment(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
     date = models.DateField()
     type = models.CharField(max_length=5, choices=PAYMENT_CHOICES.choices)
-    total = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
     notes = models.CharField(max_length=255, validators=[MaxLengthValidator(255)], blank=True, null=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Recalculate the order fields after saving a payment
         self.order.save()
+
+# Order Worker model
+class OrderWorker(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='workers')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+
+    def save(self, *args, **kwargs):
+        self.total = self.user.pay_rate * self.order.hours_worked
+        super().save(*args, **kwargs)
