@@ -15,13 +15,15 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
 
     const formId = `subform-${Math.random().toString(36).substr(2, 9)}`;
 
-    const isDisabled = !editing && !isNew;
-
     useEffect(() => {
         if (!isNew) {
             setEditing(false);
         }
-    }, [isNew])
+    }, [isNew]);
+
+    const triggerEditing = () => {
+        setEditing(true);
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -49,6 +51,7 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
             } else if (editing) {
                 await api.patch(`${route}${id}/`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success(`${name} Successfully Edited!`);
+                fetchRelatedData();
                 setEditing(false);
                 fetchData();
             }
@@ -111,58 +114,61 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
     }
 
     return (
-        <form id={formId} onSubmit={handleSubmit} className='form' encType='multipart/form-data'>
-            {loading ? (
-                <Loading />
-            ) : (
-                <>
-                    <div className='flex-grow-1 d-flex flex-wrap justify-content-center gap-2'>
-                        {Array.isArray(fields) && fields.length > 0 ? (
-                            fields.map((field, index) => {
-                                if (field.elementType === 'input'){
-                                    if (field.type === 'file') {
-                                        return (
-                                            <div className='mx-auto' key={index}>
-                                                <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled || isDisabled} />
-                                                {data[field.name] && (
-                                                    <div className="file-info">
-                                                        <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )
+        <>
+            <form id={formId} onSubmit={handleSubmit} className='form' encType='multipart/form-data'>
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <>
+                        <div className='flex-grow-1 d-flex flex-wrap justify-content-center gap-2'>
+                            {Array.isArray(fields) && fields.length > 0 ? (
+                                fields.map((field, index) => {
+                                    if (field.elementType === 'input'){
+                                        if (field.type === 'file') {
+                                            return (
+                                                <div className='mx-auto' key={index}>
+                                                    <Input id={field.name} label={field.label || field.name} type={field.type} value={files[field.name] || ''} setFiles={setFiles} required={field.required || false} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled || !editing && !isNew} />
+                                                    {data[field.name] && (
+                                                        <div className="file-info">
+                                                            <a href={`http://localhost:8000${data[field.name]}`} target="_blank" rel="noopener noreferrer">{data[field.name].split('/').pop()}</a>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        } else {
+                                            return (
+                                                <div className="mx-auto" key={index}>
+                                                    <Input id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled || !editing && !isNew} />
+                                                </div>
+                                            )
+                                        }
                                     } else {
                                         return (
                                             <div className="mx-auto" key={index}>
-                                                <Input id={field.name} label={field.label || field.name} type={field.type || 'text'} value={data[field.name] || ''} setData={setData} required={field.required || false} maxLength={field.maxLength} minLength={field.minLength} maxValue={field.maxValue} minValue={field.minValue} accept={field.accept} multiple={field.multiple} error={errors[field.name]} disabled={field.disabled || isDisabled} />
+                                                <Select id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} disabled={field.disabled || !editing && !isNew} />
                                             </div>
                                         )
                                     }
-                                } else {
-                                    return (
-                                        <div className="mx-auto" key={index}>
-                                            <Select id={field.name} label={field.label || field.name} value={data[field.name] || ''} data={field.data || []} setData={setData} required={field.required || false} error={errors[field.name]} customChange={field.customChange} disabled={field.disabled || isDisabled} />
-                                        </div>
-                                    )
-                                }
-                            })
-                        ) : <></>}
-                    </div>
-                    {isNew || editing ? (
-                        <div className='d-flex justify-content-center gap-2 mt-3 w-100'>
-                            <button className='btn btn-success mx-2' disabled={loading} type='submit'>Save</button>
-                            <button className='btn btn-danger mx-2' onClick={cancel} type='button'>Cancel</button>
+                                })
+                            ) : <></>}
                         </div>
-                    ) : (
-                        <div className='d-flex justify-content-center gap-2 mt-3 w-100'>
-                            {/* edit button submitting rather than going into edit state */}
-                            {/* <button className='btn btn-primary mx-2' onClick={() => setEditing(true)} type='button'>Edit</button> */}
-                            <button className='btn btn-danger mx-2' onClick={handleDelete} type='button'>Remove</button>
-                        </div>
-                    )}
-                </>
-            )}
-        </form>
+                        {isNew || editing ? (
+                            <div className='d-flex justify-content-center gap-2 mt-3 w-100'>
+                                <button className='btn btn-success mx-2' disabled={loading} type='submit'>Save</button>
+                                <button className='btn btn-danger mx-2' onClick={cancel} type='button'>Cancel</button>
+                            </div>
+                        ) : (<></>)}
+                    </>
+                )}
+            </form>
+            {!isNew && !editing ? (
+                <div className='d-flex justify-content-center gap-2 mt-3 w-100'>
+                    {/* edit button submitting rather than going into edit state */}
+                    <button className='btn btn-primary mx-2' onClick={(triggerEditing)} type='button'>Edit</button>
+                    <button className='btn btn-danger mx-2' onClick={handleDelete} type='button'>Remove</button>
+                </div>
+            ) : (<></>)}
+        </>
     )
 }
 
