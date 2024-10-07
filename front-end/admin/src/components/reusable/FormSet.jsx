@@ -5,7 +5,7 @@ import Loading from './Loading';
 import SubForm from './SubForm';
 import api from '../../api';
 
-function FormSet({ entity, fields, route, fetchRelatedData, id }) {
+function FormSet({ entity, fields, route, fetchRelatedData, id, newEntity }) {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
 
@@ -17,27 +17,29 @@ function FormSet({ entity, fields, route, fetchRelatedData, id }) {
     };
 
     const fetchData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await api.get(route);
-            const responseData = response.data || [];
-            if (Array.isArray(responseData) && response.data.length > 0) {
-                responseData.forEach(item => {
-                    if (item.start) {
-                        item.start = formatDate(item.start);
-                    }
-                    if (item.end) {
-                        item.end = formatDate(item.end);
-                    }
-                })
+        if (!newEntity) {
+            setLoading(true);
+            try {
+                const response = await api.get(route);
+                const responseData = response.data || [];
+                if (Array.isArray(responseData) && response.data.length > 0) {
+                    responseData.forEach(item => {
+                        if (item.start) {
+                            item.start = formatDate(item.start);
+                        }
+                        if (item.end) {
+                            item.end = formatDate(item.end);
+                        }
+                    })
+                }
+                setData(responseData)
+            } catch {
+                setData([]);
+            } finally {
+                setLoading(false);
             }
-            setData(responseData)
-        } catch {
-            setData([]);
-        } finally {
-            setLoading(false);
         }
-    }, [route]);
+    }, [route, newEntity]);
 
     useEffect(() => {
         fetchData();
@@ -52,21 +54,25 @@ function FormSet({ entity, fields, route, fetchRelatedData, id }) {
     }
 
     return (
-        <div id={`${entity}-formset`}>
+        <div id={`${entity}-formset`} className='mb-4'>
             <div id={`${entity}-list`}>
-                <h3 className="text-center m-2">{entity}s</h3>
-                {loading ? <Loading /> : (
-                    Array.isArray(data) && data.length > 0 ? (
-                        data.map((item, index) => (
-                            <SubForm key={`${index}-${item.pk}-form`} fields={fields} route={route} isNew={false} fetchData={fetchData} fetchRelatedData={fetchRelatedData} initialData={item} id={item.id} name={entity} />
-                        ))
-                    ) : (
-                        <p className="text-center">No {entity}s Yet</p>
-                    )
+                {newEntity ? <></> : (
+                    <>
+                        <h3 className="text-center m-2">{entity}s</h3>
+                        {loading ? <Loading /> : (
+                            Array.isArray(data) && data.length > 0 ? (
+                                data.map((item, index) => (
+                                    <SubForm key={`${index}-${item.pk}-form`} fields={fields} route={route} isNew={false} fetchData={fetchData} fetchRelatedData={fetchRelatedData} initialData={item} id={item.id} name={entity} />
+                                ))
+                            ) : (
+                                <p className="text-center">No {entity}s Yet</p>
+                            )
+                        )}
+                    </>
                 )}
             </div>
             <div className='d-flex justify-content-center mt-3'>
-                <button className='btn btn-success text-center' onClick={addSubForm} type='button'>Add</button>
+                <button className='btn btn-success text-center' onClick={addSubForm} type='button'>{newEntity ? 'Add New' : 'Add'}</button>
             </div>
         </div>
     )
@@ -76,6 +82,7 @@ FormSet.propTypes = {
     id: PropTypes.any.isRequired,
     entity: PropTypes.string.isRequired,
     route: PropTypes.string.isRequired,
+    newEntity: PropTypes.bool.isRequired,
     fetchRelatedData: PropTypes.func.isRequired,
     fields: PropTypes.arrayOf(
         PropTypes.shape({

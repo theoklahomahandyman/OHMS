@@ -75,16 +75,17 @@ UpdateModal.propTypes = {
         PropTypes.shape({
             entity: PropTypes.string.isRequired,
             route: PropTypes.string.isRequired,
+            newEntity: PropTypes.bool.isRequired,
             fields: PropTypes.arrayOf(
                 PropTypes.shape({
                     name: PropTypes.string.isRequired,
                     label: PropTypes.string.isRequired,
-                    type: PropTypes.string,
                     required: PropTypes.bool.isRequired,
                     elementType: PropTypes.string.isRequired,
                     maxLength: PropTypes.number,
                     minLength: PropTypes.number,
                     accept: PropTypes.string,
+                    type: PropTypes.string,
                     multiple: PropTypes.bool,
                     data: PropTypes.arrayOf(PropTypes.shape({
                         value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

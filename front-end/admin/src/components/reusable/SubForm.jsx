@@ -153,7 +153,7 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
                             ) : <></>}
                         </div>
                         {isNew || editing ? (
-                            <div className='d-flex justify-content-center gap-2 mt-3 w-100'>
+                            <div className='d-flex justify-content-center gap-2 mt-3 w-100 mb-3'>
                                 <button className='btn btn-success mx-2' disabled={loading} type='submit'>Save</button>
                                 <button className='btn btn-danger mx-2' onClick={cancel} type='button'>Cancel</button>
                             </div>
@@ -162,7 +162,7 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
                 )}
             </form>
             {!isNew && !editing ? (
-                <div className='d-flex justify-content-center gap-2 mt-3 w-100'>
+                <div className='d-flex justify-content-center gap-2 mt-3 w-100 mb-3'>
                     {/* edit button submitting rather than going into edit state */}
                     <button className='btn btn-primary mx-2' onClick={(triggerEditing)} type='button'>Edit</button>
                     <button className='btn btn-danger mx-2' onClick={handleDelete} type='button'>Remove</button>

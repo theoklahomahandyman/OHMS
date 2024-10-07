@@ -34,6 +34,7 @@ class TestUserSerializer(TestCase):
             'phone': '',
             'password': '',
             'confirm_password': '',
+            'pay_rate': ''
         }
         cls.short_data = {
             'first_name': 'J',
@@ -42,6 +43,7 @@ class TestUserSerializer(TestCase):
             'phone': '183043',
             'password': 'test',
             'confirm_password': 'test',
+            'pay_rate': 12.34
         }
         cls.long_data = {
             'first_name': cls.long_string,
@@ -50,6 +52,7 @@ class TestUserSerializer(TestCase):
             'phone': cls.long_string,
             'password': cls.password,
             'confirm_password': cls.password,
+            'pay_rate': 22449234872348438728399239238329390
         }
         cls.create_data = {
             'first_name': 'John',
@@ -58,6 +61,7 @@ class TestUserSerializer(TestCase):
             'phone': '1 (586) 375-3896',
             'password': cls.password,
             'confirm_password': cls.password,
+            'pay_rate': 12.34
         }
         cls.update_data = {
             'first_name': 'Bill',
@@ -66,6 +70,7 @@ class TestUserSerializer(TestCase):
             'phone': '45 (192) 937-9329',
             'password': cls.update_password,
             'confirm_password': cls.update_password,
+            'pay_rate': 18.35
         }
 
     ## Test validate with empty data
@@ -172,6 +177,7 @@ class TestUserView(APITestCase):
             'password': '',
             'confirm_password': '',
             'is_active': True,
+            'pay_rate': ''
         }
         cls.short_data = {
             'first_name': 'J',
@@ -181,6 +187,7 @@ class TestUserView(APITestCase):
             'password': 'test',
             'confirm_password': 'test',
             'is_active': True,
+            'pay_rate': 15.23
         }
         cls.long_data = {
             'first_name': cls.long_string,
@@ -190,6 +197,7 @@ class TestUserView(APITestCase):
             'password': cls.password,
             'confirm_password': cls.password,
             'is_active': True,
+            'pay_rate': 12354351354646513684313548634638183483138
         }
         cls.create_data = {
             'first_name': 'John',
@@ -197,6 +205,7 @@ class TestUserView(APITestCase):
             'email': 'johndoe@example.com',
             'phone': '1 (586) 375-3896',
             'is_active': True,
+            'pay_rate': 15.25
         }
         cls.update_data = {
             'first_name': 'Bill',
@@ -206,6 +215,7 @@ class TestUserView(APITestCase):
             'password': cls.update_password,
             'confirm_password': cls.update_password,
             'is_active': True,
+            'pay_rate': 19.35
         }
 
     ## Test get user success

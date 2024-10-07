@@ -157,11 +157,11 @@ function EditOrder() {
     ];
 
     const formsets = [
-        {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields},
-        {entity: 'Material', route: '/order/material/', fields: materialFields},
-        {entity: 'Work Log', route: '/order/worklog/', fields: workLogFields},
-        {entity: 'Payment', route: '/order/payment/', fields: paymentFields},
-        {entity: 'Worker', route: '/order/worker/', fields: workerFields},
+        {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields, newEntity: false},
+        {entity: 'Material', route: '/order/material/', fields: materialFields, newEntity: false},
+        {entity: 'Work Log', route: '/order/worklog/', fields: workLogFields, newEntity: false},
+        {entity: 'Payment', route: '/order/payment/', fields: paymentFields, newEntity: false},
+        {entity: 'Worker', route: '/order/worker/', fields: workerFields, newEntity: false},
     ];
 
     return (

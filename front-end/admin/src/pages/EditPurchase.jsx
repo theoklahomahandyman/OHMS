@@ -110,8 +110,17 @@ function EditPurchase() {
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
     ];
 
+    const newMaterialFields = [
+        {name: 'name', label: 'Material Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
+        {name: 'description', label: 'Material Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
+        {name: 'size', label: 'Material Size', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
+        {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
+        {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
+    ];
+
     const formsets = [
-        {entity: 'Material', route: '/purchase/material/', fields: materialFields}
+        {entity: 'Material', route: '/purchase/material/', fields: materialFields, newEntity: false},
+        {entity: 'Material', route: '/purchase/new/material/', fields: newMaterialFields, newEntity: true},
     ]
 
     return (
