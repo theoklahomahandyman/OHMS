@@ -20,7 +20,7 @@ function Supplier() {
     ];
 
     const formsets = [
-        {entity: 'Location', route: '/supplier/addresses/', fields: locationFields}
+        {entity: 'Location', route: '/supplier/addresses/', fields: locationFields, newEntity: false}
     ]
 
     return (

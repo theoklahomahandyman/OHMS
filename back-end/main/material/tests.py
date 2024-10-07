@@ -93,7 +93,7 @@ class TestMaterialView(APITestCase):
         self.assertEqual(response.data['size'], self.material.size)
         self.assertEqual(response.data['description'], self.material.description)
         self.assertEqual(response.data['available_quantity'], self.material.available_quantity)
-        self.assertEqual(response.data['unit_cost'], self.material.unit_cost)
+        self.assertEqual(float(response.data['unit_cost']), self.material.unit_cost)
 
     ## Test get materials success
     def test_get_materials_success(self):

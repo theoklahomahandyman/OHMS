@@ -30,7 +30,7 @@ class TestPurchaseModels(TestCase):
     ## Test save method for purchase model
     def test_purchase_save(self):
         self.purchase.refresh_from_db()
-        self.assertEqual(self.purchase.total, self.purchase.tax + self.purchase_material.cost)
+        self.assertEqual(float(self.purchase.total), float(self.purchase.tax) + float(self.purchase_material.cost))
 
     ## Test purchase save without pk (first time save)
     def test_purchase_save_without_pk(self):
@@ -71,14 +71,14 @@ class TestPurchaseModels(TestCase):
         self.purchase_material.cost = 150.0
         self.purchase_material.save()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(self.purchase.total, self.purchase.tax + 150.0, places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0, places=2)
 
     ## Test delete method for purchase material
     def test_purchase_material_delete(self):
         initial_total = self.purchase.total
         self.purchase_material.delete()
         self.purchase.refresh_from_db()
-        self.assertEqual(self.purchase.total, initial_total - self.purchase_material.cost)
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_material.cost), places=2)
 
 # Tests for purchase serializer
 class TestPurchaseSerializer(TestCase):
@@ -125,8 +125,8 @@ class TestPurchaseSerializer(TestCase):
         purchase = serializer.save()
         self.assertEqual(purchase.supplier, self.supplier)
         self.assertEqual(purchase.supplier_address, self.address)
-        self.assertEqual(purchase.tax, 6.78)
-        self.assertEqual(purchase.total, 6.78)
+        self.assertEqual(float(purchase.tax), 6.78)
+        self.assertEqual(float(purchase.total), 6.78)
         self.assertEqual(purchase.images.count(), 1)
 
     def test_purchase_serializer_update(self):
@@ -220,8 +220,8 @@ class TestPurchaseView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['supplier'], self.purchase.supplier.pk)
         self.assertEqual(response.data['supplier_address'], self.purchase.supplier_address.pk)
-        self.assertEqual(response.data['tax'], self.purchase.tax)
-        self.assertEqual(response.data['total'], self.purchase.total)
+        self.assertEqual(float(response.data['tax']), self.purchase.tax)
+        self.assertEqual(float(response.data['total']), self.purchase.total)
         self.assertEqual(response.data['date'], self.purchase.date)
         self.assertIn('images', response.data)
 
@@ -331,7 +331,7 @@ class TestPurchaseMaterialView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['material'], self.purchase_material.material.pk)
         self.assertEqual(response.data['quantity'], self.purchase_material.quantity)
-        self.assertEqual(response.data['cost'], self.purchase_material.cost)
+        self.assertEqual(float(response.data['cost']), self.purchase_material.cost)
 
     ## Test get purchase materials success
     def test_get_purchase_materials_success(self):
@@ -397,3 +397,76 @@ class TestPurchaseMaterialView(APITestCase):
         response = self.client.delete(self.detail_url(self.purchase.pk, self.purchase_material.pk))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PurchaseMaterial.objects.filter(purchase=self.purchase_material.purchase, material=self.purchase_material.material, quantity=self.purchase_material.quantity, cost=self.purchase_material.cost).count(), 0)
+
+class TestPurchaseNewMaterialView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 't' * 501
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
+        cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100, description='test')
+        cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
+        cls.empty_material_data = {'name': '', 'description': '', 'size': '', 'quantity': 12, 'cost': 155.12}
+        cls.short_material_data = {'name': 'f', 'description': 'test', 'size': 't', 'quantity': 12, 'cost': 115.58}
+        cls.long_material_data = {'name': cls.long_string, 'description': cls.long_string, 'size': cls.long_string, 'quantity': 15, 'cost': 1613510351351565465153168138183138}
+        cls.empty_purchase_data = {'name': 'first', 'description': 'test', 'size': 'test', 'quantity': '', 'cost': ''}
+        cls.long_purchase_data = {'name': 'first', 'description': 'test', 'size': 'test', 'quantity': 15, 'cost': 135158151531818138138181811.15153135153}
+        cls.negative_purchase_data = {'name': 'first', 'description': 'test', 'size': 'test', 'quantity': -49, 'cost': -694.39}
+        cls.valid_data = {'name': 'second', 'description': 'test', 'size': 'size', 'quantity': 12, 'cost': 105.28}
+        cls.existing_data = {'name': cls.material.name, 'description': cls.material.description, 'size': cls.material.size, 'quantity': 15, 'cost': 115.28}
+        cls.url = lambda purchase_pk: reverse('purchase-new-material', kwargs={'purchase_pk': purchase_pk})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    def test_new_material_empty_material_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.empty_material_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('size', response.data)
+
+    def test_new_material_short_material_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.short_material_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('size', response.data)
+
+    def test_new_material_empty_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.empty_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    def test_new_material_long_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.long_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('cost', response.data)
+
+    def test_new_material_negative_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.negative_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    def test_new_material_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.valid_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Material.objects.filter(name=self.valid_data['name'], description=self.valid_data['description'], size=self.valid_data['size']).exists())
+        self.assertTrue(PurchaseMaterial.objects.filter(purchase=self.purchase, material__name=self.valid_data['name'], quantity=self.valid_data['quantity'], cost=self.valid_data['cost']).exists())
+
+    def test_existing_material_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.existing_data)
+        self.purchase_material.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(PurchaseMaterial.objects.filter(purchase=self.purchase, material__name=self.existing_data['name'], quantity=self.existing_data['quantity'], cost=self.existing_data['cost']).exists())
+        self.assertEqual(self.purchase_material.quantity, self.existing_data['quantity'])
+        self.assertAlmostEqual(float(self.purchase_material.cost), self.existing_data['cost'], places=2)

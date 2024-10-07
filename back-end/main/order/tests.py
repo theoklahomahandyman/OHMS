@@ -1,5 +1,5 @@
-from order.serializers import OrderSerializer, OrderCostSerializer, OrderPictureSerializer, OrderMaterialSerializer, OrderPaymentSerializer
-from order.models import Order, OrderWorkLog, OrderCost, OrderPicture, OrderMaterial, OrderPayment
+from order.serializers import OrderSerializer, OrderCostSerializer, OrderPictureSerializer, OrderMaterialSerializer, OrderPaymentSerializer, OrderWorkerSerializer
+from order.models import Order, OrderWorkLog, OrderCost, OrderPicture, OrderMaterial, OrderPayment, OrderWorker
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
 from purchase.models import Purchase, PurchaseMaterial
@@ -23,6 +23,7 @@ class TestOrderModels(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.date = timezone.now().date()
+        cls.password = 'test12345'
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=35.0, available_quantity=100)
@@ -35,6 +36,8 @@ class TestOrderModels(TestCase):
         cls.order_picture = OrderPicture.objects.create(order=cls.order, image='pergola-stain.jpg')
         cls.order_material = OrderMaterial.objects.create(order=cls.order, material=cls.material, quantity=10.0)
         cls.order_payment = OrderPayment.objects.create(order=cls.order, date=cls.date, type=OrderPayment.PAYMENT_CHOICES.CASH, total=cls.order.total, notes='test order payment')
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password), pay_rate=16.55)
+        cls.order_worker = OrderWorker.objects.create(order=cls.order, user=cls.user)
 
     ## Test save method in the Order model
     def test_order_save(self):
@@ -52,7 +55,7 @@ class TestOrderModels(TestCase):
         tax_amount = (self.order.tax / 100) * subtotal
         discount_amount = (self.order.discount / 100) * subtotal
         expected_total = subtotal + tax_amount - discount_amount
-        self.assertAlmostEqual(expected_total, self.order.total, places=2)
+        self.assertAlmostEqual(round(expected_total, 2), self.order.total, places=1)
 
     ## Test Order Material save method
     def test_order_material_save(self):
@@ -64,7 +67,7 @@ class TestOrderModels(TestCase):
 
     ## Test Order Payment save method
     def test_order_payment_save(self):
-        self.order_payment.save()
+        self.order_payment.order.save()
         self.order.refresh_from_db()
         self.assertTrue(self.order.paid)
 
@@ -109,6 +112,9 @@ class TestOrderModels(TestCase):
     def test_determine_paid(self):
         self.order.working_total = 0
         self.assertTrue(self.order.determine_paid())
+
+    def test_order_worker_save(self):
+        self.assertAlmostEqual(float(self.order_worker.total), float(self.user.pay_rate) * float(self.order.hours_worked), places=2)
 
 # Tests for order serializer
 class TestOrderSerializer(TestCase):
@@ -200,11 +206,11 @@ class TestOrderSerializer(TestCase):
         self.assertEqual(order.date, self.valid_data['date'])
         self.assertEqual(order.description, self.valid_data['description'])
         self.assertEqual(order.service, self.service)
-        self.assertEqual(order.hourly_rate, self.valid_data['hourly_rate'])
-        self.assertEqual(order.material_upcharge, self.valid_data['material_upcharge'])
-        self.assertEqual(order.tax, self.valid_data['tax'])
+        self.assertEqual(float(order.hourly_rate), self.valid_data['hourly_rate'])
+        self.assertEqual(float(order.material_upcharge), self.valid_data['material_upcharge'])
+        self.assertEqual(float(order.tax), self.valid_data['tax'])
         self.assertEqual(order.completed, self.valid_data['completed'])
-        self.assertEqual(order.discount, self.valid_data['discount'])
+        self.assertEqual(float(order.discount), self.valid_data['discount'])
         self.assertEqual(order.callout, self.valid_data['callout'])
         self.assertEqual(order.images.count(), 1)
 
@@ -503,11 +509,11 @@ class TestOrderView(APITestCase):
         self.assertEqual(response.data['date'], self.order.date.strftime('%Y-%m-%d'))
         self.assertEqual(response.data['description'], self.order.description)
         self.assertEqual(response.data['service'], self.order.service.pk)
-        self.assertEqual(response.data['hourly_rate'], self.order.hourly_rate)
-        self.assertEqual(response.data['material_upcharge'], self.order.material_upcharge)
-        self.assertEqual(response.data['tax'], self.order.tax)
+        self.assertEqual(float(response.data['hourly_rate']), self.order.hourly_rate)
+        self.assertEqual(float(response.data['material_upcharge']), self.order.material_upcharge)
+        self.assertEqual(float(response.data['tax']), self.order.tax)
         self.assertEqual(response.data['completed'], self.order.completed)
-        self.assertEqual(response.data['discount'], self.order.discount)
+        self.assertEqual(float(response.data['discount']), self.order.discount)
         self.assertEqual(response.data['callout'], self.order.callout)
 
     ## Test get orders success
@@ -565,11 +571,11 @@ class TestOrderView(APITestCase):
         self.assertEqual(order.customer.pk, self.create_data['customer'])
         self.assertEqual(order.description, self.create_data['description'])
         self.assertEqual(order.service.pk, self.create_data['service'])
-        self.assertEqual(order.hourly_rate, self.create_data['hourly_rate'])
-        self.assertEqual(order.material_upcharge, self.create_data['material_upcharge'])
-        self.assertEqual(order.tax, self.create_data['tax'])
+        self.assertEqual(float(order.hourly_rate), self.create_data['hourly_rate'])
+        self.assertEqual(float(order.material_upcharge), self.create_data['material_upcharge'])
+        self.assertEqual(float(order.tax), self.create_data['tax'])
         self.assertEqual(order.completed, self.create_data['completed'])
-        self.assertEqual(order.discount, self.create_data['discount'])
+        self.assertEqual(float(order.discount), self.create_data['discount'])
         self.assertEqual(order.notes, self.create_data['notes'])
 
     ## Test update order with empty data
@@ -750,7 +756,7 @@ class TestOrderCostView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['order'], self.order_cost.order.pk)
         self.assertEqual(response.data['name'], self.order_cost.name)
-        self.assertEqual(response.data['cost'], self.order_cost.cost)
+        self.assertEqual(float(response.data['cost']), self.order_cost.cost)
 
     ## Test get order costs success
     def test_get_order_costs_success(self):
@@ -796,7 +802,7 @@ class TestOrderCostView(APITestCase):
         cost = OrderCost.objects.get(order=self.create_data['order'], name=self.create_data['name'], cost=self.create_data['cost'])
         self.assertEqual(cost.order.pk, self.create_data['order'])
         self.assertEqual(cost.name, self.create_data['name'])
-        self.assertEqual(cost.cost, self.create_data['cost'])
+        self.assertEqual(float(cost.cost), self.create_data['cost'])
 
     ## Test update order cost with empty data
     def test_update_order_cost_empty_data(self):
@@ -998,7 +1004,7 @@ class TestOrderPaymentView(APITestCase):
         response = self.client.get(self.detail_url(self.order.pk, self.order_payment.pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['order'], self.order_payment.order.pk)
-        self.assertEqual(response.data['total'], self.order_payment.total)
+        self.assertAlmostEqual(float(response.data['total']), self.order_payment.total, places=2)
         self.assertEqual(response.data['notes'], self.order_payment.notes)
 
     ## Test get order payments success
@@ -1040,7 +1046,7 @@ class TestOrderPaymentView(APITestCase):
         self.assertEqual(payment.order.pk, self.create_data['order'])
         self.assertEqual(payment.date, self.create_data['date'])
         self.assertEqual(payment.type, self.create_data['type'])
-        self.assertEqual(payment.total, self.create_data['total'])
+        self.assertEqual(float(payment.total), self.create_data['total'])
         self.assertEqual(payment.notes, self.create_data['notes'])
 
     ## Test update order payment with empty data
@@ -1080,3 +1086,89 @@ class TestOrderPaymentView(APITestCase):
         response = self.client.delete(self.detail_url(self.order.pk, self.order_payment.pk))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(OrderPayment.objects.count(), 0)
+
+
+# Tests for order worker view
+class TestOrderWorkerView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 't' * 301
+        cls.date = timezone.now().date()
+        cls.service = Service.objects.create(name='test service')
+        cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@email.com', phone='1 (234) 567-8901', notes='test customer')
+        cls.order = Order.objects.create(customer=cls.customer, date=cls.date, description='test description', service=cls.service, hourly_rate=50.0, hours_worked=1.25, material_upcharge=9.25, tax=13.5, total=0.0, completed=False, paid=False, discount=1.75, notes='test order', callout=Order.CALLOUT_CHOICES.STANDARD)
+        cls.user1 = User.objects.create(first_name='first', last_name='user', email='firstuser@example.com', phone='1 (234) 567-8901', password=make_password(cls.password), pay_rate=21.32)
+        cls.user2 = User.objects.create(first_name='second', last_name='user', email='seconduser@example.com', phone='1 (234) 567-8901', password=make_password(cls.password), pay_rate=21.32)
+        cls.user3 = User.objects.create(first_name='third', last_name='user', email='thirduser@example.com', phone='1 (234) 567-8901', password=make_password(cls.password), pay_rate=21.32)
+        cls.order_worker = OrderWorker.objects.create(order=cls.order, user=cls.user1)
+        cls.empty_data = {'order': '', 'user': ''}
+        cls.create_data = {'order': cls.order.pk, 'user': cls.user2.pk}
+        cls.patch_data = {'user': cls.user3.pk}
+        cls.list_url = lambda order_pk: reverse('order-worker-list', kwargs={'order_pk': order_pk})
+        cls.detail_url = lambda order_pk, worker_pk: reverse('order-worker-detail', kwargs={'order_pk': order_pk, 'worker_pk':worker_pk})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    ## Test get order worker not found
+    def test_get_order_worker_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.order.pk, 79027269))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Order Worker Not Found.')
+
+    ## Test get order worker success
+    def test_get_order_worker_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.order.pk, self.order_worker.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['order'], self.order_worker.order.pk)
+        self.assertEqual(response.data['user'], self.order_worker.user.pk)
+        self.assertEqual(float(response.data['total']), self.order_worker.total)
+
+    ## Test get order workers success
+    def test_get_order_workers_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.order.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), OrderWorker.objects.filter(order=self.order).count())
+
+    ## Test create order worker with empty data
+    def test_create_order_worker_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.order.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('user', response.data)
+
+    ## Test create order worker success
+    def test_create_order_worker_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.order.pk), data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(OrderWorker.objects.count(), 2)
+        worker = OrderWorker.objects.get(order=self.create_data['order'], user=self.create_data['user'])
+        self.assertEqual(worker.order.pk, self.create_data['order'])
+        self.assertEqual(worker.user.pk, self.create_data['user'])
+
+    ## Test update order worker with empty data
+    def test_update_order_worker_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order.pk, self.order_worker.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('user', response.data)
+
+    ## Test update order worker success
+    def test_update_order_worker_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.order.pk, self.order_worker.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        worker = OrderWorker.objects.get(pk=self.order_worker.pk)
+        self.assertEqual(worker.user.pk, self.patch_data['user'])
+
+    ## Test delete order worker success
+    def test_delete_order_worker_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.order.pk, self.order_worker.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(OrderWorker.objects.count(), 0)

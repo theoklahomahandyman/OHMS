@@ -2,13 +2,14 @@ from supplier.models import Supplier, SupplierAddress
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from material.models import Material
+from decimal import Decimal
 
 # Purchase model
 class Purchase(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     supplier_address = models.ForeignKey(SupplierAddress, on_delete=models.CASCADE)
-    tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
-    total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0)])
+    tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     date = models.DateField()
 
     def save(self, *args, **kwargs):
@@ -31,7 +32,7 @@ class PurchaseMaterial(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='materials')
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)])
-    cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
+    cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal(0.0))])
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -47,9 +48,9 @@ class PurchaseMaterial(models.Model):
             # Handle purchase total updates
             if self.pk:
                 original = PurchaseMaterial.objects.get(pk=self.pk)
-                self.purchase.total += self.cost - original.cost
+                self.purchase.total = float(self.purchase.total) + float(self.cost) - float(original.cost)
             else:
-                self.purchase.total += self.cost
+                self.purchase.total = float(self.purchase.total) + float(self.cost)
             self.purchase.save()
             super().save(*args, **kwargs)
 

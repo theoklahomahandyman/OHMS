@@ -1,9 +1,11 @@
-from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseRecieptSerializer
+from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer
 from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
+from material.serializers import MaterialSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from material.models import Material
 from rest_framework import status
 
 # CRUD view for purchase model
@@ -113,3 +115,37 @@ class PurchaseMaterialView(APIView):
         purchase_material = self.get_object(pk)
         purchase_material.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PurchaseNewMaterialView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None, name=None):
+        return PurchaseMaterial.objects.get(purchase__pk=pk, material__name=name)
+
+    def post(self, request, *args, **kwargs):
+        purchase_pk = kwargs.pop('purchase_pk', None)
+        try:
+            purchase_material = self.get_object(pk=purchase_pk, name=request.data['name'])
+            purchase_material_data = {'quantity': request.data['quantity'], 'cost': request.data['cost']}
+            serializer = PurchaseMaterialSerializer(purchase_material, data=purchase_material_data, partial=True)
+        except PurchaseMaterial.DoesNotExist:
+            try:
+                material = Material.objects.get(name=request.data['name'])
+            except Material.DoesNotExist:
+                try:
+                    material_data = {'name': request.data['name'], 'description': request.data['description'], 'size': request.data['size']}
+                    material_serializer = MaterialSerializer(data=material_data)
+                    material_serializer.is_valid(raise_exception=True)
+                    material_serializer.save()
+                    material = Material.objects.get(name=request.data['name'], size=request.data['size'], description=request.data['description'])
+                    # material = Material.objects.create(name=request.data['name'], description=request.data['description'], size=request.data['size'])
+                except ValidationError as error:
+                    return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+            purchase_material_data = {'purchase': purchase_pk, 'material': material.pk, 'quantity': request.data['quantity'], 'cost': request.data['cost']}
+            serializer = PurchaseMaterialSerializer(data=purchase_material_data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)

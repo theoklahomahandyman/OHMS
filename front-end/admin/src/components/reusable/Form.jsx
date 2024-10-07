@@ -31,11 +31,9 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fe
         }
         try {
             if (method === 'post'){
-                console.log(data)
                 const response = await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'patch') {
-                console.log(data)
                 const response = await api.patch(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 onSuccess(response.data)
             } else if (method === 'put') {
@@ -46,7 +44,6 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fe
                 onSuccess(response)
             }
         } catch (error) {
-            console.log(error.response.data)
             if (error.response && error.response.data) {
                 if (setErrors) {
                     handleError(error.response.data, setErrors);
@@ -142,7 +139,7 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fe
                 </button>
             </form>
             {Array.isArray(formsets) && formsets.length > 0 ? formsets.map((formset, index) => (
-                <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} id={id} fetchRelatedData={fetchData} />
+                <FormSet key={`${index}-${formset.entity}-formset`} entity={formset.entity} fields={formset.fields} route={formset.route} id={id} fetchRelatedData={fetchData} newEntity={formset.newEntity} />
             )) : null}
         </>
     );
@@ -182,21 +179,22 @@ Form.propTypes = {
         PropTypes.shape({
             entity: PropTypes.string.isRequired,
             route: PropTypes.string.isRequired,
+            newEntity: PropTypes.bool.isRequired,
             fields: PropTypes.arrayOf(
                 PropTypes.shape({
                     name: PropTypes.string.isRequired,
                     label: PropTypes.string.isRequired,
-                    type: PropTypes.string,
                     required: PropTypes.bool.isRequired,
                     elementType: PropTypes.string.isRequired,
+                    type: PropTypes.string,
                     maxLength: PropTypes.number,
                     minLength: PropTypes.number,
+                    customChange: PropTypes.func,
+                    disabled: PropTypes.bool,
                     data: PropTypes.arrayOf(PropTypes.shape({
                         value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
                         label: PropTypes.string.isRequired
                     })),
-                    customChange: PropTypes.func,
-                    disabled: PropTypes.bool,
                 })
             ).isRequired,
         })
