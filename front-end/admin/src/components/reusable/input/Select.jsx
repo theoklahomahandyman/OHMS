@@ -1,4 +1,4 @@
-import { handleChange } from '../../utils/change';
+import { handleChange } from '../../../utils/change';
 import PropTypes from 'prop-types';
 
 function Select ({ id, label, required, value, data, setData, error, disabled, customChange }) {
@@ -15,7 +15,7 @@ function Select ({ id, label, required, value, data, setData, error, disabled, c
         <div className='form-group text-center'>
             <label htmlFor={label}>{label}</label>
             <div className='input-group'>
-                <select name={id} id={id} className='form-control' value={value} required={required} onChange={onChange} disabled={disabled === true ? disabled : false}>
+                <select name={id} id={id} className='form-control text-center' value={value} required={required} onChange={onChange} disabled={disabled === true ? disabled : false}>
                     <option value=''>Select {label}</option>
                     {data.map((option, index) => (
                         <option key={index} value={option.value}>{option.label}</option>

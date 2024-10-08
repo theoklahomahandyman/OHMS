@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import Select from '../input/Select';
+import Input from '../input/Input';
 import PropTypes from 'prop-types';
-import Loading from './Loading';
-import Select from './Select';
-import Input from './Input';
-import api from '../../api';
+import Loading from '../Loading';
+import api from '../../../api';
 
 function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isNew, id, name }) {
     const [data, setData] = useState(initialData || {});

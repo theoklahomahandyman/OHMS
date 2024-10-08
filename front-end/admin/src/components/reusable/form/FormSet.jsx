@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { createRoot } from 'react-dom/client';
-import Loading from './Loading';
+import PropTypes from 'prop-types';
+import Loading from '../Loading';
 import SubForm from './SubForm';
-import api from '../../api';
+import api from '../../../api';
 
 function FormSet({ entity, fields, route, fetchRelatedData, id, newEntity }) {
     const [loading, setLoading] = useState(false);

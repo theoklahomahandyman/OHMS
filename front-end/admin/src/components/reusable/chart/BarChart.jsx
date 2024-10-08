@@ -4,12 +4,22 @@ import PropTypes from 'prop-types';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Legend, Title, Tooltip);
 
+function getRandomColor() {
+    // Generates a random hex color code
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
 function BarChart({ chartData }) {
     const options = {
         responsive: true,
         plugins: {
             legend: {
-                position: chartData.position,
+                position: chartData.position || 'bottom',
             },
             title: {
                 display: true,
@@ -20,20 +30,27 @@ function BarChart({ chartData }) {
 
     const data = {
         labels: chartData.labels,
-        datasets: [
-            chartData.datasets.map((dataset) => ({
-                label: dataset.label,
-                data: dataset.data,
-                backgroundColor: dataset.background,
-                borderColor: dataset.color,
-                borderWidth: 1,
-            }))
-        ]
+        datasets: chartData.datasets?.map((dataset) => ({
+            label: dataset.label,
+            data: dataset.data,
+            backgroundColor: dataset.background,
+            borderColor: dataset.color ? dataset.color : dataset.data.map(() => getRandomColor()),
+            borderWidth: 1,
+        })) ||[]
     };
 
     return (
-        <div>
-            <Bar options={options} data={data} />
+        <div className='card chadow m-4 p-2'>
+            <div className="card-header py-3">
+                <h6 className="m-0 font-weight-bold text-primary text-center">{chartData.title}</h6>
+            </div>
+            <div className="card-body">
+                <div className="chart-area">
+                    <Bar options={options} data={data} width={600} height={400} />
+                </div>
+                <hr />
+                {chartData.text}
+            </div>
         </div>
     );
 }
@@ -68,6 +85,7 @@ BarChart.propTypes = {
                 ).isRequired,
             }),
         ).isRequired,
+        text: PropTypes.string,
     }).isRequired,
 }
 

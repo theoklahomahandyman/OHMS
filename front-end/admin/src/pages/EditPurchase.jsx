@@ -1,7 +1,9 @@
+import PieChart from '../components/reusable/chart/PieChart';
+import BarChart from '../components/reusable/chart/BarChart';
 import { useState, useEffect, useCallback } from 'react';
 import Loading from '../components/reusable/Loading';
 import Page from '../components/reusable/Page';
-import Form from '../components/reusable/Form';
+import Form from '../components/reusable/form/Form';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -13,6 +15,8 @@ function EditPurchase() {
     const [materials, setMaterials] = useState([]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
+    const [pieChartData, setPieChartData] = useState({});
+    const [barChartData, setBarChartData] = useState({});
 
     const navigate = useNavigate();
     const { id } = useParams();
@@ -24,10 +28,40 @@ function EditPurchase() {
     const text = `Please use this page to edit any information relating to purchase order ${purchaseID}, including adding materials purchased. The cost field when adding a material should be the total amount spent on the selected material alone. The unit cost, inventory level, and total fields will update automatically.`;
 
     const fetchData = useCallback(async () => {
+        const fetchMaterialDetail = async (purchase_id, material_id) => {
+            const response = await api.get(`/purchase/material/${purchase_id}/${material_id}/`);
+            return { name: response.data.name, cost: response.data.cost };
+        };
+        const updateChartData = async (purchaseData) => {
+            const materialData = purchaseData.materials || [];
+            const fetchedMaterials = await Promise.all(
+                materialData.map(material_id => fetchMaterialDetail(purchaseData.id, material_id))
+            ) || [];
+            const materialNames = fetchedMaterials.map(m => m.name);
+            const materialCosts = fetchedMaterials.map(m => m.cost);
+            const taxAmount = purchaseData.tax || 0;
+            if (taxAmount > 0) {
+                materialNames.push('Tax');
+                materialCosts.push(taxAmount);
+            }
+            setPieChartData({
+                position: 'bottom',
+                title: 'Purchase Charges',
+                labels: materialNames,
+                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }],
+            });
+            setBarChartData({
+                position: 'bottom',
+                title: 'Purchase Charges',
+                labels: materialNames,
+                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }],
+            });
+        };
         setLoading(true);
         try {
             const response = await api.get(updateRoute);
             setData(response.data || {});
+            await updateChartData(response.data);
         } catch {
             setData({});
         } finally {
@@ -121,12 +155,22 @@ function EditPurchase() {
     const formsets = [
         {entity: 'Material', route: '/purchase/material/', fields: materialFields, newEntity: false},
         {entity: 'Material', route: '/purchase/new/material/', fields: newMaterialFields, newEntity: true},
-    ]
+    ];
 
     return (
         <Page heading={heading} text={text}>
             {loading ? <Loading /> : (
-                <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} initialFiles={{images: data['images']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} fetchData={fetchData} />
+                <>
+                    <div className="row justify-content-center">
+                        <div className="col-auto">
+                            <PieChart chartData={pieChartData} />
+                        </div>
+                        <div className="col-auto">
+                            <BarChart chartData={barChartData} />
+                        </div>
+                    </div>
+                    <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} initialFiles={{images: data['images']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} fetchData={fetchData} />
+                </>
             )}
         </Page>
     )

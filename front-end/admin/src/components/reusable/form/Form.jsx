@@ -1,12 +1,12 @@
+import TextArea from '../input/TextArea';
 import { toast } from 'react-toastify';
+import FormSet from '../form/FormSet';
+import Select from '../input/Select';
 import PropTypes from 'prop-types';
-import TextArea from './TextArea';
+import Input from '../input/Input';
+import Loading from '../Loading';
 import { useState } from 'react';
-import FormSet from './FormSet';
-import Loading from './Loading';
-import Select from './Select';
-import Input from './Input';
-import api from '../../api';
+import api from '../../../api';
 
 function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fetchData, buttonText, buttonStyle, onSuccess, customError, children }) {
     const [loading, setLoading] = useState(false);

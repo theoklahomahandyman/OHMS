@@ -14,7 +14,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Purchase
-        fields = ['id', 'supplier', 'supplier_address', 'tax', 'total', 'date', 'images', 'uploaded_images']
+        fields = ['id', 'supplier', 'supplier_address', 'tax', 'total', 'date', 'images', 'uploaded_images', 'materials']
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])
@@ -37,6 +37,8 @@ class PurchaseSerializer(serializers.ModelSerializer):
 
 # Serializer for purchase material model
 class PurchaseMaterialSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='material.name', read_only=True)
+
     class Meta:
         model = PurchaseMaterial
-        fields = ['id', 'purchase', 'material', 'quantity', 'cost']
+        fields = ['id', 'purchase', 'material', 'name', 'quantity', 'cost']

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Loading from '../components/reusable/Loading';
 import Page from '../components/reusable/Page';
-import Form from '../components/reusable/Form';
+import Form from '../components/reusable/form/Form';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
