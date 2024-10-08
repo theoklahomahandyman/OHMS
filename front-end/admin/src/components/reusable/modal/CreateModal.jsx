@@ -1,8 +1,8 @@
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import Form from '../form/Form';
 import Modal from './Modal';
-import Form from './Form';
 
 function CreateModal({ name, fields, route, fetchData }) {
     const [visible, setVisible] = useState(false);

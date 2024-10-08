@@ -1,6 +1,6 @@
 import Loading from '../components/reusable/Loading';
 import Page from '../components/reusable/Page';
-import Form from '../components/reusable/Form';
+import Form from '../components/reusable/form/Form';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';

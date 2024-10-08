@@ -1,5 +1,5 @@
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
-import Form from '../components/reusable/Form';
+import Form from '../components/reusable/form/Form';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';

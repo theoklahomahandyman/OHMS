@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import CreateModal from './CreateModal';
-import UpdateModal from './UpdateModal';
-import DeleteModal from './DeleteModal';
+import CreateModal from './modal/CreateModal';
+import UpdateModal from './modal/UpdateModal';
+import DeleteModal from './modal/DeleteModal';
 import PropTypes from 'prop-types';
 import Loading from './Loading';
 import api from '../../api';

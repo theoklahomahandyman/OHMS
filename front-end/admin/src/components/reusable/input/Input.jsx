@@ -1,4 +1,4 @@
-import { handleChange, handleFileChange } from '../../utils/change';
+import { handleChange, handleFileChange } from '../../../utils/change';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
@@ -37,7 +37,7 @@ function Input ({ id, label, type, value, required, setData, setFiles, placehold
         <div className='form-group text-center'>
             <label htmlFor={label}>{label}</label>
             <div className='input-group '>
-                <input className={`${type === 'file' ? 'form-control-file' : 'form-control'}`} id={id} name={id} type={showPassword ? 'text' : type} value={type === 'file' ? undefined : value} onChange={onChange} required={required} placeholder={placeholder} maxLength={maxLength} minLength={minLength} accept={type === 'file' ? 'image/*': undefined} multiple={type === 'file' ? true : undefined} disabled={disabled === true ? disabled : false} autoComplete={autoCompleteType} checked={type === 'checkbox' ? !!value: undefined} step={type === 'number' ? '0.01' : undefined} />
+                <input className={`${type === 'file' ? 'form-control-file' : 'form-control'} text-center`} id={id} name={id} type={showPassword ? 'text' : type} value={type === 'file' ? undefined : value} onChange={onChange} required={required} placeholder={placeholder} maxLength={maxLength} minLength={minLength} accept={type === 'file' ? 'image/*': undefined} multiple={type === 'file' ? true : undefined} disabled={disabled === true ? disabled : false} autoComplete={autoCompleteType} checked={type === 'checkbox' ? !!value: undefined} step={type === 'number' ? '0.01' : undefined} />
                 {type === 'password' && (<button className='btn btn-outline-secondary' type='button' onClick={togglePasswordVisibility}>{showPassword ? 'Hide' : 'Show'}</button>)}
             </div>
             {error && <div className='alert alert-danger mt-2'>{error}</div>}

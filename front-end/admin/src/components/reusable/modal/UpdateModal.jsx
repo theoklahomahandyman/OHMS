@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
-import Loading from './Loading';
-import api from '../../api';
+import Loading from '../Loading';
+import Form from '../form/Form';
+import api from '../../../api';
 import Modal from './Modal';
-import Form from './Form';
 
 function UpdateModal({ name, fields, formsets, route, id, fetchData }) {
     const [loading, setLoading] = useState(false);

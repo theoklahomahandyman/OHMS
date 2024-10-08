@@ -1,4 +1,4 @@
-import { handleChange } from '../../utils/change';
+import { handleChange } from '../../../utils/change';
 import PropTypes from 'prop-types';
 
 function TextArea ({ id, label, value, required, setData, placeholder, maxLength, minLength, error, disabled }) {
@@ -11,7 +11,7 @@ function TextArea ({ id, label, value, required, setData, placeholder, maxLength
         <div className='form-group text-center'>
             <label htmlFor={label}>{label}</label>
             <div className='input-group '>
-                <textarea className='form-control' id={id} name={id} value={value} onChange={onChange} required={required} placeholder={placeholder} maxLength={maxLength} minLength={minLength} disabled={disabled === true ? disabled : false} rows='3' cols='165'></textarea>
+                <textarea className='form-control text-center' id={id} name={id} value={value} onChange={onChange} required={required} placeholder={placeholder} maxLength={maxLength} minLength={minLength} disabled={disabled === true ? disabled : false} rows='3' cols='165'></textarea>
             </div>
             {error && <div className='alert alert-danger mt-2'>{error}</div>}
         </div>
