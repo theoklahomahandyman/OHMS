@@ -1,4 +1,4 @@
-from purchase.views import PurchaseView, PurchaseMaterialView, PurchaseNewMaterialView, PurchaseRecieptView
+from purchase.views import PurchaseView, PurchaseMaterialView, PurchaseNewMaterialView, PurchaseRecieptView, PurchaseToolView, PurchaseNewToolView
 from django.urls import path
 
 urlpatterns = [
@@ -11,4 +11,9 @@ urlpatterns = [
     path('material/<int:purchase_pk>/<int:material_pk>/', PurchaseMaterialView.as_view(), name='purchase-material-detail'),
 
     path('new/material/<int:purchase_pk>/', PurchaseNewMaterialView.as_view(), name='purchase-new-material'),
+
+    path('tool/<int:purchase_pk>/', PurchaseToolView.as_view(), name='purchase-tool-list'),
+    path('tool/<int:purchase_pk>/<int:tool_pk>/', PurchaseToolView.as_view(), name='purchase-tool-detail'),
+
+    path('new/tool/<int:purchase_pk>/', PurchaseNewToolView.as_view(), name='purchase-new-tool'),
 ]

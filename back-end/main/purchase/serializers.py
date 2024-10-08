@@ -1,4 +1,4 @@
-from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept
+from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept, PurchaseTool
 from rest_framework import serializers
 
 # Serializer for purchase reciept model
@@ -15,15 +15,24 @@ class PurchaseMaterialSerializer(serializers.ModelSerializer):
         model = PurchaseMaterial
         fields = ['id', 'purchase', 'material', 'name', 'quantity', 'cost']
 
+# Serializer for purchase tool model
+class PurchaseToolSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='tool.name', read_only=True)
+
+    class Meta:
+        model = PurchaseTool
+        fields = ['id', 'purchase', 'tool', 'name', 'quantity', 'cost']
+
 # Serializer for purchase model
 class PurchaseSerializer(serializers.ModelSerializer):
     images = PurchaseRecieptSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False), write_only=True)
     materials = PurchaseMaterialSerializer(many=True, read_only=True)
+    tools = PurchaseToolSerializer(many=True, read_only=True)
 
     class Meta:
         model = Purchase
-        fields = ['id', 'supplier', 'supplier_address', 'tax', 'total', 'date', 'images', 'uploaded_images', 'materials']
+        fields = ['id', 'supplier', 'supplier_address', 'tax', 'material_total', 'tool_total', 'total', 'date', 'images', 'uploaded_images', 'materials', 'tools']
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])

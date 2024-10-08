@@ -66,14 +66,15 @@ function SideBar({ toggle, toggleSideBar }) {
             <li className="nav-item">
                 <a className="nav-link collapsed" href="#" data-toggle="collapse" data-target="#materials" aria-expanded="true" aria-controls="materials">
                     <i className="fas fa-fw fa-tags"></i>
-                    <span>Materials</span>
+                    <span>Inventory</span>
                 </a>
                 <div id="materials" className="collapse" aria-labelledby="materials" data-parent="#accordionSidebar">
                     <div className="bg-white py-2 collapse-inner rounded">
                         <h6 className="collapse-header">Manage Materials:</h6>
-                        <a className="collapse-item" href="/material/">Material Dashboard</a>
-                        <a className="collapse-item" href="/purchase/">Purchase Dashboard</a>
                         <a className="collapse-item" href="/supplier/">Supplier Dashboard</a>
+                        <a className="collapse-item" href="/material/">Material Dashboard</a>
+                        <a className="collapse-item"href="/tool" >Tool Dashboard</a>
+                        <a className="collapse-item" href="/purchase/">Purchase Dashboard</a>
                     </div>
                 </div>
             </li>

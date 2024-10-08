@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import Order from './pages/Order';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
+import Tool from './pages/Tool';
 
 import 'react-toastify/ReactToastify.min.css';
 import './styles/styles.min.css';
@@ -36,6 +37,8 @@ function App() {
 					<Route path='/purchase/:id/' element={<ProtectedRoute><EditPurchase /></ProtectedRoute>} />
 
 					<Route path='/material/' element={<ProtectedRoute><Material /></ProtectedRoute>} />
+
+					<Route path='/tool/' element={<ProtectedRoute><Tool /></ProtectedRoute>} />
 
 					<Route path='/order/' element={<ProtectedRoute><Order /></ProtectedRoute>} />
 					<Route path='/order/:id/' element={<ProtectedRoute><EditOrder /></ProtectedRoute>} />
