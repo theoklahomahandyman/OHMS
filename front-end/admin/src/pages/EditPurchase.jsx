@@ -30,7 +30,7 @@ function EditPurchase() {
     const fetchData = useCallback(async () => {
         const fetchMaterialDetail = async (purchase_id, material_id) => {
             const response = await api.get(`/purchase/material/${purchase_id}/${material_id}/`);
-            return { name: response.data.name, cost: response.data.cost };
+            return { name: response.data.name, cost: response.data.cost, quantity: response.data.quantity };
         };
         const updateChartData = async (purchaseData) => {
             const materialData = purchaseData.materials || [];
@@ -39,22 +39,24 @@ function EditPurchase() {
             ) || [];
             const materialNames = fetchedMaterials.map(m => m.name);
             const materialCosts = fetchedMaterials.map(m => m.cost);
+            const materialQuantities = fetchedMaterials.map(m => m.quantity);
             const taxAmount = purchaseData.tax || 0;
             if (taxAmount > 0) {
                 materialNames.push('Tax');
                 materialCosts.push(taxAmount);
+                materialQuantities.push(0);
             }
             setPieChartData({
                 position: 'bottom',
                 title: 'Purchase Charges',
                 labels: materialNames,
-                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }],
+                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }, {label: 'Quantities', data: materialQuantities, offset: 20 }],
             });
             setBarChartData({
                 position: 'bottom',
-                title: 'Purchase Charges',
+                title: 'Purchase Charges and Quantities',
                 labels: materialNames,
-                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }],
+                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }, {label: 'Quantities', data: materialQuantities, offset: 20 }],
             });
         };
         setLoading(true);
