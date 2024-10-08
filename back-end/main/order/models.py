@@ -4,6 +4,7 @@ from customer.models import Customer
 from material.models import Material
 from service.models import Service
 from user.models import User
+from tool.models import Tool
 from django.db import models
 from decimal import Decimal
 
@@ -134,6 +135,18 @@ class OrderMaterial(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Recalculate the order fields after saving a material
+        self.order.save()
+
+# Order tool model
+class OrderTool(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='tools')
+    tool = models.ForeignKey(Tool, on_delete=models.CASCADE)
+    quantity_uesd = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
+    quantity_broken = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Recalculate the order fields after saving a tool
         self.order.save()
 
 # Order payment model

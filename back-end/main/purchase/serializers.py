@@ -7,10 +7,19 @@ class PurchaseRecieptSerializer(serializers.ModelSerializer):
         model = PurchaseReciept
         fields = ['id', 'purchase', 'image']
 
+# Serializer for purchase material model
+class PurchaseMaterialSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='material.name', read_only=True)
+
+    class Meta:
+        model = PurchaseMaterial
+        fields = ['id', 'purchase', 'material', 'name', 'quantity', 'cost']
+
 # Serializer for purchase model
 class PurchaseSerializer(serializers.ModelSerializer):
     images = PurchaseRecieptSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False), write_only=True)
+    materials = PurchaseMaterialSerializer(many=True, read_only=True)
 
     class Meta:
         model = Purchase
@@ -34,11 +43,3 @@ class PurchaseSerializer(serializers.ModelSerializer):
         for image in uploaded_images:
             PurchaseReciept.objects.create(purchase=instance, image=image)
         return instance
-
-# Serializer for purchase material model
-class PurchaseMaterialSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='material.name', read_only=True)
-
-    class Meta:
-        model = PurchaseMaterial
-        fields = ['id', 'purchase', 'material', 'name', 'quantity', 'cost']
