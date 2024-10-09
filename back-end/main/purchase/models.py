@@ -2,7 +2,6 @@ from supplier.models import Supplier, SupplierAddress
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from material.models import Material
-from django.db.models import Sum
 from tool.models import Tool
 from decimal import Decimal
 

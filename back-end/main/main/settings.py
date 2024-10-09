@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'customer.apps.CustomerConfig',
     'material.apps.MaterialConfig',
     'tool.apps.ToolConfig',
+    'asset.apps.AssetConfig',
     'order.apps.OrderConfig',
     'purchase.apps.PurchaseConfig',
     'service.apps.ServiceConfig',
