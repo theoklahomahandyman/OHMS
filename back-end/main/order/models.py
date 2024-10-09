@@ -1,8 +1,10 @@
 from django.core.validators import MinValueValidator, MaxValueValidator, MinLengthValidator, MaxLengthValidator
 from django.core.exceptions import ValidationError
+from django.db import models, transaction
 from customer.models import Customer
 from material.models import Material
 from service.models import Service
+from django.db.models import Sum
 from user.models import User
 from tool.models import Tool
 from django.db import models
@@ -133,20 +135,44 @@ class OrderMaterial(models.Model):
     quantity = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # Recalculate the order fields after saving a material
+        with transaction.atomic():
+            if self.quantity > 0:
+                # Update material's available quantity and unit cost
+                self.material.available_quantity -= self.quantity
+                self.material.save()
+            super().save(*args, **kwargs)
+            # Update the purchase total
+            self.order.save()
+
+    def delete(self, *args, **kwargs):
+        self.material.available_quantity += self.quantity
+        self.material.save()
+        super().delete(*args, **kwargs)
+        # Update the order total after deletion
         self.order.save()
 
 # Order tool model
 class OrderTool(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='tools')
     tool = models.ForeignKey(Tool, on_delete=models.CASCADE)
-    quantity_uesd = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
+    quantity_used = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
     quantity_broken = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # Recalculate the order fields after saving a tool
+        with transaction.atomic():
+            if self.quantity_broken > 0:
+                # Update tool's available quantity and unit cost
+                self.tool.available_quantity -= self.quantity_broken
+            self.tool.save()
+            super().save(*args, **kwargs)
+            # Update the purchase total
+            self.order.save()
+
+    def delete(self, *args, **kwargs):
+        self.tool.available_quantity += self.quantity_broken
+        self.tool.save()
+        super().delete(*args, **kwargs)
+        # Update the order total after deletion
         self.order.save()
 
 # Order payment model

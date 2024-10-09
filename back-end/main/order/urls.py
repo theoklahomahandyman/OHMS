@@ -1,4 +1,4 @@
-from order.views import OrderView, OrderCostView, OrderPictureView, OrderMaterialView, OrderPaymentView, OrderWorkLogView, OrderWorkerView, PublicView
+from order.views import OrderView, OrderCostView, OrderPictureView, OrderMaterialView, OrderToolView, OrderPaymentView, OrderWorkLogView, OrderWorkerView, PublicView
 from django.urls import path
 
 urlpatterns = [
@@ -17,6 +17,9 @@ urlpatterns = [
 
     path('material/<int:order_pk>/', OrderMaterialView.as_view(), name='order-material-list'),
     path('material/<int:order_pk>/<int:material_pk>/', OrderMaterialView.as_view(), name='order-material-detail'),
+
+    path('tool/<int:order_pk>/', OrderToolView.as_view(), name='order-tool-list'),
+    path('tool/<int:order_pk>/<int:tool_pk>/', OrderToolView.as_view(), name='order-tool-detail'),
 
     path('payment/<int:order_pk>/', OrderPaymentView.as_view(), name='order-payment-list'),
     path('payment/<int:order_pk>/<int:payment_pk>/', OrderPaymentView.as_view(), name='order-payment-detail'),

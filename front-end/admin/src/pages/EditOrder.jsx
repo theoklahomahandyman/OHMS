@@ -11,6 +11,7 @@ function EditOrder() {
     const [customers, setCustomers] = useState([]);
     const [services, setServices] = useState([]);
     const [materials, setMaterials] = useState([]);
+    const [tools, setTools] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
@@ -87,6 +88,18 @@ function EditOrder() {
     }, []);
 
     useEffect(() => {
+        async function fetchTools() {
+            try {
+                const response = await api.get('/tool/');
+                setTools(response.data);
+            } catch {
+                toast.error('No Tools Found!');
+            }
+        }
+        fetchTools();
+    }, []);
+
+    useEffect(() => {
         async function fetchUsers() {
             try {
                 const response = await api.get('/user/admin/');
@@ -139,6 +152,12 @@ function EditOrder() {
         {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
     ];
 
+    const toolFields = [
+        {name: 'tool', label: 'Tool', required: true, elementType: 'select', data: tools.map(tool => ({ value: tool.id, label: tool.name }))},
+        {name: 'quantity_used', label: 'Quantity Needed', type: 'number', required: true, elementType: 'input'},
+        {name: 'quantity_broken', label: 'Quantity Broken', type: 'number', required: true, elementType: 'input'},
+    ];
+
     const paymentFields = [
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
         {name: 'type', label: 'Payment Type', required: true, elementType: 'select', data: paymentChoices},
@@ -159,6 +178,7 @@ function EditOrder() {
     const formsets = [
         {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields, newEntity: false},
         {entity: 'Material', route: '/order/material/', fields: materialFields, newEntity: false},
+        {entity: 'Tool', route: '/order/tool/', fields: toolFields, newEntity: false},
         {entity: 'Work Log', route: '/order/worklog/', fields: workLogFields, newEntity: false},
         {entity: 'Payment', route: '/order/payment/', fields: paymentFields, newEntity: false},
         {entity: 'Worker', route: '/order/worker/', fields: workerFields, newEntity: false},

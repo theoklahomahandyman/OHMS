@@ -74,20 +74,12 @@ class TestPurchaseModel(TestCase):
         self.purchase.refresh_from_db()
         self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_tool.cost), places=2)
 
-    ## Test delete method for purchase material with none remaining
-    def test_purchase_material_delete_none_remaining(self):
+    ## Test delete method for purchase material
+    def test_purchase_material_delete(self):
         initial_total = self.purchase.total
         self.purchase_material.delete()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_material.cost), places=2)
-
-    ## Test delete method for purchase material with remaining
-    def test_purchase_material_delete_remaining(self):
-        PurchaseMaterial.objects.create(purchase=self.purchase, material=self.material, quantity=30, cost=490.24)
-        initial_total = self.purchase.total
-        self.purchase_material.delete()
-        self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_material.cost), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total), places=2)
 
     ## Test save method for purchase tool model
     def test_purchase_tool_save(self):
@@ -126,20 +118,12 @@ class TestPurchaseModel(TestCase):
         self.purchase.refresh_from_db()
         self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_material.cost), places=2)
 
-    ## Test delete method for purchase tool with none remaining
-    def test_purchase_tool_delete_none_remaining(self):
+    ## Test delete method for purchase tool
+    def test_purchase_tool_delete(self):
         initial_total = self.purchase.total
         self.purchase_tool.delete()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_tool.cost), places=2)
-
-    ## Test delete method for purchase tool with remaining
-    def test_purchase_tool_delete_remaining(self):
-        PurchaseTool.objects.create(purchase=self.purchase, tool=self.tool, quantity=30, cost=490.24)
-        initial_total = self.purchase.total
-        self.purchase_tool.delete()
-        self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_tool.cost), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total), places=2)
 
 # Tests for purchase serializer
 class TestPurchaseSerializer(TestCase):

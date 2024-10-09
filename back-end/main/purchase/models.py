@@ -1,6 +1,5 @@
 from supplier.models import Supplier, SupplierAddress
 from django.core.validators import MinValueValidator
-from order.models import OrderMaterial, OrderTool
 from django.db import models, transaction
 from material.models import Material
 from django.db.models import Sum
@@ -55,16 +54,11 @@ class PurchaseMaterial(models.Model):
         unit_cost = float(self.cost) / float(self.quantity)
         return max(unit_cost, 0.0)
 
-    def calculate_available_quantity(self):
-        purchased_quantity = PurchaseMaterial.objects.filter(material=self.material).aggregate(Sum('quantity'))['quantity__sum'] or 0
-        used_quantity = OrderMaterial.objects.filter(material=self.material).aggregate(Sum('quantity'))['quantity__sum'] or 0
-        return max((purchased_quantity - used_quantity), 0)
-
     def save(self, *args, **kwargs):
         with transaction.atomic():
             if self.quantity > 0:
                 # Update material's available quantity and unit cost
-                self.material.available_quantity = self.calculate_available_quantity() + self.quantity
+                self.material.available_quantity += self.quantity
                 self.material.unit_cost = self.calculate_unit_cost()
             else:
                 # Handle zero quantity (don't update available quantity)
@@ -75,20 +69,13 @@ class PurchaseMaterial(models.Model):
             self.purchase.save()
 
     def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-        # Recalculate unit cost for the material based on remaining PurchaseMaterial instances
-        remaining_materials = PurchaseMaterial.objects.filter(material=self.material)
-        if remaining_materials.exists():
-            total_cost = sum(pm.cost for pm in remaining_materials)
-            total_quantity = sum(pm.quantity for pm in remaining_materials)
-            self.material.unit_cost = total_cost / total_quantity if total_quantity > 0 else 0.0
-        else:
-            # No remaining PurchaseMaterial entries, reset to a default unit cost (could be last known value or 0)
-            self.material.unit_cost = 0.0
-        # Update the purchase total after deletion
-        self.material.available_quantity = self.calculate_available_quantity()
-        self.material.save()
-        self.purchase.save()
+        with transaction.atomic():
+            # Subtract cost from purchase total before deletion
+            self.material.available_quantity -= self.quantity
+            self.material.save()
+            self.purchase.total -= self.cost
+            self.purchase.save()
+            super().delete(*args, **kwargs)
 
 class PurchaseTool(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='tools')
@@ -100,16 +87,11 @@ class PurchaseTool(models.Model):
         unit_cost = float(self.cost) / float(self.quantity)
         return max(unit_cost, 0.0)
 
-    def calculate_available_quantity(self):
-        purchased_quantity = PurchaseTool.objects.filter(tool=self.tool).aggregate(Sum('quantity'))['quantity__sum'] or 0
-        used_quantity = OrderTool.objects.filter(tool=self.tool).aggregate(Sum('quantity_broken'))['quantity_broken__sum'] or 0
-        return max((purchased_quantity - used_quantity), 0)
-
     def save(self, *args, **kwargs):
         with transaction.atomic():
             if self.quantity > 0:
                 # Update tool's available quantity and unit cost
-                self.tool.available_quantity = self.calculate_available_quantity() + self.quantity
+                self.tool.available_quantity += self.quantity
                 self.tool.unit_cost = self.calculate_unit_cost()
             else:
                 # Handle zero quantity (don't update available quantity)
@@ -120,17 +102,10 @@ class PurchaseTool(models.Model):
             self.purchase.save()
 
     def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-        # Recalculate unit cost for the tool based on remaining PurchaseTool instances
-        remaining_tools = PurchaseTool.objects.filter(tool=self.tool)
-        if remaining_tools.exists():
-            total_cost = sum(pm.cost for pm in remaining_tools)
-            total_quantity = sum(pm.quantity for pm in remaining_tools)
-            self.tool.unit_cost = total_cost / total_quantity if total_quantity > 0 else 0.0
-        else:
-            # No remaining PurchaseTool entries, reset to a default unit cost (could be last known value or 0)
-            self.tool.unit_cost = 0.0
-        # Update the purchase total after deletion
-        self.tool.available_quantity = self.calculate_available_quantity()
-        self.tool.save()
-        self.purchase.save()
+        with transaction.atomic():
+            # Subtract cost from purchase total before deletion
+            self.tool.available_quantity -= self.quantity
+            self.tool.save()
+            self.purchase.total -= self.cost
+            self.purchase.save()
+            super().delete(*args, **kwargs)
