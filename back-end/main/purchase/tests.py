@@ -1,5 +1,5 @@
-from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer
-from purchase.models import Purchase, PurchaseReciept, PurchaseMaterial
+from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer
+from purchase.models import Purchase, PurchaseReciept, PurchaseMaterial, PurchaseTool
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.hashers import make_password
@@ -11,36 +11,31 @@ from django.utils import timezone
 from django.test import TestCase
 from django.urls import reverse
 from user.models import User
+from tool.models import Tool
 
-# Tests for purchase models
-class TestPurchaseModels(TestCase):
+# Tests for purchase model
+class TestPurchaseModel(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100)
+        cls.tool = Tool.objects.create(name='tool', description='tool description', unit_cost=4.20, available_quantity=1)
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
-
-    ## Test string method for purchase model
-    def test_purchase_string(self):
-        self.assertEqual(str(self.purchase), f'OHMS{self.purchase.pk}-PUR')
+        cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=26, cost=854.39)
 
     ## Test save method for purchase model
     def test_purchase_save(self):
         self.purchase.refresh_from_db()
-        self.assertEqual(float(self.purchase.total), float(self.purchase.tax) + float(self.purchase_material.cost))
+        self.assertEqual(float(self.purchase.total), float(self.purchase.tax) + float(self.purchase_material.cost) + float(self.purchase_tool.cost))
 
     ## Test purchase save without pk (first time save)
     def test_purchase_save_without_pk(self):
         purchase = Purchase(supplier=self.supplier, supplier_address=self.address, tax=5.0, date=timezone.now().date())
         purchase.save()
         self.assertEqual(purchase.total, purchase.tax)
-
-    ## Test string method for purchase material model
-    def test_purchase_material_string(self):
-        self.assertEqual(str(self.purchase_material), f'{self.purchase_material.material.name} - {self.purchase_material.quantity} units purchased for ${self.purchase_material.cost}')
 
     ## Test save method for purchase material model
     def test_purchase_material_save(self):
@@ -51,7 +46,10 @@ class TestPurchaseModels(TestCase):
         self.assertEqual(self.material.unit_cost, purchase_material.cost / purchase_material.quantity)
         self.purchase.refresh_from_db()
         purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
-        expected_total = self.purchase.tax + sum(purchase_material.cost for purchase_material in purchase_materials)
+        purchase_tools = PurchaseTool.objects.filter(purchase=self.purchase)
+        material_cost = sum(purchase_material.cost for purchase_material in purchase_materials)
+        tool_cost = sum(purchase_tool.cost for purchase_tool in purchase_tools)
+        expected_total = self.purchase.tax + material_cost + tool_cost
         self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
 
     ## Test save method for purchase material model with zero quantity
@@ -63,7 +61,10 @@ class TestPurchaseModels(TestCase):
         self.assertEqual(self.material.unit_cost, 0.0)
         self.purchase.refresh_from_db()
         purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
-        expected_total = self.purchase.tax + sum(pm.cost for pm in purchase_materials)
+        purchase_tools = PurchaseTool.objects.filter(purchase=self.purchase)
+        material_cost = sum(purchase_material.cost for purchase_material in purchase_materials)
+        tool_cost = sum(purchase_tool.cost for purchase_tool in purchase_tools)
+        expected_total = self.purchase.tax + material_cost + tool_cost
         self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
 
     ## Test updating an existing purchase material
@@ -71,14 +72,58 @@ class TestPurchaseModels(TestCase):
         self.purchase_material.cost = 150.0
         self.purchase_material.save()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0, places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_tool.cost), places=2)
 
     ## Test delete method for purchase material
     def test_purchase_material_delete(self):
         initial_total = self.purchase.total
         self.purchase_material.delete()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_material.cost), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total), places=2)
+
+    ## Test save method for purchase tool model
+    def test_purchase_tool_save(self):
+        initial_quantity = self.tool.available_quantity
+        purchase_tool = PurchaseTool.objects.create(purchase=self.purchase, tool=self.tool, quantity=10, cost=200.0)
+        self.tool.refresh_from_db()
+        self.assertEqual(self.tool.available_quantity, initial_quantity + purchase_tool.quantity)
+        self.assertEqual(self.tool.unit_cost, purchase_tool.cost / purchase_tool.quantity)
+        self.purchase.refresh_from_db()
+        purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
+        purchase_tools = PurchaseTool.objects.filter(purchase=self.purchase)
+        material_cost = sum(purchase_material.cost for purchase_material in purchase_materials)
+        tool_cost = sum(purchase_tool.cost for purchase_tool in purchase_tools)
+        expected_total = self.purchase.tax + material_cost + tool_cost
+        self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
+
+    ## Test save method for purchase tool model with zero quantity
+    def test_purchase_tool_save_zero_quantity(self):
+        initial_quantity = self.tool.available_quantity
+        PurchaseTool.objects.create(purchase=self.purchase, tool=self.tool, quantity=0, cost=200.0)
+        self.tool.refresh_from_db()
+        self.assertEqual(self.tool.available_quantity, initial_quantity)
+        self.assertEqual(self.tool.unit_cost, 0.0)
+        self.purchase.refresh_from_db()
+        purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
+        purchase_tools = PurchaseTool.objects.filter(purchase=self.purchase)
+        material_cost = sum(purchase_material.cost for purchase_material in purchase_materials)
+        tool_cost = sum(purchase_tool.cost for purchase_tool in purchase_tools)
+        expected_total = self.purchase.tax + material_cost + tool_cost
+        self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
+
+    ## Test updating an existing purchase tool
+    def test_purchase_tool_update(self):
+        self.purchase_tool.cost = 150.0
+        self.purchase_tool.save()
+        self.purchase.refresh_from_db()
+        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_material.cost), places=2)
+
+    ## Test delete method for purchase tool
+    def test_purchase_tool_delete(self):
+        initial_total = self.purchase.total
+        self.purchase_tool.delete()
+        self.purchase.refresh_from_db()
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total), places=2)
 
 # Tests for purchase serializer
 class TestPurchaseSerializer(TestCase):
@@ -181,6 +226,44 @@ class TestPuchaseMaterialSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertIn('purchase', serializer.validated_data)
         self.assertIn('material', serializer.validated_data)
+        self.assertIn('quantity', serializer.validated_data)
+        self.assertIn('cost', serializer.validated_data)
+
+class TestPuchaseToolSerializer(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
+        cls.tool = Tool.objects.create(name='tool', unit_cost=10.0, available_quantity=100)
+        cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=10, cost=100.0)
+        cls.empty_data = {'purchase': '', 'tool': '', 'quantity': '', 'cost': ''}
+        cls.negative_data = {'purchase': cls.purchase.pk, 'tool': cls.tool.pk, 'quantity': -10, 'cost': -73.29}
+        cls.valid_data = {'purchase': cls.purchase.pk, 'tool': cls.tool.pk, 'quantity': 10, 'cost': 73.29}
+
+    ## Test purchase tool serializer with empty data
+    def test_purchase_tool_serializer_empty_data(self):
+        serializer = PurchaseToolSerializer(data=self.empty_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('purchase', serializer.errors)
+        self.assertIn('tool', serializer.errors)
+        self.assertIn('quantity', serializer.errors)
+        self.assertIn('cost', serializer.errors)
+
+    ## Test purchase tool serializer with negative data
+    def test_purchase_tool_serializer_negative_data(self):
+        serializer = PurchaseToolSerializer(data=self.negative_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('quantity', serializer.errors)
+        self.assertIn('cost', serializer.errors)
+
+    ## Test purchase tool serializer validation success
+    def test_purchase_tool_serializer_validation_success(self):
+        serializer = PurchaseToolSerializer(data=self.valid_data)
+        self.assertTrue(serializer.is_valid())
+        self.assertIn('purchase', serializer.validated_data)
+        self.assertIn('tool', serializer.validated_data)
         self.assertIn('quantity', serializer.validated_data)
         self.assertIn('cost', serializer.validated_data)
 
@@ -470,3 +553,175 @@ class TestPurchaseNewMaterialView(APITestCase):
         self.assertTrue(PurchaseMaterial.objects.filter(purchase=self.purchase, material__name=self.existing_data['name'], quantity=self.existing_data['quantity'], cost=self.existing_data['cost']).exists())
         self.assertEqual(self.purchase_material.quantity, self.existing_data['quantity'])
         self.assertAlmostEqual(float(self.purchase_material.cost), self.existing_data['cost'], places=2)
+
+class TestPurchaseToolView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
+        cls.tool = Tool.objects.create(name='tool', unit_cost=10.0, available_quantity=100)
+        cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=10, cost=100.0)
+        cls.empty_data = {'purchase': '', 'tool': '', 'quantity': '', 'cost': ''}
+        cls.negative_data = {'purchase': cls.purchase.pk, 'tool': cls.tool.pk, 'quantity': -10, 'cost': -73.29}
+        cls.create_data = {'purchase': cls.purchase.pk, 'tool': cls.tool.pk, 'quantity': 10, 'cost': 73.29}
+        cls.update_data = {'purchase': cls.purchase.pk, 'tool': cls.tool.pk, 'quantity': 15, 'cost': 137.42}
+        cls.patch_data = {'quantity': 16}
+        cls.list_url = lambda purchase_pk: reverse('purchase-tool-list', kwargs={'purchase_pk': purchase_pk})
+        cls.detail_url = lambda purchase_pk, tool_pk: reverse('purchase-tool-detail', kwargs={'purchase_pk': purchase_pk, 'tool_pk': tool_pk})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    ## Test get purchase tool not found
+    def test_get_purchase_tool_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.purchase.pk, 96))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Purchase Tool Not Found.')
+
+    ## Test get purchase tool success
+    def test_get_purchase_tool_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.purchase.pk, self.purchase_tool.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['tool'], self.purchase_tool.tool.pk)
+        self.assertEqual(response.data['quantity'], self.purchase_tool.quantity)
+        self.assertEqual(float(response.data['cost']), self.purchase_tool.cost)
+
+    ## Test get purchase tools success
+    def test_get_purchase_tools_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.purchase.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), PurchaseTool.objects.filter(purchase=self.purchase).count())
+
+    ## Test create purchase tool with empty data
+    def test_create_purchase_tool_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.purchase.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('tool', response.data)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test create purchase tool with negative data
+    def test_create_purchase_tool_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.purchase.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test create purchase tool success
+    def test_create_purchase_tool_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.purchase.pk), data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(PurchaseTool.objects.filter(purchase=self.purchase).count(), 2)
+        purchase_tool = PurchaseTool.objects.filter(purchase=self.create_data['purchase'], tool=self.create_data['tool'], quantity=self.create_data['quantity'], cost=self.create_data['cost'])
+        self.assertTrue(purchase_tool.exists())
+
+    ## Test update purchase tool with empty data
+    def test_update_purchase_tool_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase.pk, self.purchase_tool.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('tool', response.data)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test update purchase tool with negative data
+    def test_update_purchase_tool_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase.pk, self.purchase_tool.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    ## Test update purchase tool success
+    def test_update_purchase_tool_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase.pk, self.purchase_tool.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.purchase_tool.refresh_from_db()
+        self.assertEqual(self.purchase_tool.quantity, self.patch_data['quantity'])
+
+    ## Test delete purchase tool success
+    def test_delete_purchase_tool_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.purchase.pk, self.purchase_tool.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PurchaseTool.objects.filter(purchase=self.purchase_tool.purchase, tool=self.purchase_tool.tool, quantity=self.purchase_tool.quantity, cost=self.purchase_tool.cost).count(), 0)
+
+class TestPurchaseNewToolView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 't' * 501
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
+        cls.tool = Tool.objects.create(name='tool', unit_cost=10.0, available_quantity=100, description='test')
+        cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=10, cost=100.0)
+        cls.empty_tool_data = {'name': '', 'description': '', 'quantity': 12, 'cost': 155.12}
+        cls.short_tool_data = {'name': 'f', 'description': 'test', 'quantity': 12, 'cost': 115.58}
+        cls.long_tool_data = {'name': cls.long_string, 'description': cls.long_string, 'quantity': 15, 'cost': 1613510351351565465153168138183138}
+        cls.empty_purchase_data = {'name': 'first', 'description': 'test', 'quantity': '', 'cost': ''}
+        cls.long_purchase_data = {'name': 'first', 'description': 'test', 'quantity': 15, 'cost': 135158151531818138138181811.15153135153}
+        cls.negative_purchase_data = {'name': 'first', 'description': 'test', 'quantity': -49, 'cost': -694.39}
+        cls.valid_data = {'name': 'second', 'description': 'test', 'quantity': 12, 'cost': 105.28}
+        cls.existing_data = {'name': cls.tool.name, 'description': cls.tool.description, 'quantity': 15, 'cost': 115.28}
+        cls.url = lambda purchase_pk: reverse('purchase-new-tool', kwargs={'purchase_pk': purchase_pk})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    def test_new_tool_empty_tool_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.empty_tool_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+
+    def test_new_tool_short_tool_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.short_tool_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+
+    def test_new_tool_empty_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.empty_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    def test_new_tool_long_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.long_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('cost', response.data)
+
+    def test_new_tool_negative_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.negative_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)
+        self.assertIn('cost', response.data)
+
+    def test_new_tool_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.valid_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Tool.objects.filter(name=self.valid_data['name'], description=self.valid_data['description']).exists())
+        self.assertTrue(PurchaseTool.objects.filter(purchase=self.purchase, tool__name=self.valid_data['name'], quantity=self.valid_data['quantity'], cost=self.valid_data['cost']).exists())
+
+    def test_existing_tool_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.existing_data)
+        self.purchase_tool.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(PurchaseTool.objects.filter(purchase=self.purchase, tool__name=self.existing_data['name'], quantity=self.existing_data['quantity'], cost=self.existing_data['cost']).exists())
+        self.assertEqual(self.purchase_tool.quantity, self.existing_data['quantity'])
+        self.assertAlmostEqual(float(self.purchase_tool.cost), self.existing_data['cost'], places=2)

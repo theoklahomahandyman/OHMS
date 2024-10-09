@@ -24,26 +24,6 @@ function Dashboard() {
                         </div>
                     </div>
                 </div>
-                {/* <!-- Profile Card --> */}
-                <div className="col-lg-3 col-md-6 mb-4">
-                    <div className="card shadow">
-                        {/* <!-- Card Header - Accordion --> */}
-                        <a href="#profileCard" className="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="profileCard">
-                            <h6 className="m-0 font-weight-bold text-primary text-center">Profile Dashboard</h6>
-                        </a>
-                        {/* <!-- Card Content - Collapse --> */}
-                        <div className="collapse" id="profileCard">
-                            <div className="card-body text-center">
-                                <p className="text-center">
-                                    The Profile Dashboard can be used to manage your current information.
-                                    The Password Dashboard can be used to change your current password.
-                                </p>
-                                <a href="/profile/" className="btn btn-md btn-primary align-items-start" id="profileNavigation">Profile</a>
-                                <a href="/password/" className="btn btn-md btn-primary align-items-end ml-2" id="passNavigation">Password</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 {/* <!-- Customer Dashboard Card --> */}
                 <div className="col-lg-3 col-md-6 mb-4">
                     <div className="card shadow">
@@ -72,22 +52,6 @@ function Dashboard() {
                             <div className="card-body text-center">
                                 <p className="text-center">The Order Dashboard can be used to manage past and current work orders.</p>
                                 <a href="/order/" className="btn btn-primary align-items-center" id="orderDashboardNavigation">Order Dashboard</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {/* <!-- Material Dashboard Card --> */}
-                <div className="col-lg-3 col-md-6 mb-4">
-                    <div className="card shadow">
-                        {/* <!-- Card Header - Accordion --> */}
-                        <a href="#materialDashboardCard" className="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="materialDashboardCard">
-                            <h6 className="m-0 font-weight-bold text-primary text-center">Material Dashboard</h6>
-                        </a>
-                        {/* <!-- Card Content - Collapse --> */}
-                        <div className="collapse" id="materialDashboardCard">
-                            <div className="card-body text-center">
-                                <p className="text-center">The Material Dashboard can be used to manage past and current materials.</p>
-                                <a href="/material/" className="btn btn-primary align-items-center" id="materialDashboardNavigation">Material Dashboard</a>
                             </div>
                         </div>
                     </div>
@@ -136,6 +100,46 @@ function Dashboard() {
                             <div className="card-body text-center">
                                 <p className="text-center">The Service Dashboard can be used to manage current service types.</p>
                                 <a href="/service/" className="btn btn-primary align-items-center" id="serviceTypesNavigation">Service Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* <!-- Profile Card --> */}
+                <div className="col-lg-3 col-md-6 mb-4">
+                    <div className="card shadow">
+                        {/* <!-- Card Header - Accordion --> */}
+                        <a href="#profileCard" className="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="profileCard">
+                            <h6 className="m-0 font-weight-bold text-primary text-center">Profile Dashboard</h6>
+                        </a>
+                        {/* <!-- Card Content - Collapse --> */}
+                        <div className="collapse" id="profileCard">
+                            <div className="card-body text-center">
+                                <p className="text-center">
+                                    The Profile Dashboard can be used to manage your current information.
+                                    The Password Dashboard can be used to change your current password.
+                                </p>
+                                <a href="/profile/" className="btn btn-md btn-primary align-items-start" id="profileNavigation">Profile</a>
+                                <a href="/password/" className="btn btn-md btn-primary align-items-end ml-2" id="passNavigation">Password</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* <!-- Inventory Dashboard Card --> */}
+                <div className="col-lg-3 col-md-6 mb-4">
+                    <div className="card shadow">
+                        {/* <!-- Card Header - Accordion --> */}
+                        <a href="#inventoryDashboardCard" className="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="inventoryDashboardCard">
+                            <h6 className="m-0 font-weight-bold text-primary text-center">Inventory Dashboards</h6>
+                        </a>
+                        {/* <!-- Card Content - Collapse --> */}
+                        <div className="collapse" id="inventoryDashboardCard">
+                            <div className="card-body text-center">
+                                <p className="text-center">
+                                    The Material Dashboard can be used to manage past and current materials.
+                                    The Tool Dashboard can be used to manage past and current tools.
+                                </p>
+                                <a href="/material/" className="btn btn-primary align-items-center" id="materialDashboardNavigation">Material</a>
+                                <a href="/tool/" className="btn btn-primary align-items-center ml-2" id="toolDashboardNavigation">Tool</a>
                             </div>
                         </div>
                     </div>

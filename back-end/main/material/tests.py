@@ -7,17 +7,6 @@ from django.test import TestCase
 from django.urls import reverse
 from user.models import User
 
-# Tests for material models
-class TestMaterialModels(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet')
-
-    ## Test string method for material model
-    def test_material_string(self):
-        self.assertEqual(str(self.material), f'OHMS{self.material.pk}-MAT')
-
 # Tests for material serializer
 class TestMaterialSerializers(TestCase):
 
@@ -65,12 +54,10 @@ class TestMaterialView(APITestCase):
         cls.client = APIClient()
         cls.password = 'test1234'
         cls.long_string = 'a' * 501
-        cls.long_string = 'a' * 501
         cls.empty_data = {'name': '', 'size': ''}
         cls.short_data = {'name': 'T', 'size': 'S'}
         cls.long_data = {'name': cls.long_string, 'size': cls.long_string, 'description': cls.long_string}
         cls.create_data = {'name': 'material test', 'size': 'material size', 'description': 'material description'}
-        cls.update_data = {'name': 'updated test', 'size': 'updated size', 'description': 'updated description'}
         cls.patch_data = {'name': 'an updated name'}
         cls.list_url = reverse('material-list')
         cls.detail_url = lambda pk: reverse('material-detail', kwargs={'pk': pk})

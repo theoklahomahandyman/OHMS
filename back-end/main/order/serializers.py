@@ -1,4 +1,4 @@
-from order.models import Order, OrderCost, OrderMaterial, OrderPicture, OrderPayment, OrderWorkLog, OrderWorker
+from order.models import Order, OrderCost, OrderMaterial, OrderTool, OrderPicture, OrderPayment, OrderWorkLog, OrderWorker
 from rest_framework import serializers
 
 # Serializer for order picture model
@@ -55,9 +55,19 @@ class OrderCostSerializer(serializers.ModelSerializer):
 
 # Serializer for order material model
 class OrderMaterialSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='material.name', read_only=True)
+
     class Meta:
         model = OrderMaterial
-        fields = ['id', 'order', 'material', 'quantity']
+        fields = ['id', 'order', 'material', 'name', 'quantity']
+
+# Serializer for order tool model
+class OrderToolSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='tool.name', read_only=True)
+
+    class Meta:
+        model = OrderTool
+        fields = ['id', 'order', 'tool', 'name', 'quantity_used', 'quantity_broken']
 
 # Serializer for order payment model
 class OrderPaymentSerializer(serializers.ModelSerializer):

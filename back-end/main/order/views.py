@@ -1,5 +1,5 @@
-from order.serializers import OrderSerializer, OrderCostSerializer, OrderMaterialSerializer, OrderPaymentSerializer, OrderWorkLogSerializer, OrderWorkerSerializer
-from order.models import Order, OrderCost, OrderPicture, OrderMaterial, OrderPayment, OrderWorkLog, OrderWorker
+from order.serializers import OrderSerializer, OrderCostSerializer, OrderMaterialSerializer, OrderToolSerializer, OrderPaymentSerializer, OrderWorkLogSerializer, OrderWorkerSerializer
+from order.models import Order, OrderCost, OrderPicture, OrderMaterial, OrderTool, OrderPayment, OrderWorkLog, OrderWorker
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ValidationError
 from customer.serializers import CustomerSerializer
@@ -262,8 +262,60 @@ class OrderMaterialView(APIView):
         pk = kwargs.get('material_pk', None)
         material = self.get_object(pk)
         material.delete()
-        material.order.total = material.order.calculate_total()
         material.order.save()
+        material.material.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+## CRUD view for order tool model
+class OrderToolView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        return OrderTool.objects.get(pk=pk)
+
+    def get(self, request, *args, **kwargs):
+        order_pk = kwargs.pop('order_pk', None)
+        tool_pk = kwargs.pop('tool_pk', None)
+        if tool_pk:
+            try:
+                tool = self.get_object(tool_pk)
+                serializer = OrderToolSerializer(tool)
+            except OrderTool.DoesNotExist:
+                return Response({'detail': 'Order Tool Not Found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            tools = OrderTool.objects.filter(order__pk=order_pk)
+            serializer = OrderToolSerializer(tools, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        order_pk = kwargs.pop('order_pk', None)
+        data = request.data.copy()
+        data['order'] = order_pk
+        serializer = OrderToolSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        pk = kwargs.get('tool_pk', None)
+        tool = self.get_object(pk)
+        serializer = OrderToolSerializer(tool, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('tool_pk', None)
+        tool = self.get_object(pk)
+        tool.delete()
+        tool.order.save()
+        tool.tool.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 ## CRUD view for order payment model
