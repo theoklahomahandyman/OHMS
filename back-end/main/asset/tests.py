@@ -114,10 +114,11 @@ class TestAssetMaintenanceSerializer(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.long_string = 't' * 501
         cls.asset = Asset.objects.create(name='asset', serial_number='12942034', description='asset description', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=Asset.CONDITION_CHOICES.GOOD, status=Asset.STATUS_CHOICES.AVAILABLE, notes='asset notes')
         cls.maintenance = AssetMaintenance.objects.create(asset=cls.asset, date=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), current_usage=500, condition=Asset.CONDITION_CHOICES.GOOD, status=Asset.STATUS_CHOICES.AVAILABLE, notes='maintenance event 1')
-        cls.old_data = AssetMaintenance.objects.create(asset=cls.asset, date=timezone.now().date() - timezone.timedelta(weeks=32), next_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), current_usage=250, condition=Asset.CONDITION_CHOICES.GOOD, status=Asset.STATUS_CHOICES.AVAILABLE, notes='maintenance event 1')
         cls.empty_data = {'asset': '', 'date': '', 'next_maintenance': '', 'current_usage': '', 'condition': '', 'status': '', 'notes': ''}
+        cls.long_data = {'asset': cls.asset.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 6105156165165156156181156156165800, 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.AVAILABLE, 'notes': cls.long_string}
         cls.negative_data = {'asset': cls.asset.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=32), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=6), 'current_usage': -250, 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
         cls.invalid_date_data = {'asset': cls.asset.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=20), 'current_usage': 250, 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
         cls.valid_data = {'asset': cls.asset.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 800, 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
@@ -128,6 +129,13 @@ class TestAssetMaintenanceSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn('asset', serializer.errors)
         self.assertIn('current_usage', serializer.errors)
+
+    ## Test asset maintenance serializer with long data
+    def test_asset_maintenance_serializer_long_data(self):
+        serializer = AssetMaintenanceSerializer(data=self.long_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('current_usage', serializer.errors)
+        self.assertIn('notes', serializer.errors)
 
     ## Test asset maintenance serializer with negative data
     def test_asset_maintenance_serializer_negative_data(self):
@@ -322,3 +330,138 @@ class TestAssetView(APITestCase):
         response = self.client.delete(self.detail_url(self.asset.pk))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Asset.objects.count(), 0)
+
+class TestAssetMaintenanceView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 'a' * 501
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+        cls.asset = Asset.objects.create(name='asset', serial_number='12942034', description='asset description', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500.00, location='location', condition=Asset.CONDITION_CHOICES.GOOD, status=Asset.STATUS_CHOICES.AVAILABLE, notes='asset notes')
+        cls.maintenance = AssetMaintenance.objects.create(asset=cls.asset, date=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), current_usage=500, condition=Asset.CONDITION_CHOICES.GOOD, status=Asset.STATUS_CHOICES.AVAILABLE, notes='maintenance event')
+        cls.empty_data = {'asset': '', 'date': '', 'next_maintenance': '', 'current_usage': '', 'condition': '', 'status': '', 'notes': ''}
+        cls.long_data = {'asset': cls.asset.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 6105156165165156156181156156165800, 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.AVAILABLE, 'notes': cls.long_string}
+        cls.negative_data = {'asset': cls.asset.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=32), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=6), 'current_usage': -250, 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
+        cls.invalid_date_data = {'asset': cls.asset.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=20), 'current_usage': 250, 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
+        cls.create_data = {'asset': cls.asset.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 800, 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
+        cls.patch_data = {'date': timezone.now().date(), 'notes': 'updated description'}
+        cls.list_url = lambda asset_pk: reverse('asset-maintenance-list', kwargs={'asset_pk': asset_pk})
+        cls.detail_url = lambda asset_pk, maintenance_pk: reverse('asset-maintenance-detail', kwargs={'asset_pk': asset_pk, 'maintenance_pk': maintenance_pk})
+
+    ## Test get asset maintenance not found
+    def test_get_asset_maintenance_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.asset.pk, 96))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Asset Maintenance Not Found.')
+
+    ## Test get asset maintenance success
+    def test_get_asset_maintenance_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.asset.pk, self.maintenance.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['asset'], self.maintenance.asset.pk)
+        self.assertEqual(response.data['date'], self.maintenance.date.isoformat())
+        self.assertEqual(response.data['next_maintenance'], self.maintenance.next_maintenance.isoformat())
+        self.assertEqual(float(response.data['current_usage']), self.maintenance.current_usage)
+        self.assertEqual(response.data['condition'], self.maintenance.condition)
+        self.assertEqual(response.data['status'], self.maintenance.status)
+        self.assertEqual(response.data['notes'], self.maintenance.notes)
+
+    ## Test get asset maintenances success
+    def test_get_asset_maintenances_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.asset.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), AssetMaintenance.objects.count())
+
+    ## Test create asset maintenance with empty data
+    def test_create_asset_maintenance_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.asset.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('asset', response.data)
+
+    ## Test create asset maintenance with long data
+    def test_create_asset_maintenance_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.asset.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('current_usage', response.data)
+        self.assertIn('notes', response.data)
+
+    ## Test create asset maintenance with negative data
+    def test_create_asset_maintenance_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.asset.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('current_usage', response.data)
+
+    ## Test create asset maintenance with invalid date data
+    def test_create_asset_maintenance_invalid_date_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.asset.pk), data=self.invalid_date_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('date', response.data)
+
+    ## Test create asset maintenance success
+    def test_create_asset_maintenance_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.asset.pk), data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(AssetMaintenance.objects.count(), 2)
+        maintenance = AssetMaintenance.objects.get(asset__pk=self.create_data['asset'], date=self.create_data['date'], notes=self.create_data['notes'])
+        self.assertEqual(maintenance.asset.pk, self.create_data['asset'])
+        self.assertEqual(maintenance.date, self.create_data['date'])
+        self.assertEqual(maintenance.next_maintenance, self.create_data['next_maintenance'])
+        self.assertEqual(float(maintenance.current_usage), self.create_data['current_usage'])
+        self.assertEqual(maintenance.condition, self.create_data['condition'])
+        self.assertEqual(maintenance.status, self.create_data['status'])
+        self.assertEqual(maintenance.notes, self.create_data['notes'])
+
+    ## Test update asset maintenance with empty data
+    def test_update_asset_maintenance_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk, self.maintenance.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('asset', response.data)
+
+    ## Test update asset maintenance with long data
+    def test_update_asset_maintenance_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk, self.maintenance.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('current_usage', response.data)
+        self.assertIn('notes', response.data)
+
+    ## Test update asset maintenance with negative data
+    def test_update_asset_maintenance_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk, self.maintenance.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('current_usage', response.data)
+
+    ## Test update asset maintenance with invalid date data
+    def test_update_asset_maintenance_invalid_date_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk, self.maintenance.pk), data=self.invalid_date_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('date', response.data)
+
+    ## Test update asset maintenance success
+    def test_update_asset_maintenance_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk, self.maintenance.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        asset = AssetMaintenance.objects.get(pk=self.asset.pk)
+        self.assertEqual(asset.date, self.patch_data['date'])
+        self.assertEqual(asset.notes, self.patch_data['notes'])
+
+    ## Test delete asset maintenance success
+    def test_delete_asset_maintenance_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.asset.pk, self.maintenance.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(AssetMaintenance.objects.count(), 0)
