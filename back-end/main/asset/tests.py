@@ -147,3 +147,178 @@ class TestAssetMaintenanceSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertIn('asset', serializer.validated_data)
         self.assertIn('notes', serializer.validated_data)
+
+class TestAssetView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 'a' * 501
+        cls.empty_data = {'name': '', 'serial_number': '', 'description': '', 'unit_cost': '', 'rental_cost': '', 'last_maintenance': '', 'next_maintenance': '', 'usage': '', 'location': '', 'condition': '', 'status': '', 'notes': ''}
+        cls.short_data = {'name': 't', 'serial_number': '1', 'description': 'test', 'unit_cost': 0.0, 'rental_cost': 0.0, 'usage': 0.0, 'location': 'test', 'condition': 'good', 'status': 'available', 'notes': 'test'}
+        cls.long_data = {'name': cls.long_string, 'serial_number': cls.long_string, 'description': cls.long_string, 'unit_cost': 0.0, 'rental_cost': 0.0, 'usage': 0.0, 'location': cls.long_string, 'condition': cls.long_string, 'status': cls.long_string, 'notes': cls.long_string}
+        cls.negative_data = {'name': 'name', 'serial_number': '1', 'description': 'test', 'unit_cost': -5.65, 'rental_cost': -8.62, 'usage': -94.14, 'location': 'location', 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.IN_USE, 'notes': 'test'}
+        cls.invalid_date_data = {'name': 'name', 'serial_number': '1', 'description': 'test', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.IN_USE, 'notes': 'test'}
+        cls.create_data = {'name': 'name', 'serial_number': '1', 'description': 'test', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': Asset.CONDITION_CHOICES.GOOD, 'status': Asset.STATUS_CHOICES.IN_USE, 'notes': 'test'}
+        cls.patch_data = {'name': 'updated name', 'description': 'updated description'}
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+        cls.asset = Asset.objects.create(name='asset', serial_number='12942034', description='asset description', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500.00, location='location', condition=Asset.CONDITION_CHOICES.GOOD, status=Asset.STATUS_CHOICES.AVAILABLE, notes='asset notes')
+        cls.list_url = reverse('asset-list')
+        cls.detail_url = lambda pk: reverse('asset-detail', kwargs={'pk': pk})
+
+    ## Test get asset not found
+    def test_get_asset_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(96))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Asset Not Found.')
+
+    ## Test get asset success
+    def test_get_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.asset.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], self.asset.name)
+        self.assertEqual(response.data['serial_number'], self.asset.serial_number)
+        self.assertEqual(response.data['description'], self.asset.description)
+        self.assertEqual(float(response.data['unit_cost']), self.asset.unit_cost)
+        self.assertEqual(float(response.data['rental_cost']), self.asset.rental_cost)
+        self.assertEqual(response.data['last_maintenance'], self.asset.last_maintenance.isoformat())
+        self.assertEqual(response.data['next_maintenance'], self.asset.next_maintenance.isoformat())
+        self.assertEqual(float(response.data['usage']), self.asset.usage)
+        self.assertEqual(response.data['location'], self.asset.location)
+        self.assertEqual(response.data['condition'], self.asset.condition)
+        self.assertEqual(response.data['status'], self.asset.status)
+        self.assertEqual(response.data['notes'], self.asset.notes)
+
+    ## Test get assets success
+    def test_get_assets_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), Asset.objects.count())
+
+    ## Test create asset with empty data
+    def test_create_asset_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('serial_number', response.data)
+
+    ## Test create asset with short data
+    def test_create_asset_short_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+
+    ## Test create asset with long data
+    def test_create_asset_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('serial_number', response.data)
+        self.assertIn('description', response.data)
+        self.assertIn('location', response.data)
+        self.assertIn('condition', response.data)
+        self.assertIn('status', response.data)
+        self.assertIn('notes', response.data)
+
+    ## Test create asset with negative data
+    def test_create_asset_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('unit_cost', response.data)
+        self.assertIn('rental_cost', response.data)
+        self.assertIn('usage', response.data)
+
+    ## Test create asset with invalid date data
+    def test_create_asset_invalid_date_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.invalid_date_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('next_maintenance', response.data)
+
+    ## Test create asset success
+    def test_create_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url, data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Asset.objects.count(), 2)
+        asset = Asset.objects.get(name=self.create_data['name'])
+        self.assertEqual(asset.name, self.create_data['name'])
+        self.assertEqual(asset.serial_number, self.create_data['serial_number'])
+        self.assertEqual(asset.description, self.create_data['description'])
+        self.assertEqual(float(asset.unit_cost), self.create_data['unit_cost'])
+        self.assertEqual(float(asset.rental_cost), self.create_data['rental_cost'])
+        self.assertEqual(asset.last_maintenance, self.create_data['last_maintenance'])
+        self.assertEqual(asset.next_maintenance, self.create_data['next_maintenance'])
+        self.assertEqual(float(asset.usage), self.create_data['usage'])
+        self.assertEqual(asset.location, self.create_data['location'])
+        self.assertEqual(asset.condition, self.create_data['condition'])
+        self.assertEqual(asset.status, self.create_data['status'])
+        self.assertEqual(asset.notes, self.create_data['notes'])
+
+    ## Test update asset with empty data
+    def test_update_asset_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('serial_number', response.data)
+
+    ## Test update asset with short data
+    def test_update_asset_short_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk), data=self.short_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+
+    ## Test update asset with long data
+    def test_update_asset_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('serial_number', response.data)
+        self.assertIn('description', response.data)
+        self.assertIn('location', response.data)
+        self.assertIn('condition', response.data)
+        self.assertIn('status', response.data)
+        self.assertIn('notes', response.data)
+
+    ## Test update asset with negative data
+    def test_update_asset_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('unit_cost', response.data)
+        self.assertIn('rental_cost', response.data)
+        self.assertIn('usage', response.data)
+
+    ## Test update asset with invalid date data
+    def test_update_asset_invalid_date_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk), data=self.invalid_date_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('next_maintenance', response.data)
+
+    ## Test update asset success
+    def test_update_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.asset.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        asset = Asset.objects.get(pk=self.asset.pk)
+        self.assertEqual(asset.name, self.patch_data['name'])
+        self.assertEqual(asset.description, self.patch_data['description'])
+
+    ## Test delete asset success
+    def test_delete_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.asset.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Asset.objects.count(), 0)

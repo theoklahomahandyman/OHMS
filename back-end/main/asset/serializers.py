@@ -8,8 +8,11 @@ class AssetSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'serial_number', 'description', 'unit_cost', 'rental_cost', 'last_maintenance', 'next_maintenance', 'usage', 'location', 'condition', 'status', 'notes']
 
     def validate(self, data):
-        if data.get('last_maintenance') >= data.get('next_maintenance'):
-            raise serializers.ValidationError({'next_maintenance': 'The next maintenance date must be after the last maintenance date.'})
+        last_maintenance = data.get('last_maintenance')
+        next_maintenance = data.get('next_maintenance')
+        if last_maintenance and next_maintenance:
+            if last_maintenance >= next_maintenance:
+                raise serializers.ValidationError({'next_maintenance': 'The next maintenance date must be after the last maintenance date.'})
         return data
 
 class AssetMaintenanceSerializer(serializers.ModelSerializer):
@@ -18,6 +21,9 @@ class AssetMaintenanceSerializer(serializers.ModelSerializer):
         fields = ['id', 'asset', 'date', 'next_maintenance', 'current_usage', 'condition', 'status', 'notes']
 
     def validate(self, data):
-        if data.get('date') >= data.get('next_maintenance'):
-            raise serializers.ValidationError({'date': 'The next maintenance date must be after the maintenance date.'})
+        date = data.get('date')
+        next_maintenance = data.get('next_maintenance')
+        if date and next_maintenance:
+            if date >= next_maintenance:
+                raise serializers.ValidationError({'date': 'The next maintenance date must be after the maintenance date.'})
         return data
