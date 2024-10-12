@@ -74,7 +74,10 @@ class AssetMaintenanceView(APIView):
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        serializer = AssetMaintenanceSerializer(data=request.data)
+        asset_pk = kwargs.pop('asset_pk', None)
+        data = request.data.copy()
+        data['asset'] = asset_pk
+        serializer = AssetMaintenanceSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
