@@ -4,7 +4,6 @@ from django.db import models, transaction
 from customer.models import Customer
 from material.models import Material
 from service.models import Service
-from django.db.models import Sum
 from user.models import User
 from tool.models import Tool
 from django.db import models
