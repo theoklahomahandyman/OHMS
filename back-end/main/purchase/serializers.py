@@ -23,12 +23,12 @@ class PurchaseToolSerializer(serializers.ModelSerializer):
         model = PurchaseTool
         fields = ['id', 'purchase', 'tool', 'name', 'quantity', 'cost']
 
-class PurchaseAssetSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='instance.asset.name', read_only=True)
+class PurchaseAssetInstanceSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='asset.name', read_only=True)
 
     class Meta:
         model = PurchaseAssetInstance
-        fields = ['id', 'purchase', 'instance', 'cost']
+        fields = ['id', 'purchase', 'instance', 'cost', 'usage', 'condition']
 
 # Serializer for purchase model
 class PurchaseSerializer(serializers.ModelSerializer):
@@ -36,10 +36,11 @@ class PurchaseSerializer(serializers.ModelSerializer):
     uploaded_images = serializers.ListField(child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False), write_only=True)
     materials = PurchaseMaterialSerializer(many=True, read_only=True)
     tools = PurchaseToolSerializer(many=True, read_only=True)
+    assets = PurchaseAssetInstanceSerializer(many=True, read_only=True)
 
     class Meta:
         model = Purchase
-        fields = ['id', 'supplier', 'supplier_address', 'tax', 'material_total', 'tool_total', 'total', 'date', 'images', 'uploaded_images', 'materials', 'tools']
+        fields = ['id', 'supplier', 'supplier_address', 'tax', 'material_total', 'tool_total', 'asset_total', 'total', 'date', 'images', 'uploaded_images', 'materials', 'tools', 'assets']
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])

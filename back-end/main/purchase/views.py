@@ -1,8 +1,10 @@
-from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer
-from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept, PurchaseTool
+from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer, PurchaseAssetInstanceSerializer
+from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept, PurchaseTool, PurchaseAssetInstance
+from asset.serializers import AssetSerializer, AssetInstanceSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from material.serializers import MaterialSerializer
+from asset.models import Asset, AssetInstance
 from rest_framework.response import Response
 from tool.serializers import ToolSerializer
 from rest_framework.views import APIView
@@ -227,6 +229,97 @@ class PurchaseNewToolView(APIView):
                     return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
             purchase_tool_data = {'purchase': purchase_pk, 'tool': tool.pk, 'quantity': request.data['quantity'], 'cost': request.data['cost']}
             serializer = PurchaseToolSerializer(data=purchase_tool_data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+# CRUD view for purchase asset instance model
+class PurchaseAssetInstanceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None):
+        return PurchaseAssetInstance.objects.get(pk=pk)
+
+    def get(self, request, *args, **kwargs):
+        purchase_pk = kwargs.pop('purchase_pk', None)
+        instance_pk = kwargs.pop('instance_pk', None)
+        if instance_pk:
+            try:
+                purchase_instance = self.get_object(instance_pk)
+                serializer = PurchaseAssetInstanceSerializer(purchase_instance)
+            except PurchaseAssetInstance.DoesNotExist:
+                return Response({'detail': 'Purchase Asset Instance Not Found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            purchase_instances = PurchaseAssetInstance.objects.filter(purchase__pk=purchase_pk)
+            serializer = PurchaseAssetInstanceSerializer(purchase_instances, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        purchase_pk = kwargs.pop('purchase_pk', None)
+        data = request.data.copy()
+        data['purchase'] = purchase_pk
+        serializer = PurchaseAssetInstanceSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        pk = kwargs.get('instance_pk', None)
+        purchase_instance = self.get_object(pk)
+        serializer = PurchaseAssetInstanceSerializer(purchase_instance, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error:
+            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('instance_pk', None)
+        purchase_instance = self.get_object(pk)
+        purchase_instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PurchaseNewAssetView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk=None, name=None):
+        return PurchaseAssetInstance.objects.get(purchase__pk=pk, instance__asset__name=name)
+
+    def post(self, request, *args, **kwargs):
+        purchase_pk = kwargs.pop('purchase_pk', None)
+        try:
+            purchase_asset = self.get_object(purchase_pk=purchase_pk, name=request.data['name'])
+            purchase_asset_data = {'cost': request.data['cost'], 'usage': request.data['usage'], 'condition': request.data['condition']}
+            serializer = PurchaseAssetInstanceSerializer(purchase_asset, data=purchase_asset_data, partial=True)
+        except PurchaseAssetInstance.DoesNotExist:
+            try:
+                asset = Asset.objects.get(name=request.data['name'])
+            except Asset.DoesNotExist:
+                try:
+                    asset_data = {'name': request.data['name'], 'description': request.data['description']}
+                    asset_serializer = AssetSerializer(data=asset_data)
+                    asset_serializer.is_valid(raise_exception=True)
+                    asset_serializer.save()
+                    asset = Asset.objects.get(name=request.data['name'], description=request.data['description'])
+                except ValidationError as error:
+                    return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+                try:
+                    instance_data = {'asset': asset, 'serial_number': request.data['serial_number'], 'unit_cost': request.data['cost'], 'usage': request.data['usage'], 'condition': request.data['condition']}
+                    instance_serializer = AssetInstanceSerializer(data=instance_data)
+                    instance_serializer.is_valid(raise_exception=True)
+                    instance_serializer.save()
+                    instance = AssetInstance.objects.get(asset=asset, serial_number=request.data['serial_number'])
+                except ValidationError as error:
+                    return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+            purchase_asset_data = {'purchase': purchase_pk, 'instance': instance.pk, 'cost': request.data['cost'], 'usage': request.data['usage'], 'condition': request.data['condition']}
+            serializer = PurchaseAssetInstanceSerializer(data=purchase_asset_data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()

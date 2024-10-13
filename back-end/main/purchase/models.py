@@ -1,7 +1,7 @@
+from django.core.validators import MinValueValidator, MaxLengthValidator
 from supplier.models import Supplier, SupplierAddress
-from django.core.validators import MinValueValidator
+from asset.models import Asset, AssetInstance
 from django.db import models, transaction
-from asset.models import AssetInstance
 from material.models import Material
 from tool.models import Tool
 from decimal import Decimal
@@ -123,10 +123,12 @@ class PurchaseAssetInstance(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='instances')
     instance = models.ForeignKey(AssetInstance, on_delete=models.CASCADE)
     cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
+    usage = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+    status = models.CharField(max_length=21, choices=AssetInstance.STATUS_CHOICES, default=AssetInstance.STATUS_CHOICES.AVAILABLE, validators=[MaxLengthValidator(17)])
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            self.instance.unit_cost = self.cost
+            self.instance.unit_cost =  self.cost
             self.instance.save()
             super().delete(*args, **kwargs)
             self.purchase.save()
