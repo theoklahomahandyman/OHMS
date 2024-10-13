@@ -79,7 +79,7 @@ class TestPurchaseModel(TestCase):
         initial_total = self.purchase.total
         self.purchase_material.delete()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_material.cost), places=2)
 
     ## Test save method for purchase tool model
     def test_purchase_tool_save(self):
@@ -123,7 +123,7 @@ class TestPurchaseModel(TestCase):
         initial_total = self.purchase.total
         self.purchase_tool.delete()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_tool.cost), places=2)
 
 # Tests for purchase serializer
 class TestPurchaseSerializer(TestCase):

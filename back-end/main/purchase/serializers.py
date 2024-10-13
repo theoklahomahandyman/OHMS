@@ -1,4 +1,4 @@
-from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept, PurchaseTool, PurchaseAsset
+from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept, PurchaseTool, PurchaseAssetInstance
 from rest_framework import serializers
 
 # Serializer for purchase reciept model
@@ -24,11 +24,11 @@ class PurchaseToolSerializer(serializers.ModelSerializer):
         fields = ['id', 'purchase', 'tool', 'name', 'quantity', 'cost']
 
 class PurchaseAssetSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='asset.name', read_only=True)
+    name = serializers.CharField(source='instance.asset.name', read_only=True)
 
     class Meta:
-        model = PurchaseAsset
-        fields = ['id', 'purchase', 'asset', 'cost']
+        model = PurchaseAssetInstance
+        fields = ['id', 'purchase', 'instance', 'cost']
 
 # Serializer for purchase model
 class PurchaseSerializer(serializers.ModelSerializer):

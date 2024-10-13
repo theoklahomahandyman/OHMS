@@ -1,8 +1,8 @@
 from supplier.models import Supplier, SupplierAddress
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
+from asset.models import AssetInstance
 from material.models import Material
-from asset.models import Asset
 from tool.models import Tool
 from decimal import Decimal
 
@@ -28,7 +28,7 @@ class Purchase(models.Model):
         return max(float(total_tool_costs), 0.0)
 
     def calculate_asset_total(self):
-        assets = PurchaseAsset.objects.filter(purchase__pk=self.pk)
+        assets = PurchaseAssetInstance.objects.filter(purchase__pk=self.pk)
         total_asset_costs = sum(asset.cost for asset in assets)
         return max(float(total_asset_costs), 0.0)
 
@@ -119,15 +119,15 @@ class PurchaseTool(models.Model):
             super().delete(*args, **kwargs)
             self.purchase.save()
 
-class PurchaseAsset(models.Model):
-    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='assets')
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
+class PurchaseAssetInstance(models.Model):
+    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='instances')
+    instance = models.ForeignKey(AssetInstance, on_delete=models.CASCADE)
     cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            self.asset.unit_cost = self.cost
-            self.asset.save()
+            self.instance.unit_cost = self.cost
+            self.instance.save()
             super().delete(*args, **kwargs)
             self.purchase.save()
 
