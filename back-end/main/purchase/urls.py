@@ -16,4 +16,9 @@ urlpatterns = [
     path('tool/<int:purchase_pk>/<int:tool_pk>/', PurchaseToolView.as_view(), name='purchase-tool-detail'),
 
     path('new/tool/<int:purchase_pk>/', PurchaseNewToolView.as_view(), name='purchase-new-tool'),
+
+    path('asset/<int:purchase_pk>/', PurchaseToolView.as_view(), name='purchase-asset-list'),
+    path('asset/<int:purchase_pk>/<int:instance_pk>/', PurchaseToolView.as_view(), name='purchase-asset-detail'),
+
+    path('new/asset/<int:purchase_pk>/', PurchaseNewToolView.as_view(), name='purchase-new-asset'),
 ]

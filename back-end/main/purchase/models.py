@@ -1,5 +1,6 @@
+from django.core.validators import MinValueValidator, MaxLengthValidator
 from supplier.models import Supplier, SupplierAddress
-from django.core.validators import MinValueValidator
+from asset.models import Asset, AssetInstance
 from django.db import models, transaction
 from material.models import Material
 from tool.models import Tool
@@ -11,6 +12,8 @@ class Purchase(models.Model):
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     material_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     tool_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+    asset_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     date = models.DateField()
 
@@ -24,8 +27,16 @@ class Purchase(models.Model):
         total_tool_costs = sum(tool.cost for tool in tools)
         return max(float(total_tool_costs), 0.0)
 
+    def calculate_asset_total(self):
+        assets = PurchaseAsset.objects.filter(purchase__pk=self.pk)
+        total_asset_costs = sum(asset.cost for asset in assets)
+        return max(float(total_asset_costs), 0.0)
+
+    def calculate_subtotal(self):
+        return max(float(self.material_total) + float(self.tool_total) + float(self.asset_total), 0.0)
+
     def calculate_total(self):
-        return max(float(self.material_total) + float(self.tool_total) + float(self.tax), 0.0)
+        return max(float(self.subtotal) + float(self.tax), 0.0)
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -35,6 +46,8 @@ class Purchase(models.Model):
             super().save(*args, **kwargs)
         self.material_total = round(self.calculate_material_total(), 2)
         self.tool_total = round(self.calculate_tool_total(), 2)
+        self.asset_total = round(self.calculate_asset_total(), 2)
+        self.subtotal = round(self.calculate_subtotal(), 2)
         self.total = round(self.calculate_total(), 2)
         super().save()
 
@@ -72,9 +85,8 @@ class PurchaseMaterial(models.Model):
             # Subtract cost from purchase total before deletion
             self.material.available_quantity -= self.quantity
             self.material.save()
-            self.purchase.total -= self.cost
-            self.purchase.save()
             super().delete(*args, **kwargs)
+            self.purchase.save()
 
 class PurchaseTool(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='tools')
@@ -97,7 +109,6 @@ class PurchaseTool(models.Model):
                 self.tool.unit_cost = 0.0
             self.tool.save()
             super().save(*args, **kwargs)
-            # Update the purchase total
             self.purchase.save()
 
     def delete(self, *args, **kwargs):
@@ -105,6 +116,35 @@ class PurchaseTool(models.Model):
             # Subtract cost from purchase total before deletion
             self.tool.available_quantity -= self.quantity
             self.tool.save()
-            self.purchase.total -= self.cost
-            self.purchase.save()
             super().delete(*args, **kwargs)
+            self.purchase.save()
+
+class PurchaseAsset(models.Model):
+    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='assets')
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
+    serial_number = models.CharField(max_length=100, unique=True)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
+    charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+    usage = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+    condition = models.CharField(max_length=21, choices=AssetInstance.CONDITION_CHOICES, default=AssetInstance.CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
+    location = models.CharField(max_length=500, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            asset_instance, created = AssetInstance.objects.get_or_create(asset=self.asset, serial_number=self.serial_number, unit_costs=self.cost, rental_charge=self.charge, usage=self.usage, condition=self.condition, location=self.location)
+            if not created:
+                self.asset = self.asset
+                self.serial_number = self.serial_number
+                asset_instance.unit_cost =  self.cost
+                asset_instance.rental_cost = self.charge
+                asset_instance.usage = self.usage
+                asset_instance.condition = self.condition
+                asset_instance.location = self.location
+                asset_instance.save()
+            super().save(*args, **kwargs)
+            self.purchase.save()
+
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            super().delete(*args, **kwargs)
+            self.purchase.save()

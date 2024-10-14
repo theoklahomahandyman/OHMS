@@ -1,11 +1,17 @@
-from asset.models import Asset, AssetMaintenance
+from asset.models import Asset, AssetInstance, AssetMaintenance
 from rest_framework import serializers
 
 # Serializer for asset model
 class AssetSerializer(serializers.ModelSerializer):
-    class  Meta:
+    class Meta:
         model = Asset
-        fields = ['id', 'name', 'serial_number', 'description', 'unit_cost', 'rental_cost', 'last_maintenance', 'next_maintenance', 'usage', 'location', 'condition', 'status', 'notes']
+        fields = ['id', 'name', 'description', 'notes']
+
+# Serializer for asset instance model
+class AssetInstanceSerializer(serializers.ModelSerializer):
+    class  Meta:
+        model = AssetInstance
+        fields = ['id', 'asset', 'serial_number', 'unit_cost', 'rental_cost', 'last_maintenance', 'next_maintenance', 'usage', 'location', 'condition', 'status', 'notes']
 
     def validate(self, data):
         last_maintenance = data.get('last_maintenance')
@@ -18,7 +24,7 @@ class AssetSerializer(serializers.ModelSerializer):
 class AssetMaintenanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssetMaintenance
-        fields = ['id', 'asset', 'date', 'next_maintenance', 'current_usage', 'condition', 'status', 'notes']
+        fields = ['id', 'instance', 'date', 'next_maintenance', 'current_usage', 'condition', 'status', 'notes']
 
     def validate(self, data):
         date = data.get('date')

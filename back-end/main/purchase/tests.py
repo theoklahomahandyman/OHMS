@@ -1,10 +1,11 @@
 from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer
-from purchase.models import Purchase, PurchaseReciept, PurchaseMaterial, PurchaseTool
+from purchase.models import Purchase, PurchaseReciept, PurchaseMaterial, PurchaseTool, PurchaseAsset
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.hashers import make_password
 from supplier.models import Supplier, SupplierAddress
 from django.contrib.staticfiles.finders import find
+from asset.models import Asset, AssetInstance
 from material.models import Material
 from rest_framework import status
 from django.utils import timezone
@@ -22,14 +23,16 @@ class TestPurchaseModel(TestCase):
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100)
         cls.tool = Tool.objects.create(name='tool', description='tool description', unit_cost=4.20, available_quantity=1)
+        cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
         cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=26, cost=854.39)
+        cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, asset=cls.asset, serial_number='12934', cost=156.35, charge=23.42, usage=103.23, condition=AssetInstance.CONDITION_CHOICES.GOOD, location='location, location, location')
 
     ## Test save method for purchase model
     def test_purchase_save(self):
         self.purchase.refresh_from_db()
-        self.assertEqual(float(self.purchase.total), float(self.purchase.tax) + float(self.purchase_material.cost) + float(self.purchase_tool.cost))
+        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + float(self.purchase_material.cost) + float(self.purchase_tool.cost) + float(self.purchase_asset.cost), places=2)
 
     ## Test purchase save without pk (first time save)
     def test_purchase_save_without_pk(self):
@@ -47,9 +50,11 @@ class TestPurchaseModel(TestCase):
         self.purchase.refresh_from_db()
         purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
         purchase_tools = PurchaseTool.objects.filter(purchase=self.purchase)
+        purchase_assets = PurchaseAsset.objects.filter(purchase=self.purchase)
         material_cost = sum(purchase_material.cost for purchase_material in purchase_materials)
         tool_cost = sum(purchase_tool.cost for purchase_tool in purchase_tools)
-        expected_total = self.purchase.tax + material_cost + tool_cost
+        asset_cost = sum(purchase_asset.cost for purchase_asset in purchase_assets)
+        expected_total = self.purchase.tax + material_cost + tool_cost + asset_cost
         self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
 
     ## Test save method for purchase material model with zero quantity
@@ -62,9 +67,11 @@ class TestPurchaseModel(TestCase):
         self.purchase.refresh_from_db()
         purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
         purchase_tools = PurchaseTool.objects.filter(purchase=self.purchase)
+        purchase_assets = PurchaseAsset.objects.filter(purchase=self.purchase)
         material_cost = sum(purchase_material.cost for purchase_material in purchase_materials)
         tool_cost = sum(purchase_tool.cost for purchase_tool in purchase_tools)
-        expected_total = self.purchase.tax + material_cost + tool_cost
+        asset_cost = sum(purchase_asset.cost for purchase_asset in purchase_assets)
+        expected_total = self.purchase.tax + material_cost + tool_cost + asset_cost
         self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
 
     ## Test updating an existing purchase material
@@ -72,14 +79,14 @@ class TestPurchaseModel(TestCase):
         self.purchase_material.cost = 150.0
         self.purchase_material.save()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_tool.cost), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_tool.cost) + float(self.purchase_asset.cost), places=2)
 
     ## Test delete method for purchase material
     def test_purchase_material_delete(self):
         initial_total = self.purchase.total
         self.purchase_material.delete()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_material.cost), places=2)
 
     ## Test save method for purchase tool model
     def test_purchase_tool_save(self):
@@ -91,9 +98,11 @@ class TestPurchaseModel(TestCase):
         self.purchase.refresh_from_db()
         purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
         purchase_tools = PurchaseTool.objects.filter(purchase=self.purchase)
+        purchase_assets = PurchaseAsset.objects.filter(purchase=self.purchase)
         material_cost = sum(purchase_material.cost for purchase_material in purchase_materials)
         tool_cost = sum(purchase_tool.cost for purchase_tool in purchase_tools)
-        expected_total = self.purchase.tax + material_cost + tool_cost
+        asset_cost = sum(purchase_asset.cost for purchase_asset in purchase_assets)
+        expected_total = self.purchase.tax + material_cost + tool_cost + asset_cost
         self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
 
     ## Test save method for purchase tool model with zero quantity
@@ -106,9 +115,11 @@ class TestPurchaseModel(TestCase):
         self.purchase.refresh_from_db()
         purchase_materials = PurchaseMaterial.objects.filter(purchase=self.purchase)
         purchase_tools = PurchaseTool.objects.filter(purchase=self.purchase)
+        purchase_assets = PurchaseAsset.objects.filter(purchase=self.purchase)
         material_cost = sum(purchase_material.cost for purchase_material in purchase_materials)
         tool_cost = sum(purchase_tool.cost for purchase_tool in purchase_tools)
-        expected_total = self.purchase.tax + material_cost + tool_cost
+        asset_cost = sum(purchase_asset.cost for purchase_asset in purchase_assets)
+        expected_total = self.purchase.tax + material_cost + tool_cost + asset_cost
         self.assertAlmostEqual(self.purchase.total, expected_total, places=2)
 
     ## Test updating an existing purchase tool
@@ -116,14 +127,28 @@ class TestPurchaseModel(TestCase):
         self.purchase_tool.cost = 150.0
         self.purchase_tool.save()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_material.cost), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_material.cost) + float(self.purchase_asset.cost), places=2)
 
     ## Test delete method for purchase tool
     def test_purchase_tool_delete(self):
         initial_total = self.purchase.total
         self.purchase_tool.delete()
         self.purchase.refresh_from_db()
-        self.assertAlmostEqual(float(self.purchase.total), float(initial_total), places=2)
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_tool.cost), places=2)
+
+    ## Test updating an existing purchase asset
+    def test_purchase_asset_update(self):
+        self.purchase_asset.cost = 150.0
+        self.purchase_asset.save()
+        self.purchase.refresh_from_db()
+        self.assertAlmostEqual(float(self.purchase.total), float(self.purchase.tax) + 150.0 + float(self.purchase_material.cost) + float(self.purchase_tool.cost), places=2)
+
+    ## Test delete method for purchase asset
+    def test_purchase_asset_delete(self):
+        initial_total = self.purchase.total
+        self.purchase_asset.delete()
+        self.purchase.refresh_from_db()
+        self.assertAlmostEqual(float(self.purchase.total), float(initial_total) - float(self.purchase_asset.cost), places=2)
 
 # Tests for purchase serializer
 class TestPurchaseSerializer(TestCase):
