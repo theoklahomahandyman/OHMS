@@ -1,4 +1,4 @@
-from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer
+from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer, PurchaseAssetSerializer
 from purchase.models import Purchase, PurchaseReciept, PurchaseMaterial, PurchaseTool, PurchaseAsset
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
@@ -291,6 +291,57 @@ class TestPuchaseToolSerializer(TestCase):
         self.assertIn('tool', serializer.validated_data)
         self.assertIn('quantity', serializer.validated_data)
         self.assertIn('cost', serializer.validated_data)
+
+class TestPuchaseAssetSerializer(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.long_string = 't' * 501
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
+        cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
+        cls.empty_data = {'purchase': '', 'asset': '', 'serial_number': '', 'cost': '', 'charge': '', 'usage': '', 'condition': '', 'location': ''}
+        cls.long_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': cls.long_string, 'cost': 3158.25, 'charge': 12.25, 'usage': 323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'location': cls.long_string}
+        cls.negative_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': '531581228', 'cost': -3158.25, 'charge': -12.25, 'usage': -323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'location': 'location, location, location'}
+        cls.valid_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': '531581228', 'cost': 3158.25, 'charge': 12.25, 'usage': 323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'location': 'location, location, location'}
+
+    ## Test purchase asset serializer with empty data
+    def test_purchase_asset_serializer_empty_data(self):
+        serializer = PurchaseAssetSerializer(data=self.empty_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('purchase', serializer.errors)
+        self.assertIn('asset', serializer.errors)
+        self.assertIn('serial_number', serializer.errors)
+        self.assertIn('cost', serializer.errors)
+
+    ## Test purchase asset serializer with long data
+    def test_purchase_asset_serializer_long_data(self):
+        serializer = PurchaseAssetSerializer(data=self.long_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('serial_number', serializer.errors)
+        self.assertIn('location', serializer.errors)
+
+    ## Test purchase asset serializer with negative data
+    def test_purchase_asset_serializer_negative_data(self):
+        serializer = PurchaseAssetSerializer(data=self.negative_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('cost', serializer.errors)
+        self.assertIn('charge', serializer.errors)
+        self.assertIn('usage', serializer.errors)
+
+    ## Test purchase asset serializer validation success
+    def test_purchase_asset_serializer_validation_success(self):
+        serializer = PurchaseAssetSerializer(data=self.valid_data)
+        self.assertTrue(serializer.is_valid())
+        self.assertIn('purchase', serializer.validated_data)
+        self.assertIn('asset', serializer.validated_data)
+        self.assertIn('serial_number', serializer.validated_data)
+        self.assertIn('cost', serializer.validated_data)
+        self.assertIn('charge', serializer.validated_data)
+        self.assertIn('usage', serializer.validated_data)
+        self.assertIn('condition', serializer.validated_data)
+        self.assertIn('location', serializer.validated_data)
 
 class TestPurchaseView(APITestCase):
 

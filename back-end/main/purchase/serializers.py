@@ -28,7 +28,7 @@ class PurchaseAssetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseAsset
-        fields = ['id', 'purchase', 'instance', 'cost', 'usage', 'condition']
+        fields = ['id', 'purchase', 'asset', 'name', 'serial_number', 'cost', 'charge', 'usage', 'condition', 'location']
 
 # Serializer for purchase model
 class PurchaseSerializer(serializers.ModelSerializer):

@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator, MaxLengthValidator
+from django.db import models, transaction, IntegrityError
 from supplier.models import Supplier, SupplierAddress
 from asset.models import Asset, AssetInstance
-from django.db import models, transaction
 from material.models import Material
 from tool.models import Tool
 from decimal import Decimal
@@ -122,19 +122,24 @@ class PurchaseTool(models.Model):
 class PurchaseAsset(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='assets')
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
-    serial_number = models.CharField(max_length=100, unique=True)
-    cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
+    serial_number = models.CharField(max_length=100)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal(0.0))])
     charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     usage = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     condition = models.CharField(max_length=21, choices=AssetInstance.CONDITION_CHOICES, default=AssetInstance.CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
     location = models.CharField(max_length=500, null=True, blank=True)
 
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['asset', 'serial_number'], name='unique_purchaseasset_serial_number')]
+
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            asset_instance, created = AssetInstance.objects.get_or_create(asset=self.asset, serial_number=self.serial_number, unit_costs=self.cost, rental_charge=self.charge, usage=self.usage, condition=self.condition, location=self.location)
-            if not created:
-                self.asset = self.asset
-                self.serial_number = self.serial_number
+            try:
+                AssetInstance.objects.get_or_create(asset=self.asset, serial_number=self.serial_number, unit_cost=self.cost, rental_cost=self.charge, usage=self.usage, condition=self.condition, location=self.location)
+            except IntegrityError:
+                asset_instance = AssetInstance.objects.get(asset=self.asset, serial_number=self.serial_number)
+                asset_instance.asset = self.asset
+                asset_instance.serial_number = self.serial_number
                 asset_instance.unit_cost =  self.cost
                 asset_instance.rental_cost = self.charge
                 asset_instance.usage = self.usage

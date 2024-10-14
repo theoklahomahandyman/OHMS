@@ -31,7 +31,7 @@ class AssetInstance(models.Model):
         return timezone.now().date() + timezone.timedelta(weeks=26)
 
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='instances')
-    serial_number = models.CharField(max_length=100, unique=True)
+    serial_number = models.CharField(max_length=100)
     unit_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     rental_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     last_maintenance = models.DateField(default=default_last_maintenance)
@@ -41,6 +41,9 @@ class AssetInstance(models.Model):
     condition = models.CharField(max_length=21, choices=CONDITION_CHOICES, default=CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
     status = models.CharField(max_length=21, choices=STATUS_CHOICES, default=STATUS_CHOICES.AVAILABLE, validators=[MaxLengthValidator(17)])
     notes = models.CharField(blank=True, null=True, max_length=500, validators=[MaxLengthValidator(500)])
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['asset', 'serial_number'], name='unique_assetinstance_serial_number')]
 
 # Asset Maintenance model
 class AssetMaintenance(models.Model):
