@@ -28,7 +28,7 @@ class Purchase(models.Model):
         return max(float(total_tool_costs), 0.0)
 
     def calculate_asset_total(self):
-        assets = PurchaseAssetInstance.objects.filter(purchase__pk=self.pk)
+        assets = PurchaseAsset.objects.filter(purchase__pk=self.pk)
         total_asset_costs = sum(asset.cost for asset in assets)
         return max(float(total_asset_costs), 0.0)
 
@@ -119,18 +119,29 @@ class PurchaseTool(models.Model):
             super().delete(*args, **kwargs)
             self.purchase.save()
 
-class PurchaseAssetInstance(models.Model):
-    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='instances')
-    instance = models.ForeignKey(AssetInstance, on_delete=models.CASCADE)
+class PurchaseAsset(models.Model):
+    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='assets')
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
+    serial_number = models.CharField(max_length=100, unique=True)
     cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
+    charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     usage = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
-    status = models.CharField(max_length=21, choices=AssetInstance.STATUS_CHOICES, default=AssetInstance.STATUS_CHOICES.AVAILABLE, validators=[MaxLengthValidator(17)])
+    condition = models.CharField(max_length=21, choices=AssetInstance.CONDITION_CHOICES, default=AssetInstance.CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
+    location = models.CharField(max_length=500, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
-            self.instance.unit_cost =  self.cost
-            self.instance.save()
-            super().delete(*args, **kwargs)
+            asset_instance, created = AssetInstance.objects.get_or_create(asset=self.asset, serial_number=self.serial_number, unit_costs=self.cost, rental_charge=self.charge, usage=self.usage, condition=self.condition, location=self.location)
+            if not created:
+                self.asset = self.asset
+                self.serial_number = self.serial_number
+                asset_instance.unit_cost =  self.cost
+                asset_instance.rental_cost = self.charge
+                asset_instance.usage = self.usage
+                asset_instance.condition = self.condition
+                asset_instance.location = self.location
+                asset_instance.save()
+            super().save(*args, **kwargs)
             self.purchase.save()
 
     def delete(self, *args, **kwargs):

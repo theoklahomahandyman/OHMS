@@ -1,5 +1,5 @@
 from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer, PurchaseAssetInstanceSerializer
-from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept, PurchaseTool, PurchaseAssetInstance
+from purchase.models import Purchase, PurchaseMaterial, PurchaseReciept, PurchaseTool, PurchaseAsset
 from asset.serializers import AssetSerializer, AssetInstanceSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
@@ -237,11 +237,11 @@ class PurchaseNewToolView(APIView):
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
 # CRUD view for purchase asset instance model
-class PurchaseAssetInstanceView(APIView):
+class PurchaseAssetView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk=None):
-        return PurchaseAssetInstance.objects.get(pk=pk)
+        return PurchaseAsset.objects.get(pk=pk)
 
     def get(self, request, *args, **kwargs):
         purchase_pk = kwargs.pop('purchase_pk', None)
@@ -250,10 +250,10 @@ class PurchaseAssetInstanceView(APIView):
             try:
                 purchase_instance = self.get_object(instance_pk)
                 serializer = PurchaseAssetInstanceSerializer(purchase_instance)
-            except PurchaseAssetInstance.DoesNotExist:
-                return Response({'detail': 'Purchase Asset Instance Not Found.'}, status=status.HTTP_404_NOT_FOUND)
+            except PurchaseAsset.DoesNotExist:
+                return Response({'detail': 'Purchase Asset Not Found.'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            purchase_instances = PurchaseAssetInstance.objects.filter(purchase__pk=purchase_pk)
+            purchase_instances = PurchaseAsset.objects.filter(purchase__pk=purchase_pk)
             serializer = PurchaseAssetInstanceSerializer(purchase_instances, many=True)
         return Response(serializer.data)
 
@@ -261,7 +261,7 @@ class PurchaseAssetInstanceView(APIView):
         purchase_pk = kwargs.pop('purchase_pk', None)
         data = request.data.copy()
         data['purchase'] = purchase_pk
-        serializer = PurchaseAssetInstanceSerializer(data=data)
+        serializer = PurchaseAssetSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -272,7 +272,7 @@ class PurchaseAssetInstanceView(APIView):
     def patch(self, request, *args, **kwargs):
         pk = kwargs.get('instance_pk', None)
         purchase_instance = self.get_object(pk)
-        serializer = PurchaseAssetInstanceSerializer(purchase_instance, data=request.data, partial=True)
+        serializer = PurchaseAssetSerializer(purchase_instance, data=request.data, partial=True)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -290,7 +290,7 @@ class PurchaseNewAssetView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk=None, name=None):
-        return PurchaseAssetInstance.objects.get(purchase__pk=pk, instance__asset__name=name)
+        return PurchaseAsset.objects.get(purchase__pk=pk, instance__asset__name=name)
 
     def post(self, request, *args, **kwargs):
         purchase_pk = kwargs.pop('purchase_pk', None)
@@ -298,7 +298,7 @@ class PurchaseNewAssetView(APIView):
             purchase_asset = self.get_object(purchase_pk=purchase_pk, name=request.data['name'])
             purchase_asset_data = {'cost': request.data['cost'], 'usage': request.data['usage'], 'condition': request.data['condition']}
             serializer = PurchaseAssetInstanceSerializer(purchase_asset, data=purchase_asset_data, partial=True)
-        except PurchaseAssetInstance.DoesNotExist:
+        except PurchaseAsset.DoesNotExist:
             try:
                 asset = Asset.objects.get(name=request.data['name'])
             except Asset.DoesNotExist:
