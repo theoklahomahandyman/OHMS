@@ -24,7 +24,7 @@ class TestPurchaseModel(TestCase):
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100)
         cls.tool = Tool.objects.create(name='tool', description='tool description', unit_cost=4.20, available_quantity=1)
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
         cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=26, cost=854.39)
@@ -302,7 +302,7 @@ class TestPuchaseAssetSerializer(TestCase):
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
         cls.empty_data = {'purchase': '', 'instance': '', 'cost': '', 'usage': '', 'condition': ''}
         cls.negative_data = {'purchase': cls.purchase.pk, 'instance': cls.instance.pk, 'cost': -3158.25, 'usage': -323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
         cls.valid_data = {'purchase': cls.purchase.pk, 'instance': cls.instance.pk, 'cost': 3158.25, 'usage': 323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
@@ -802,7 +802,7 @@ class TestPurchaseAssetView(APITestCase):
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
         cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, instance=cls.instance, cost=2244.22, usage=74.32, condition=AssetInstance.CONDITION_CHOICES.GOOD)
         cls.empty_data = {'purchase': '', 'asset': '', 'serial_number': '', 'cost': '', 'charge': '', 'usage': '', 'last_maintenance': '', 'next_maintenance': '', 'condition': ''}
         cls.long_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': cls.long_string, 'cost': 31585165168165165.25, 'charge': 2561651685163.13, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=5), 'usage': 325615168516163.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
@@ -925,7 +925,7 @@ class TestPurchaseNewAssetView(APITestCase):
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
         cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, instance=cls.instance, cost=2244.22, usage=74.32, condition=AssetInstance.CONDITION_CHOICES.GOOD)
         cls.empty_asset_data = {'name': '', 'description': ''}
         cls.short_asset_data = {'name': 'f', 'description': 'test'}

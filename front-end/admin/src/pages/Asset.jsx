@@ -31,13 +31,6 @@ function Asset() {
         { value: 'Out of Service', label: 'Out of Service' },
     ];
 
-    const statusChoices = [
-        { value: 'Available', label: 'Available' },
-        { value: 'In Use', label: 'In Use' },
-        { value: 'Under Maintenance', label: 'Under Maintenance' },
-        { value: 'Out of Service', label: 'Out of Service' },
-    ];
-
     const fields = [
         {name: 'name', label: 'Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
         {name: 'description', label: 'Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
@@ -54,7 +47,6 @@ function Asset() {
         {name: 'usage', label: 'Usage', type: 'number', required: false, elementType: 'input'},
         {name: 'location', label:  'Stored Location', type: 'text', required: false, elementType: 'input'},
         {name: 'condition', label: 'Current Condition', elementType: 'select', data: conditionChoices},
-        {name: 'status', label: 'Current Status', elementType: 'select', data: statusChoices},
         {name: 'notes', label: 'Notes', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0}
     ];
 
