@@ -2,8 +2,8 @@ import PieChart from '../components/reusable/chart/PieChart';
 import BarChart from '../components/reusable/chart/BarChart';
 import { useState, useEffect, useCallback } from 'react';
 import Loading from '../components/reusable/Loading';
-import Page from '../components/reusable/Page';
 import Form from '../components/reusable/form/Form';
+import Page from '../components/reusable/Page';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -30,7 +30,7 @@ function EditPurchase() {
 
     const purchaseID = `OHMS-${id}-PUR`;
     const heading = `Edit Purchase ${purchaseID}`;
-    const text = `Please use this page to edit any information relating to purchase order ${purchaseID}, including adding materials purchased. The cost field when adding a material should be the total amount spent on the selected material alone. The unit cost, inventory level, and total fields will update automatically.`;
+    const text = `Please use this page to edit any information relating to purchase order ${purchaseID}, including adding materials, tools, and assets purchased. The cost field when adding a material or tool should be the total amount spent on the selected material or tool alone. The unit cost, inventory level, and total fields will update automatically.`;
 
     const fetchData = useCallback(async () => {
         const fetchMaterialDetail = async (purchase_id, material_id) => {
