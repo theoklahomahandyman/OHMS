@@ -24,11 +24,12 @@ class PurchaseToolSerializer(serializers.ModelSerializer):
         fields = ['id', 'purchase', 'tool', 'name', 'quantity', 'cost']
 
 class PurchaseAssetSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='asset.name', read_only=True)
+    name = serializers.CharField(source='instance.asset.name', read_only=True)
+    serial_number = serializers.CharField(source='instance.serial_number', read_only=True)
 
     class Meta:
         model = PurchaseAsset
-        fields = ['id', 'purchase', 'asset', 'name', 'serial_number', 'cost', 'charge', 'usage', 'condition', 'location']
+        fields = ['id', 'purchase', 'instance', 'name', 'serial_number', 'cost', 'usage', 'condition']
 
 # Serializer for purchase model
 class PurchaseSerializer(serializers.ModelSerializer):

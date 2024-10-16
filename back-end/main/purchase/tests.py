@@ -24,10 +24,11 @@ class TestPurchaseModel(TestCase):
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100)
         cls.tool = Tool.objects.create(name='tool', description='tool description', unit_cost=4.20, available_quantity=1)
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
         cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=26, cost=854.39)
-        cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, asset=cls.asset, serial_number='12934', cost=156.35, charge=23.42, usage=103.23, condition=AssetInstance.CONDITION_CHOICES.GOOD, location='location, location, location')
+        cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, instance=cls.instance, cost=156.35, usage=103.23, condition=AssetInstance.CONDITION_CHOICES.GOOD)
 
     ## Test save method for purchase model
     def test_purchase_save(self):
@@ -301,33 +302,24 @@ class TestPuchaseAssetSerializer(TestCase):
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.empty_data = {'purchase': '', 'asset': '', 'serial_number': '', 'cost': '', 'charge': '', 'usage': '', 'condition': '', 'location': ''}
-        cls.long_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': cls.long_string, 'cost': 3158.25, 'charge': 12.25, 'usage': 323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'location': cls.long_string}
-        cls.negative_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': '531581228', 'cost': -3158.25, 'charge': -12.25, 'usage': -323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'location': 'location, location, location'}
-        cls.valid_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': '531581228', 'cost': 3158.25, 'charge': 12.25, 'usage': 323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'location': 'location, location, location'}
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
+        cls.empty_data = {'purchase': '', 'instance': '', 'cost': '', 'usage': '', 'condition': ''}
+        cls.negative_data = {'purchase': cls.purchase.pk, 'instance': cls.instance.pk, 'cost': -3158.25, 'usage': -323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
+        cls.valid_data = {'purchase': cls.purchase.pk, 'instance': cls.instance.pk, 'cost': 3158.25, 'usage': 323.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
 
     ## Test purchase asset serializer with empty data
     def test_purchase_asset_serializer_empty_data(self):
         serializer = PurchaseAssetSerializer(data=self.empty_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('purchase', serializer.errors)
-        self.assertIn('asset', serializer.errors)
-        self.assertIn('serial_number', serializer.errors)
+        self.assertIn('instance', serializer.errors)
         self.assertIn('cost', serializer.errors)
-
-    ## Test purchase asset serializer with long data
-    def test_purchase_asset_serializer_long_data(self):
-        serializer = PurchaseAssetSerializer(data=self.long_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('serial_number', serializer.errors)
-        self.assertIn('location', serializer.errors)
 
     ## Test purchase asset serializer with negative data
     def test_purchase_asset_serializer_negative_data(self):
         serializer = PurchaseAssetSerializer(data=self.negative_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('cost', serializer.errors)
-        self.assertIn('charge', serializer.errors)
         self.assertIn('usage', serializer.errors)
 
     ## Test purchase asset serializer validation success
@@ -335,13 +327,10 @@ class TestPuchaseAssetSerializer(TestCase):
         serializer = PurchaseAssetSerializer(data=self.valid_data)
         self.assertTrue(serializer.is_valid())
         self.assertIn('purchase', serializer.validated_data)
-        self.assertIn('asset', serializer.validated_data)
-        self.assertIn('serial_number', serializer.validated_data)
+        self.assertIn('instance', serializer.validated_data)
         self.assertIn('cost', serializer.validated_data)
-        self.assertIn('charge', serializer.validated_data)
         self.assertIn('usage', serializer.validated_data)
         self.assertIn('condition', serializer.validated_data)
-        self.assertIn('location', serializer.validated_data)
 
 class TestPurchaseView(APITestCase):
 
@@ -801,3 +790,209 @@ class TestPurchaseNewToolView(APITestCase):
         self.assertTrue(PurchaseTool.objects.filter(purchase=self.purchase, tool__name=self.existing_data['name'], quantity=self.existing_data['quantity'], cost=self.existing_data['cost']).exists())
         self.assertEqual(self.purchase_tool.quantity, self.existing_data['quantity'])
         self.assertAlmostEqual(float(self.purchase_tool.cost), self.existing_data['cost'], places=2)
+
+class TestPurchaseAssetView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 't' * 501
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
+        cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
+        cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, instance=cls.instance, cost=2244.22, usage=74.32, condition=AssetInstance.CONDITION_CHOICES.GOOD)
+        cls.empty_data = {'purchase': '', 'asset': '', 'serial_number': '', 'cost': '', 'charge': '', 'usage': '', 'last_maintenance': '', 'next_maintenance': '', 'condition': ''}
+        cls.long_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': cls.long_string, 'cost': 31585165168165165.25, 'charge': 2561651685163.13, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=5), 'usage': 325615168516163.39, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
+        cls.negative_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': '531581228', 'cost': -3158.25, 'charge': -23.13, 'usage': -323.39, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=5), 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
+        cls.create_data = {'purchase': cls.purchase.pk, 'asset': cls.asset.pk, 'serial_number': '531581228', 'cost': 3158.25, 'charge': 23.13, 'usage': 323.39, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=5), 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
+        cls.patch_data = {'cost': 146.83}
+        cls.list_url = lambda purchase_pk: reverse('purchase-asset-list', kwargs={'purchase_pk': purchase_pk})
+        cls.detail_url = lambda purchase_pk, asset_pk: reverse('purchase-asset-detail', kwargs={'purchase_pk': purchase_pk, 'asset_pk': asset_pk})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    ## Test get purchase asset not found
+    def test_get_purchase_asset_not_found(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.purchase.pk, 96))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'], 'Purchase Asset Not Found.')
+
+    ## Test get purchase asset success
+    def test_get_purchase_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.detail_url(self.purchase.pk, self.purchase_asset.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['instance'], self.purchase_asset.instance.pk)
+        self.assertEqual(float(response.data['cost']), self.purchase_asset.cost)
+        self.assertEqual(float(response.data['usage']), self.purchase_asset.usage)
+        self.assertEqual(response.data['condition'], self.purchase_asset.condition)
+
+    ## Test get purchase assets success
+    def test_get_purchase_assets_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.list_url(self.purchase.pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), PurchaseAsset.objects.filter(purchase=self.purchase).count())
+
+    ## Test create purchase asset with empty data
+    def test_create_purchase_asset_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.purchase.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('asset', response.data)
+        self.assertIn('serial_number', response.data)
+        self.assertIn('unit_cost', response.data)
+
+    ## Test create purchase asset with long data
+    def test_create_purchase_asset_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.purchase.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('serial_number', response.data)
+        self.assertIn('unit_cost', response.data)
+        self.assertIn('rental_cost', response.data)
+        self.assertIn('usage', response.data)
+
+    ## Test create purchase asset with negative data
+    def test_create_purchase_asset_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.purchase.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('unit_cost', response.data)
+        self.assertIn('rental_cost', response.data)
+        self.assertIn('usage', response.data)
+
+    ## Test create purchase asset success
+    def test_create_purchase_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.list_url(self.purchase.pk), data=self.create_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(PurchaseAsset.objects.filter(purchase=self.purchase).count(), 2)
+        purchase_asset = PurchaseAsset.objects.filter(purchase=self.create_data['purchase'], instance__asset=self.create_data['asset'], instance__serial_number=self.create_data['serial_number'])
+        asset_instance = AssetInstance.objects.filter(asset=self.create_data['asset'], serial_number=self.create_data['serial_number'])
+        self.assertTrue(purchase_asset.exists())
+        self.assertTrue(asset_instance.exists())
+
+    ## Test update purchase asset with empty data
+    def test_update_purchase_asset_empty_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase.pk, self.purchase_asset.pk), data=self.empty_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('cost', response.data)
+
+    ## Test update purchase asset with long data
+    def test_update_purchase_asset_long_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase.pk, self.purchase_asset.pk), data=self.long_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('cost', response.data)
+        self.assertIn('usage', response.data)
+
+    ## Test update purchase asset with negative data
+    def test_update_purchase_asset_negative_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase.pk, self.purchase_asset.pk), data=self.negative_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('cost', response.data)
+        self.assertIn('usage', response.data)
+
+    ## Test update purchase asset success
+    def test_update_purchase_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(self.detail_url(self.purchase.pk, self.purchase_asset.pk), data=self.patch_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.purchase_asset.refresh_from_db()
+        self.assertEqual(float(self.purchase_asset.cost), self.patch_data['cost'])
+
+    ## Test delete purchase asset success
+    def test_delete_purchase_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.detail_url(self.purchase.pk, self.purchase_asset.pk))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PurchaseAsset.objects.filter(purchase=self.purchase_asset.purchase, instance=self.purchase_asset.instance, instance__serial_number=self.purchase_asset.instance.serial_number).count(), 0)
+
+class TestPurchaseNewAssetView(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = APIClient()
+        cls.password = 'test1234'
+        cls.long_string = 't' * 501
+        cls.supplier = Supplier.objects.create(name='supplier')
+        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
+        cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
+        cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
+        cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, instance=cls.instance, cost=2244.22, usage=74.32, condition=AssetInstance.CONDITION_CHOICES.GOOD)
+        cls.empty_asset_data = {'name': '', 'description': ''}
+        cls.short_asset_data = {'name': 'f', 'description': 'test'}
+        cls.long_asset_data = {'name': cls.long_string, 'description': cls.long_string}
+        cls.empty_purchase_data = {'name': 'first', 'description': 'test', 'serial_number': '', 'cost': '', 'charge': '', 'usage': '', 'condition': '', 'last_maintenance': '', 'next_maintenance': ''}
+        cls.long_purchase_data = {'name': 'first', 'description': 'test', 'serial_number': cls.long_string, 'cost': 151835183145154122.25, 'charge': 1251534350332.12, 'usage': 151353135185631322.25, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=8)}
+        cls.negative_purchase_data = {'name': 'first', 'description': 'test', 'serial_number': '290027', 'cost': -1122.25, 'charge': -32.12, 'usage': -122.25, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=8)}
+        cls.valid_data = {'name': 'new asset', 'description': 'test', 'serial_number': '21490027', 'cost': 1122.25, 'charge': 32.12, 'usage': 122.25, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=8)}
+        cls.existing_data = {'name': cls.asset.name, 'description': cls.asset.description, 'serial_number': cls.purchase_asset.instance.serial_number, 'cost': cls.purchase_asset.cost, 'charge': cls.instance.rental_cost, 'usage': cls.purchase_asset.usage, 'condition': cls.purchase_asset.condition, 'last_maintenance': cls.instance.last_maintenance, 'next_maintenance': cls.instance.next_maintenance}
+        cls.url = lambda purchase_pk: reverse('purchase-new-asset', kwargs={'purchase_pk': purchase_pk})
+        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    def test_new_asset_empty_asset_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.empty_asset_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+
+    def test_new_asset_short_asset_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.short_asset_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+
+    def test_new_asset_long_asset_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.long_asset_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('name', response.data)
+        self.assertIn('description', response.data)
+
+    def test_new_asset_empty_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.empty_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('unit_cost', response.data)
+
+    def test_new_asset_long_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.long_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('serial_number', response.data)
+        self.assertIn('unit_cost', response.data)
+        self.assertIn('usage', response.data)
+        self.assertIn('rental_cost', response.data)
+
+    def test_new_asset_negative_purchase_data(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.negative_purchase_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('unit_cost', response.data)
+        self.assertIn('usage', response.data)
+        self.assertIn('rental_cost', response.data)
+
+    def test_new_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.valid_data)
+        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Asset.objects.filter(name=self.valid_data['name'], description=self.valid_data['description']).exists())
+        self.assertTrue(PurchaseAsset.objects.filter(purchase=self.purchase, instance__asset__name=self.valid_data['name'], instance__serial_number=self.valid_data['serial_number']).exists())
+
+    def test_existing_asset_success(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url(self.purchase.pk), data=self.existing_data)
+        self.purchase_asset.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(PurchaseAsset.objects.filter(purchase=self.purchase, instance__asset__name=self.existing_data['name'], instance__serial_number=self.existing_data['serial_number']).exists())
+        self.assertEqual(self.purchase_asset.condition, self.existing_data['condition'])
+        self.assertAlmostEqual(float(self.purchase_asset.cost), self.existing_data['cost'], places=2)

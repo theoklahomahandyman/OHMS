@@ -259,10 +259,14 @@ class PurchaseAssetView(APIView):
 
     def post(self, request, *args, **kwargs):
         purchase_pk = kwargs.pop('purchase_pk', None)
-        data = request.data.copy()
-        data['purchase'] = purchase_pk
-        serializer = PurchaseAssetSerializer(data=data)
+        instance_data = {'asset': request.data['asset'], 'serial_number': request.data['serial_number'], 'unit_cost': request.data['cost'], 'rental_cost': request.data['charge'], 'last_maintenance': request.data['last_maintenance'], 'next_maintenance': request.data['next_maintenance'], 'usage': request.data['usage'], 'condition': request.data['condition']}
+        instance_serializer = AssetInstanceSerializer(data=instance_data)
         try:
+            instance_serializer.is_valid(raise_exception=True)
+            instance_serializer.save()
+            instance = AssetInstance.objects.get(serial_number=request.data['serial_number'])
+            data = {'purchase': purchase_pk, 'instance': instance.pk, 'usage': request.data['usage'], 'condition': request.data['condition'], 'cost': request.data['cost']}
+            serializer = PurchaseAssetSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -290,31 +294,35 @@ class PurchaseNewAssetView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk=None, name=None, serial_number=None):
-        return PurchaseAsset.objects.get(purchase__pk=pk, asset__name=name, serial_number=serial_number)
+        return PurchaseAsset.objects.get(purchase__pk=pk, instance__asset__name=name, instance__serial_number=serial_number)
 
     def post(self, request, *args, **kwargs):
         purchase_pk = kwargs.pop('purchase_pk', None)
+        name = request.data.get('name', None)
+        serial_number = request.data.get('serial_number', None)
         try:
-            purchase_asset = self.get_object(purchase_pk=purchase_pk, name=request.data['name'], serial_number=request.data['serial_number'])
-            purchase_asset_data = {'asset': request.data['asset'], 'serial_number': request.data['serial_number'], 'cost': request.data['cost'], 'charge': request.data['charge'], 'usage': request.data['usage'], 'condition': request.data['condition'], 'location': request.data['location']}
+            purchase_asset = self.get_object(pk=purchase_pk, name=name, serial_number=serial_number)
+            purchase_asset_data = {'instance': purchase_asset.instance.pk, 'cost': request.data['cost'], 'usage': request.data['usage'], 'condition': request.data['condition']}
             serializer = PurchaseAssetSerializer(purchase_asset, data=purchase_asset_data, partial=True)
         except PurchaseAsset.DoesNotExist:
             try:
-                asset = Asset.objects.get(name=request.data['name'])
+                asset = Asset.objects.get(name=name)
             except Asset.DoesNotExist:
                 try:
-                    asset_data = {'name': request.data['name'], 'description': request.data['description']}
+                    asset_data = {'name': name, 'description': request.data['description']}
                     asset_serializer = AssetSerializer(data=asset_data)
                     asset_serializer.is_valid(raise_exception=True)
                     asset_serializer.save()
-                    asset = Asset.objects.get(name=request.data['name'], description=request.data['description'])
+                    asset = Asset.objects.get(name=name, description=request.data['description'])
+                    instance_data = {'asset': asset.pk, 'serial_number': request.data['serial_number'], 'unit_cost': request.data['cost'], 'rental_cost': request.data['charge'], 'last_maintenance': request.data['last_maintenance'], 'next_maintenance': request.data['next_maintenance'], 'usage': request.data['usage'], 'condition': request.data['condition']}
+                    instance_serializer = AssetInstanceSerializer(data=instance_data)
+                    instance_serializer.is_valid(raise_exception=True)
+                    instance_serializer.save()
+                    instance = AssetInstance.objects.get(asset=asset, serial_number=request.data['serial_number'])
+                    purchase_asset_data = {'purchase': purchase_pk, 'instance': instance.pk, 'cost': request.data['cost'], 'charge': request.data['charge'], 'usage': request.data['usage'], 'condition': request.data['condition']}
+                    serializer = PurchaseAssetSerializer(data=purchase_asset_data)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
                 except ValidationError as error:
                     return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-            purchase_asset_data = {'purchase': purchase_pk, 'asset': asset, 'serial_number': request.data['serial_number'], 'cost': request.data['cost'], 'charge': request.data['charge'], 'usage': request.data['usage'], 'condition': request.data['condition'], 'location': request.data['location']}
-            serializer = PurchaseAssetSerializer(data=purchase_asset_data)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        except ValidationError as error:
-            return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_201_CREATED)
