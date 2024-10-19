@@ -18,12 +18,6 @@ class AssetInstance(models.Model):
         NEEDS_MAINTENANCE = 'Needs Maintenance'
         OUT_OF_SERVICE = 'Out of Service'
 
-    class STATUS_CHOICES(models.TextChoices):
-        AVAILABLE = 'Available'
-        IN_USE = 'In Use'
-        UNDER_MAINTENANCE = 'Under Maintance'
-        OUT_OF_SERVICE = 'Out of Service'
-
     def default_last_maintenance():
         return timezone.now().date()
 
@@ -31,7 +25,7 @@ class AssetInstance(models.Model):
         return timezone.now().date() + timezone.timedelta(weeks=26)
 
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='instances')
-    serial_number = models.CharField(max_length=100, unique=True)
+    serial_number = models.CharField(max_length=100)
     unit_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     rental_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     last_maintenance = models.DateField(default=default_last_maintenance)
@@ -39,8 +33,10 @@ class AssetInstance(models.Model):
     usage = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     location = models.CharField(max_length=500, null=True, blank=True)
     condition = models.CharField(max_length=21, choices=CONDITION_CHOICES, default=CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
-    status = models.CharField(max_length=21, choices=STATUS_CHOICES, default=STATUS_CHOICES.AVAILABLE, validators=[MaxLengthValidator(17)])
     notes = models.CharField(blank=True, null=True, max_length=500, validators=[MaxLengthValidator(500)])
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['asset', 'serial_number'], name='unique_assetinstance_serial_number')]
 
 # Asset Maintenance model
 class AssetMaintenance(models.Model):
@@ -49,7 +45,6 @@ class AssetMaintenance(models.Model):
     next_maintenance = models.DateField(default=AssetInstance.default_next_maintenance)
     current_usage = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     condition = models.CharField(max_length=21, choices=AssetInstance.CONDITION_CHOICES, default=AssetInstance.CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
-    status = models.CharField(max_length=21, choices=AssetInstance.STATUS_CHOICES, default=AssetInstance.STATUS_CHOICES.AVAILABLE, validators=[MaxLengthValidator(17)])
     notes = models.CharField(blank=True, null=True, max_length=500, validators=[MaxLengthValidator(500)])
 
     def save(self, *args, **kwargs):
@@ -64,8 +59,5 @@ class AssetMaintenance(models.Model):
             if not self.condition:
                 self.condition = self.instance.CONDITION_CHOICES.GOOD
             self.instance.condition = self.condition
-            if not self.status:
-                self.status = self.instance.STATUS_CHOICES.AVAILABLE
-            self.instance.status = self.status
             self.instance.save()
         super().save(*args, **kwargs)

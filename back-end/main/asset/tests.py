@@ -14,8 +14,8 @@ class TestAssetModels(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
-        cls.maintenance_data = {'instance': cls.instance, 'date': timezone.now().date(), 'condition': None, 'status': None, 'next_maintenance': None, 'notes': 'missing fields test', 'current_usage': 0 }
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
+        cls.maintenance_data = {'instance': cls.instance, 'date': timezone.now().date(), 'condition': None, 'next_maintenance': None, 'notes': 'missing fields test', 'current_usage': 0 }
 
     def test_asset_instance_default_last_maintenance(self):
         date = AssetInstance.default_last_maintenance()
@@ -31,7 +31,6 @@ class TestAssetModels(TestCase):
         maintenance = AssetMaintenance.objects.create(**self.maintenance_data)
         self.assertEqual(maintenance.instance.next_maintenance, maintenance.date + timezone.timedelta(weeks=26))
         self.assertEqual(maintenance.instance.condition, AssetInstance.CONDITION_CHOICES.GOOD)
-        self.assertEqual(maintenance.instance.status, AssetInstance.STATUS_CHOICES.AVAILABLE)
         self.assertEqual(maintenance.instance.usage, maintenance.current_usage)
 
 # Tests for asset serializer
@@ -82,12 +81,12 @@ class TestAssetInstanceSerializer(TestCase):
     def setUpTestData(cls):
         cls.long_string = 't' * 501
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.empty_data = {'asset': '', 'serial_number': '', 'unit_cost': '', 'rental_cost': '', 'last_maintenance': '', 'next_maintenance': '', 'usage': '', 'location': '', 'condition': '', 'status': '', 'notes': ''}
-        cls.short_data = {'asset': cls.asset.pk, 'serial_number': '1', 'unit_cost': 0.0, 'rental_cost': 0.0, 'last_maintenance': None, 'next_maintenance': None, 'usage': 0.0, 'location': 'test', 'condition': 'good', 'status': 'available', 'notes': 'test'}
-        cls.long_data = {'asset': cls.asset.pk, 'serial_number': cls.long_string, 'unit_cost': 0.0, 'rental_cost': 0.0, 'last_maintenance': None, 'next_maintenance': None, 'usage': 0.0, 'location': cls.long_string, 'condition': cls.long_string, 'status': cls.long_string, 'notes': cls.long_string}
-        cls.negative_data = {'asset': cls.asset.pk, 'serial_number': '1', 'unit_cost': -5.65, 'rental_cost': -8.62, 'last_maintenance': None, 'next_maintenance': None, 'usage': -94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.IN_USE, 'notes': 'test'}
-        cls.invalid_date_data = {'asset': cls.asset.pk, 'serial_number': '1', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.IN_USE, 'notes': 'test'}
-        cls.valid_data = {'asset': cls.asset.pk, 'serial_number': '1', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.IN_USE, 'notes': 'test'}
+        cls.empty_data = {'asset': '', 'serial_number': '', 'unit_cost': '', 'rental_cost': '', 'last_maintenance': '', 'next_maintenance': '', 'usage': '', 'location': '', 'condition': '', 'notes': ''}
+        cls.short_data = {'asset': cls.asset.pk, 'serial_number': '1', 'unit_cost': 0.0, 'rental_cost': 0.0, 'last_maintenance': None, 'next_maintenance': None, 'usage': 0.0, 'location': 'test', 'condition': 'good', 'notes': 'test'}
+        cls.long_data = {'asset': cls.asset.pk, 'serial_number': cls.long_string, 'unit_cost': 0.0, 'rental_cost': 0.0, 'last_maintenance': None, 'next_maintenance': None, 'usage': 0.0, 'location': cls.long_string, 'condition': cls.long_string, 'notes': cls.long_string}
+        cls.negative_data = {'asset': cls.asset.pk, 'serial_number': '1', 'unit_cost': -5.65, 'rental_cost': -8.62, 'last_maintenance': None, 'next_maintenance': None, 'usage': -94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'test'}
+        cls.invalid_date_data = {'asset': cls.asset.pk, 'serial_number': '1', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'test'}
+        cls.valid_data = {'asset': cls.asset.pk, 'serial_number': '1', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'test'}
 
     ## Test asset instance serializer with empty data
     def test_asset_instance_serializer_empty_data(self):
@@ -100,7 +99,6 @@ class TestAssetInstanceSerializer(TestCase):
         self.assertIn('next_maintenance', serializer.errors)
         self.assertIn('usage', serializer.errors)
         self.assertIn('condition', serializer.errors)
-        self.assertIn('status', serializer.errors)
 
     ## Test asset instance serializer with long data
     def test_asset_instance_serializer_long_data(self):
@@ -109,7 +107,6 @@ class TestAssetInstanceSerializer(TestCase):
         self.assertIn('serial_number', serializer.errors)
         self.assertIn('location', serializer.errors)
         self.assertIn('condition', serializer.errors)
-        self.assertIn('status', serializer.errors)
         self.assertIn('notes', serializer.errors)
 
     ## Test asset instance serializer with negative data
@@ -138,7 +135,6 @@ class TestAssetInstanceSerializer(TestCase):
         self.assertIn('usage', serializer.validated_data)
         self.assertIn('location', serializer.validated_data)
         self.assertIn('condition', serializer.validated_data)
-        self.assertIn('status', serializer.validated_data)
         self.assertIn('notes', serializer.validated_data)
 
 # Tests for asset maintenance serializer
@@ -148,13 +144,13 @@ class TestAssetMaintenanceSerializer(TestCase):
     def setUpTestData(cls):
         cls.long_string = 't' * 501
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
-        cls.maintenance = AssetMaintenance.objects.create(instance=cls.instance, date=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), current_usage=500, condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='maintenance event 1')
-        cls.empty_data = {'instance': '', 'date': '', 'next_maintenance': '', 'current_usage': '', 'condition': '', 'status': '', 'notes': ''}
-        cls.long_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 6105156165165156156181156156165800, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.AVAILABLE, 'notes': cls.long_string}
-        cls.negative_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=32), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=6), 'current_usage': -250, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
-        cls.invalid_date_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=20), 'current_usage': 250, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
-        cls.valid_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 800, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
+        cls.maintenance = AssetMaintenance.objects.create(instance=cls.instance, date=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), current_usage=500, condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='maintenance event 1')
+        cls.empty_data = {'instance': '', 'date': '', 'next_maintenance': '', 'current_usage': '', 'condition': '', 'notes': ''}
+        cls.long_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 6105156165165156156181156156165800, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': cls.long_string}
+        cls.negative_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=32), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=6), 'current_usage': -250, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'maintenance event 1'}
+        cls.invalid_date_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=20), 'current_usage': 250, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'maintenance event 1'}
+        cls.valid_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 800, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'maintenance event 1'}
 
     ## Test asset maintenance serializer with empty data
     def test_asset_maintenance_serializer_empty_data(self):
@@ -308,16 +304,16 @@ class TestAssetInstanceView(APITestCase):
         cls.client = APIClient()
         cls.password = 'test1234'
         cls.long_string = 'a' * 501
-        cls.empty_data = {'serial_number': '', 'unit_cost': '', 'rental_cost': '', 'last_maintenance': '', 'next_maintenance': '', 'usage': '', 'location': '', 'condition': '', 'status': '', 'notes': ''}
-        cls.short_data = {'serial_number': '1', 'unit_cost': 0.0, 'rental_cost': 0.0, 'usage': 0.0, 'location': 'test', 'condition': 'good', 'status': 'available', 'notes': 'test'}
-        cls.long_data = {'serial_number': cls.long_string, 'unit_cost': 0.0, 'rental_cost': 0.0, 'usage': 0.0, 'location': cls.long_string, 'condition': cls.long_string, 'status': cls.long_string, 'notes': cls.long_string}
-        cls.negative_data = {'serial_number': '1', 'unit_cost': -5.65, 'rental_cost': -8.62, 'usage': -94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.IN_USE, 'notes': 'test'}
-        cls.invalid_date_data = {'serial_number': '1', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.IN_USE, 'notes': 'test'}
-        cls.create_data = {'serial_number': '1', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.IN_USE, 'notes': 'test'}
+        cls.empty_data = {'serial_number': '', 'unit_cost': '', 'rental_cost': '', 'last_maintenance': '', 'next_maintenance': '', 'usage': '', 'location': '', 'condition': '', 'notes': ''}
+        cls.short_data = {'serial_number': '1', 'unit_cost': 0.0, 'rental_cost': 0.0, 'usage': 0.0, 'location': 'test', 'condition': 'good', 'notes': 'test'}
+        cls.long_data = {'serial_number': cls.long_string, 'unit_cost': 0.0, 'rental_cost': 0.0, 'usage': 0.0, 'location': cls.long_string, 'condition': cls.long_string, 'notes': cls.long_string}
+        cls.negative_data = {'serial_number': '1', 'unit_cost': -5.65, 'rental_cost': -8.62, 'usage': -94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'test'}
+        cls.invalid_date_data = {'serial_number': '1', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'test'}
+        cls.create_data = {'serial_number': '1', 'unit_cost': 5.65, 'rental_cost': 8.62, 'last_maintenance': timezone.now().date(), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=26), 'usage': 94.14, 'location': 'location', 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'test'}
         cls.patch_data = {'serial_number': '102', 'notes': 'updated notes'}
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
         cls.list_url = lambda asset_pk:  reverse('asset-instance-list', kwargs={'asset_pk': asset_pk})
         cls.detail_url = lambda asset_pk, instance_pk: reverse('asset-instance-detail', kwargs={'asset_pk': asset_pk, 'instance_pk': instance_pk})
 
@@ -341,7 +337,6 @@ class TestAssetInstanceView(APITestCase):
         self.assertEqual(float(response.data['usage']), self.instance.usage)
         self.assertEqual(response.data['location'], self.instance.location)
         self.assertEqual(response.data['condition'], self.instance.condition)
-        self.assertEqual(response.data['status'], self.instance.status)
         self.assertEqual(response.data['notes'], self.instance.notes)
 
     ## Test get asset instances success
@@ -366,7 +361,6 @@ class TestAssetInstanceView(APITestCase):
         self.assertIn('serial_number', response.data)
         self.assertIn('location', response.data)
         self.assertIn('condition', response.data)
-        self.assertIn('status', response.data)
         self.assertIn('notes', response.data)
 
     ## Test create asset instance with negative data
@@ -400,7 +394,6 @@ class TestAssetInstanceView(APITestCase):
         self.assertEqual(float(instance.usage), self.create_data['usage'])
         self.assertEqual(instance.location, self.create_data['location'])
         self.assertEqual(instance.condition, self.create_data['condition'])
-        self.assertEqual(instance.status, self.create_data['status'])
         self.assertEqual(instance.notes, self.create_data['notes'])
 
     ## Test update asset instance with empty data
@@ -418,7 +411,6 @@ class TestAssetInstanceView(APITestCase):
         self.assertIn('serial_number', response.data)
         self.assertIn('location', response.data)
         self.assertIn('condition', response.data)
-        self.assertIn('status', response.data)
         self.assertIn('notes', response.data)
 
     ## Test update asset instance with negative data
@@ -463,13 +455,13 @@ class TestAssetMaintenanceView(APITestCase):
         cls.long_string = 'a' * 501
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='instance notes')
-        cls.maintenance = AssetMaintenance.objects.create(instance=cls.instance, date=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), current_usage=500, condition=AssetInstance.CONDITION_CHOICES.GOOD, status=AssetInstance.STATUS_CHOICES.AVAILABLE, notes='maintenance event')
-        cls.empty_data = {'instance': '', 'date': '', 'next_maintenance': '', 'current_usage': '', 'condition': '', 'status': '', 'notes': ''}
-        cls.long_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 6105156165165156156181156156165800, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.AVAILABLE, 'notes': cls.long_string}
-        cls.negative_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=32), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=6), 'current_usage': -250, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
-        cls.invalid_date_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=20), 'current_usage': 250, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
-        cls.create_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 800, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'status': AssetInstance.STATUS_CHOICES.AVAILABLE, 'notes': 'maintenance event 1'}
+        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
+        cls.maintenance = AssetMaintenance.objects.create(instance=cls.instance, date=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), current_usage=500, condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='maintenance event')
+        cls.empty_data = {'instance': '', 'date': '', 'next_maintenance': '', 'current_usage': '', 'condition': '', 'notes': ''}
+        cls.long_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 6105156165165156156181156156165800, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': cls.long_string}
+        cls.negative_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=32), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=6), 'current_usage': -250, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'maintenance event 1'}
+        cls.invalid_date_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() - timezone.timedelta(weeks=20), 'current_usage': 250, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'maintenance event 1'}
+        cls.create_data = {'instance': cls.instance.pk, 'date': timezone.now().date() - timezone.timedelta(weeks=6), 'next_maintenance': timezone.now().date() + timezone.timedelta(weeks=20), 'current_usage': 800, 'condition': AssetInstance.CONDITION_CHOICES.GOOD, 'notes': 'maintenance event 1'}
         cls.patch_data = {'date': timezone.now().date(), 'notes': 'updated description'}
         cls.list_url = lambda instance_pk: reverse('instance-maintenance-list', kwargs={'instance_pk': instance_pk})
         cls.detail_url = lambda instance_pk, maintenance_pk: reverse('instance-maintenance-detail', kwargs={'instance_pk': instance_pk, 'maintenance_pk': maintenance_pk})
@@ -491,7 +483,6 @@ class TestAssetMaintenanceView(APITestCase):
         self.assertEqual(response.data['next_maintenance'], self.maintenance.next_maintenance.isoformat())
         self.assertEqual(float(response.data['current_usage']), self.maintenance.current_usage)
         self.assertEqual(response.data['condition'], self.maintenance.condition)
-        self.assertEqual(response.data['status'], self.maintenance.status)
         self.assertEqual(response.data['notes'], self.maintenance.notes)
 
     ## Test get asset maintenances success
@@ -535,7 +526,6 @@ class TestAssetMaintenanceView(APITestCase):
         self.assertEqual(maintenance.next_maintenance, self.create_data['next_maintenance'])
         self.assertEqual(float(maintenance.current_usage), self.create_data['current_usage'])
         self.assertEqual(maintenance.condition, self.create_data['condition'])
-        self.assertEqual(maintenance.status, self.create_data['status'])
         self.assertEqual(maintenance.notes, self.create_data['notes'])
 
     ## Test update asset maintenance with empty data

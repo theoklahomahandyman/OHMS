@@ -11,7 +11,7 @@ class AssetSerializer(serializers.ModelSerializer):
 class AssetInstanceSerializer(serializers.ModelSerializer):
     class  Meta:
         model = AssetInstance
-        fields = ['id', 'asset', 'serial_number', 'unit_cost', 'rental_cost', 'last_maintenance', 'next_maintenance', 'usage', 'location', 'condition', 'status', 'notes']
+        fields = ['id', 'asset', 'serial_number', 'unit_cost', 'rental_cost', 'last_maintenance', 'next_maintenance', 'usage', 'location', 'condition', 'notes']
 
     def validate(self, data):
         last_maintenance = data.get('last_maintenance')
@@ -24,7 +24,7 @@ class AssetInstanceSerializer(serializers.ModelSerializer):
 class AssetMaintenanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssetMaintenance
-        fields = ['id', 'instance', 'date', 'next_maintenance', 'current_usage', 'condition', 'status', 'notes']
+        fields = ['id', 'instance', 'date', 'next_maintenance', 'current_usage', 'condition', 'notes']
 
     def validate(self, data):
         date = data.get('date')

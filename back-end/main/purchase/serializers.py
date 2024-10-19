@@ -24,11 +24,15 @@ class PurchaseToolSerializer(serializers.ModelSerializer):
         fields = ['id', 'purchase', 'tool', 'name', 'quantity', 'cost']
 
 class PurchaseAssetSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='asset.name', read_only=True)
+    asset = serializers.CharField(source='instance.asset.name', read_only=True)
+    serial_number = serializers.CharField(source='instance.serial_number', read_only=True)
+    charge = serializers.FloatField(source='instance.rental_cost', read_only=True)
+    last_maintenance = serializers.DateField(source='instance.last_maintenance', read_only=True)
+    next_maintenance = serializers.DateField(source='instance.next_maintenance', read_only=True)
 
     class Meta:
         model = PurchaseAsset
-        fields = ['id', 'purchase', 'instance', 'cost', 'usage', 'condition']
+        fields = ['id', 'purchase', 'instance', 'asset', 'serial_number', 'cost', 'charge', 'last_maintenance', 'next_maintenance', 'usage', 'condition']
 
 # Serializer for purchase model
 class PurchaseSerializer(serializers.ModelSerializer):
@@ -40,7 +44,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Purchase
-        fields = ['id', 'supplier', 'supplier_address', 'tax', 'material_total', 'tool_total', 'asset_total', 'total', 'date', 'images', 'uploaded_images', 'materials', 'tools', 'assets']
+        fields = ['id', 'supplier', 'supplier_address', 'tax', 'material_total', 'tool_total', 'asset_total', 'subtotal', 'total', 'date', 'images', 'uploaded_images', 'materials', 'tools', 'assets']
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])

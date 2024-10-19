@@ -103,6 +103,21 @@ class AssetInstanceView(APIView):
         asset_instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+# CRUD view for all asset instance model
+class AllAssetInstancesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return AssetInstance.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        try:
+            asset_instances = self.get_object()
+            serializer = AssetInstanceSerializer(asset_instances)
+        except AssetInstance.DoesNotExist:
+            return Response({'detail': 'No Asset Instances Found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data)
+
 # CRUD view for asset maintenance model
 class AssetMaintenanceView(APIView):
     permission_classes = [IsAuthenticated]

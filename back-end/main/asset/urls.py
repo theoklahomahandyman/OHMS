@@ -1,4 +1,4 @@
-from asset.views import AssetView, AssetInstanceView, AssetMaintenanceView
+from asset.views import AssetView, AssetInstanceView, AllAssetInstancesView, AssetMaintenanceView
 from django.urls import path
 
 urlpatterns = [
@@ -7,6 +7,7 @@ urlpatterns = [
 
     path('instance/<int:asset_pk>/', AssetInstanceView.as_view(), name='asset-instance-list'),
     path('instance/<int:asset_pk>/<int:instance_pk>/', AssetInstanceView.as_view(), name='asset-instance-detail'),
+    path('instance/', AllAssetInstancesView.as_view(), name='all-asset-instances'),
 
     path('maintenance/<int:instance_pk>/', AssetMaintenanceView.as_view(), name='instance-maintenance-list'),
     path('maintenance/<int:instance_pk>/<int:maintenance_pk>/', AssetMaintenanceView.as_view(), name='instance-maintenance-detail'),
