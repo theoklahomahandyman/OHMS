@@ -12,6 +12,7 @@ function EditOrder() {
     const [services, setServices] = useState([]);
     const [materials, setMaterials] = useState([]);
     const [tools, setTools] = useState([]);
+    const [assets, setAssets] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
@@ -100,6 +101,18 @@ function EditOrder() {
     }, []);
 
     useEffect(() => {
+        async function fetchAssets() {
+            try {
+                const response = await api.get('/asset/instance/');
+                setAssets(response.data);
+            } catch {
+                toast.error('No Assets Found!');
+            }
+        }
+        fetchAssets();
+    }, []);
+
+    useEffect(() => {
         async function fetchUsers() {
             try {
                 const response = await api.get('/user/admin/');
@@ -115,6 +128,14 @@ function EditOrder() {
         navigate('/order/');
         toast.success('Order successfully updated!');
     }
+
+    const conditionChoices = [
+        { value: 'Good', label: 'Good' },
+        { value: 'Maintenance Scheduled', label: 'Maintenance Scheduled' },
+        { value: 'Maintenance Soon', label: 'Maintenance Soon' },
+        { value: 'Needs Maintenance', label: 'Needs Maintenance' },
+        { value: 'Out of Service', label: 'Out of Service' },
+    ];
 
     const fields = [
         {name: 'customer', label: 'Customer', required: true, elementType: 'select', data: customers.map(customer => ({ value: customer.id, label: `${customer.first_name} ${customer.last_name}` })), route: '/customer/name'},
@@ -158,6 +179,12 @@ function EditOrder() {
         {name: 'quantity_broken', label: 'Quantity Broken', type: 'number', required: true, elementType: 'input'},
     ];
 
+    const assetFields = [
+        {name: 'instance', label: 'Asset', required: true, elementType: 'select', data: assets.map(asset => ({ value: asset.id, label: asset.asset.name }))},
+        {name: 'usage', label: 'Usage', type: 'number', required: true, elementType: 'input'},
+        {name: 'condition', label: 'Current Condition', elementType: 'select', data: conditionChoices},
+    ];
+
     const paymentFields = [
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
         {name: 'type', label: 'Payment Type', required: true, elementType: 'select', data: paymentChoices},
@@ -179,6 +206,7 @@ function EditOrder() {
         {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields, newEntity: false},
         {entity: 'Material', route: '/order/material/', fields: materialFields, newEntity: false},
         {entity: 'Tool', route: '/order/tool/', fields: toolFields, newEntity: false},
+        {entity: 'Asset', route: '/order/asset/', fields: assetFields, newEntity: false},
         {entity: 'Work Log', route: '/order/worklog/', fields: workLogFields, newEntity: false},
         {entity: 'Payment', route: '/order/payment/', fields: paymentFields, newEntity: false},
         {entity: 'Worker', route: '/order/worker/', fields: workerFields, newEntity: false},

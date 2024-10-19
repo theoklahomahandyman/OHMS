@@ -43,7 +43,7 @@ function EditPurchase() {
         };
         const fetchAssetDetail = async (purchase_id, asset_id) => {
             const response = await api.get(`/purchase/asset/${purchase_id}/${asset_id}/`);
-            return { name: response.data.asset.name, cost: response.data.cost, quantity: 1 };
+            return { name: response.data.asset, cost: response.data.cost, quantity: 1 };
         };
         const updateChartData = async (purchaseData) => {
             const materialData = purchaseData.materials || [];
@@ -249,7 +249,7 @@ function EditPurchase() {
     const assetFields = [
         {name: 'asset', label: 'Asset', required: true, elementType: 'select', data: assets.map(asset => ({ value: asset.id, label: asset.name }))},
         {name: 'serial_number', label: 'Serial Number', type: 'text', required: true, elementType: 'input', maxLength: 100},
-        {name: 'cost', label: 'Cost', type: 'number', required: false, elementType: 'input', disabled: true},
+        {name: 'cost', label: 'Cost', type: 'number', required: false, elementType: 'input'},
         {name: 'charge', label: 'Rental Charge', type: 'number', required: false, elementType: 'input'},
         {name: 'last_maintenance', label: 'Last Maintenance', type: 'date', required: false, elementType: 'input'},
         {name: 'next_maintenance', label: 'Next Maintenance', type: 'date', required: false, elementType: 'input'},
@@ -258,10 +258,10 @@ function EditPurchase() {
     ];
 
     const newAssetFields = [
-        {name: 'name', label: 'Tool Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
-        {name: 'description', label: 'Tool Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
+        {name: 'name', label: 'Asset Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
+        {name: 'description', label: 'Asset Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
         {name: 'serial_number', label: 'Serial Number', type: 'text', required: true, elementType: 'input', maxLength: 100},
-        {name: 'cost', label: 'Cost', type: 'number', required: false, elementType: 'input', disabled: true},
+        {name: 'cost', label: 'Cost', type: 'number', required: false, elementType: 'input'},
         {name: 'charge', label: 'Rental Charge', type: 'number', required: false, elementType: 'input'},
         {name: 'last_maintenance', label: 'Last Maintenance', type: 'date', required: false, elementType: 'input'},
         {name: 'next_maintenance', label: 'Next Maintenance', type: 'date', required: false, elementType: 'input'},
