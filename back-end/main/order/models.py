@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator, MaxValueValidator, MinLengthValidator, MaxLengthValidator
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from asset.models import AssetInstance
+# from asset.models import AssetInstance
 from customer.models import Customer
 from material.models import Material
 from service.models import Service
@@ -25,7 +25,7 @@ class Order(models.Model):
     labor_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     material_upcharge = models.DecimalField(max_digits=10, decimal_places=2, default=25.0, validators=[MinValueValidator(Decimal(15.0)), MaxValueValidator(Decimal(75.0))])
     material_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
-    asset_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+    # asset_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     line_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=12.0, validators=[MinValueValidator(Decimal(0.0)), MaxValueValidator(Decimal(20.0))])
@@ -53,17 +53,17 @@ class Order(models.Model):
         total_material_costs = sum((material.material.unit_cost * material.quantity) for material in materials)
         return max(float(total_material_costs) * (1 + float(self.material_upcharge) / 100), 0.0)
 
-    def calculate_asset_total(self):
-        assets = OrderAsset.objects.filter(order__pk=self.pk)
-        total_asset_costs = sum((asset.instance.rental_cost * asset.usage) for asset in assets)
-        return max(float(total_asset_costs), 0.0)
+    # def calculate_asset_total(self):
+    #     assets = OrderAsset.objects.filter(order__pk=self.pk)
+    #     total_asset_costs = sum((asset.instance.rental_cost * asset.usage) for asset in assets)
+    #     return max(float(total_asset_costs), 0.0)
 
     def calculate_line_total(self):
         costs = OrderCost.objects.filter(order__pk=self.pk)
         return max(float(sum(cost.cost for cost in costs)), 0.0)
 
     def calculate_subtotal(self):
-        return max(float(self.labor_total) + float(self.material_total) + float(self.asset_total) + float(self.line_total) + float(self.callout), 0)
+        return max(float(self.labor_total) + float(self.material_total) + float(self.line_total) + float(self.callout), 0)
 
     def calculate_tax_total(self):
         return max((float(self.tax) / 100) * float(self.subtotal), 0.0)
@@ -91,7 +91,7 @@ class Order(models.Model):
         self.hours_worked = round(self.calculate_hours_worked(), 2)
         self.labor_total = round(self.calculate_labor_total(), 2)
         self.material_total = round(self.calculate_material_total(), 2)
-        self.asset_total = round(self.calculate_asset_total(), 2)
+        # self.asset_total = round(self.calculate_asset_total(), 2)
         self.line_total = round(self.calculate_line_total(), 2)
         self.subtotal = round(self.calculate_subtotal(), 2)
         self.tax_total = round(self.calculate_tax_total(), 2)
@@ -182,28 +182,28 @@ class OrderTool(models.Model):
         # Update the order total after deletion
         self.order.save()
 
-# Order asset model
-class OrderAsset(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='assets')
-    instance = models.ForeignKey(AssetInstance, on_delete=models.CASCADE)
-    usage = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal(0.0))])
-    condition = models.CharField(max_length=21, choices=AssetInstance.CONDITION_CHOICES, default=AssetInstance.CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
+# # Order asset model
+# class OrderAsset(models.Model):
+#     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='assets')
+#     instance = models.ForeignKey(AssetInstance, on_delete=models.CASCADE)
+#     usage = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal(0.0))])
+#     condition = models.CharField(max_length=21, choices=AssetInstance.CONDITION_CHOICES, default=AssetInstance.CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
 
-    def save(self, *args, **kwargs):
-        with transaction.atomic():
-            self.instance.usage += self.usage
-            self.instance.condition = self.condition
-            self.instance.save()
-            super().save(*args, **kwargs)
-            # Update the purchase total
-            self.order.save()
+#     def save(self, *args, **kwargs):
+#         with transaction.atomic():
+#             self.instance.usage += self.usage
+#             self.instance.condition = self.condition
+#             self.instance.save()
+#             super().save(*args, **kwargs)
+#             # Update the purchase total
+#             self.order.save()
 
-    def delete(self, *args, **kwargs):
-        self.instance.usage -= self.usage
-        self.instance.save()
-        super().delete(*args, **kwargs)
-        # Update the order total after deletion
-        self.order.save()
+#     def delete(self, *args, **kwargs):
+#         self.instance.usage -= self.usage
+#         self.instance.save()
+#         super().delete(*args, **kwargs)
+#         # Update the order total after deletion
+#         self.order.save()
 
 # Order payment model
 class OrderPayment(models.Model):

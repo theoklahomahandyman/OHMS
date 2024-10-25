@@ -19,7 +19,7 @@ function EditPurchase() {
     const [data, setData] = useState({});
     const [materialPieChartData, setMaterialPieChartData] = useState({});
     const [toolPieChartData, setToolPieChartData] = useState({});
-    const [assetPieChartData, setAssetPieChartData] = useState({});
+    // const [assetPieChartData, setAssetPieChartData] = useState({});
     const [totalPieChartData, setTotalPieChartData] = useState({});
     const [barChartData, setBarChartData] = useState({});
 
@@ -41,36 +41,36 @@ function EditPurchase() {
             const response = await api.get(`/purchase/tool/${purchase_id}/${tool_id}/`);
             return { name: response.data.name, cost: response.data.cost, quantity: response.data.quantity };
         };
-        const fetchAssetDetail = async (purchase_id, asset_id) => {
-            const response = await api.get(`/purchase/asset/${purchase_id}/${asset_id}/`);
-            return { name: response.data.asset, cost: response.data.cost, quantity: 1 };
-        };
+        // const fetchAssetDetail = async (purchase_id, asset_id) => {
+        //     const response = await api.get(`/purchase/asset/${purchase_id}/${asset_id}/`);
+        //     return { name: response.data.asset_name, cost: response.data.cost, quantity: 1 };
+        // };
         const updateChartData = async (purchaseData) => {
             const materialData = purchaseData.materials || [];
             const toolData = purchaseData.tools || [];
-            const assetData = purchaseData.assets || [];
+            // const assetData = purchaseData.assets || [];
             const fetchedMaterials = await Promise.all(
                 materialData.map(material => fetchMaterialDetail(purchaseData.id, material.id))
             ) || [];
             const fetchedTools = await Promise.all(
                 toolData.map(tool => fetchToolDetail(purchaseData.id, tool.id))
             ) || [];
-            const fetchedAssets = await Promise.all(
-                assetData.map(asset => fetchAssetDetail(purchaseData.id, asset.id))
-            ) || [];
+            // const fetchedAssets = await Promise.all(
+            //     assetData.map(asset => fetchAssetDetail(purchaseData.id, asset.id))
+            // ) || [];
             const materialNames = fetchedMaterials.map(m => m.name);
             const materialCosts = fetchedMaterials.map(m => m.cost);
             const materialQuantities = fetchedMaterials.map(m => m.quantity);
             const toolNames = fetchedTools.map(t => t.name);
             const toolCosts = fetchedTools.map(t => t.cost);
             const toolQuantities = fetchedTools.map(t => t.quantity);
-            const assetNames = fetchedAssets.map(a => a.name);
-            const assetCosts = fetchedAssets.map(a => a.cost);
-            const assetQuantities = fetchedAssets.map(a => a.quantity);
+            // const assetNames = fetchedAssets.map(a => a.name);
+            // const assetCosts = fetchedAssets.map(a => a.cost);
+            // const assetQuantities = fetchedAssets.map(a => a.quantity);
             const taxAmount = purchaseData.tax || 0;
-            const allChargeNames = [...materialNames, ...toolNames, ...assetNames, 'Tax'];
-            const allChargeCosts = [...materialCosts, ...toolCosts, ...assetCosts, taxAmount];
-            const allChargeQuantities = [...materialQuantities, ...toolQuantities, assetQuantities, 0];
+            const allChargeNames = [...materialNames, ...toolNames, 'Tax'];
+            const allChargeCosts = [...materialCosts, ...toolCosts, taxAmount];
+            const allChargeQuantities = [...materialQuantities, ...toolQuantities, 0];
             setMaterialPieChartData({
                 position: 'bottom',
                 title: 'Material Purchase Charges',
@@ -83,12 +83,12 @@ function EditPurchase() {
                 labels: toolNames,
                 datasets: [{ label: 'Costs', data: toolCosts, offset: 20 }, {label: 'Quantities', data: toolQuantities, offset: 20 }],
             });
-            setAssetPieChartData({
-                position: 'bottom',
-                title: 'Asset Purchase Charges',
-                labels: assetNames,
-                datasets: [{ label: 'Costs', data: assetCosts, offset: 20 }, {label: 'Quantities', data: assetQuantities, offset: 20 }],
-            });
+            // setAssetPieChartData({
+            //     position: 'bottom',
+            //     title: 'Asset Purchase Charges',
+            //     labels: assetNames,
+            //     datasets: [{ label: 'Costs', data: assetCosts, offset: 20 }, {label: 'Quantities', data: assetQuantities, offset: 20 }],
+            // });
             setTotalPieChartData({
                 position: 'bottom',
                 title: 'Total Purchase Charges',
@@ -198,13 +198,13 @@ function EditPurchase() {
         toast.success('Purchase successfully updated!');
     }
 
-    const conditionChoices = [
-        { value: 'Good', label: 'Good' },
-        { value: 'Maintenance Scheduled', label: 'Maintenance Scheduled' },
-        { value: 'Maintenance Soon', label: 'Maintenance Soon' },
-        { value: 'Needs Maintenance', label: 'Needs Maintenance' },
-        { value: 'Out of Service', label: 'Out of Service' },
-    ];
+    // const conditionChoices = [
+    //     { value: 'Good', label: 'Good' },
+    //     { value: 'Maintenance Scheduled', label: 'Maintenance Scheduled' },
+    //     { value: 'Maintenance Soon', label: 'Maintenance Soon' },
+    //     { value: 'Needs Maintenance', label: 'Needs Maintenance' },
+    //     { value: 'Out of Service', label: 'Out of Service' },
+    // ];
 
     const fields = [
         {name: 'supplier', label: 'Supplier', required: true, elementType: 'select', data: suppliers.map(supplier => ({ value: supplier.id, label: supplier.name })), customChange: handleSupplierChange, route: 'supplier/name'},
@@ -245,37 +245,38 @@ function EditPurchase() {
         {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
     ];
+    console.log(assets)
 
-    const assetFields = [
-        {name: 'asset', label: 'Asset', required: true, elementType: 'select', data: assets.map(asset => ({ value: asset.id, label: asset.name }))},
-        {name: 'serial_number', label: 'Serial Number', type: 'text', required: true, elementType: 'input', maxLength: 100},
-        {name: 'cost', label: 'Cost', type: 'number', required: false, elementType: 'input'},
-        {name: 'charge', label: 'Rental Charge', type: 'number', required: false, elementType: 'input'},
-        {name: 'last_maintenance', label: 'Last Maintenance', type: 'date', required: false, elementType: 'input'},
-        {name: 'next_maintenance', label: 'Next Maintenance', type: 'date', required: false, elementType: 'input'},
-        {name: 'usage', label: 'Usage', type: 'number', required: false, elementType: 'input'},
-        {name: 'condition', label: 'Current Condition', elementType: 'select', data: conditionChoices},
-    ];
+    // const assetFields = [
+    //     {name: 'asset', label: 'Asset', required: true, elementType: 'select', data: assets.map(asset => ({ value: asset.id, label: asset.name }))},
+    //     {name: 'serial_number', label: 'Serial Number', type: 'text', required: true, elementType: 'input', maxLength: 100},
+    //     {name: 'cost', label: 'Cost', type: 'number', required: false, elementType: 'input'},
+    //     {name: 'charge', label: 'Rental Charge', type: 'number', required: false, elementType: 'input'},
+    //     {name: 'last_maintenance', label: 'Last Maintenance', type: 'date', required: false, elementType: 'input'},
+    //     {name: 'next_maintenance', label: 'Next Maintenance', type: 'date', required: false, elementType: 'input'},
+    //     {name: 'usage', label: 'Usage', type: 'number', required: false, elementType: 'input'},
+    //     {name: 'condition', label: 'Current Condition', elementType: 'select', data: conditionChoices},
+    // ];
 
-    const newAssetFields = [
-        {name: 'name', label: 'Asset Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
-        {name: 'description', label: 'Asset Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
-        {name: 'serial_number', label: 'Serial Number', type: 'text', required: true, elementType: 'input', maxLength: 100},
-        {name: 'cost', label: 'Cost', type: 'number', required: false, elementType: 'input'},
-        {name: 'charge', label: 'Rental Charge', type: 'number', required: false, elementType: 'input'},
-        {name: 'last_maintenance', label: 'Last Maintenance', type: 'date', required: false, elementType: 'input'},
-        {name: 'next_maintenance', label: 'Next Maintenance', type: 'date', required: false, elementType: 'input'},
-        {name: 'usage', label: 'Usage', type: 'number', required: false, elementType: 'input'},
-        {name: 'condition', label: 'Current Condition', elementType: 'select', data: conditionChoices},
-    ];
+    // const newAssetFields = [
+    //     {name: 'name', label: 'Asset Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
+    //     {name: 'description', label: 'Asset Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
+    //     {name: 'serial_number', label: 'Serial Number', type: 'text', required: true, elementType: 'input', maxLength: 100},
+    //     {name: 'cost', label: 'Cost', type: 'number', required: false, elementType: 'input'},
+    //     {name: 'charge', label: 'Rental Charge', type: 'number', required: false, elementType: 'input'},
+    //     {name: 'last_maintenance', label: 'Last Maintenance', type: 'date', required: false, elementType: 'input'},
+    //     {name: 'next_maintenance', label: 'Next Maintenance', type: 'date', required: false, elementType: 'input'},
+    //     {name: 'usage', label: 'Usage', type: 'number', required: false, elementType: 'input'},
+    //     {name: 'condition', label: 'Current Condition', elementType: 'select', data: conditionChoices},
+    // ];
 
     const formsets = [
         {entity: 'Material', route: '/purchase/material/', fields: materialFields, newEntity: false},
         {entity: 'Material', route: '/purchase/new/material/', fields: newMaterialFields, newEntity: true},
         {entity: 'Tool', route: '/purchase/tool/', fields: toolFields, newEntity: false},
         {entity: 'Tool', route: '/purchase/new/tool/', fields: newToolFields, newEntity: true},
-        {entity: 'Asset', route: '/purchase/asset/', fields: assetFields, newEntity: false},
-        {entity: 'Asset', route: '/purchase/new/asset/', fields: newAssetFields, newEntity: true},
+        // {entity: 'Asset', route: '/purchase/asset/', fields: assetFields, newEntity: false},
+        // {entity: 'Asset', route: '/purchase/new/asset/', fields: newAssetFields, newEntity: true},
     ];
 
     return (
@@ -289,9 +290,9 @@ function EditPurchase() {
                         <div className="col-auto">
                             <PieChart chartData={toolPieChartData} />
                         </div>
-                        <div className="col-auto">
+                        {/* <div className="col-auto">
                             <PieChart chartData={assetPieChartData} />
-                        </div>
+                        </div> */}
                         <div className="col-auto">
                             <PieChart chartData={totalPieChartData} />
                         </div>

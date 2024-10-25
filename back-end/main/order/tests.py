@@ -1,5 +1,5 @@
-from order.serializers import OrderSerializer, OrderCostSerializer, OrderPictureSerializer, OrderMaterialSerializer, OrderToolSerializer, OrderAssetSerializer, OrderPaymentSerializer, OrderWorkerSerializer
-from order.models import Order, OrderWorkLog, OrderCost, OrderPicture, OrderMaterial, OrderTool, OrderAsset, OrderPayment, OrderWorker
+from order.serializers import OrderSerializer, OrderCostSerializer, OrderPictureSerializer, OrderMaterialSerializer, OrderToolSerializer, OrderPaymentSerializer, OrderWorkerSerializer
+from order.models import Order, OrderWorkLog, OrderCost, OrderPicture, OrderMaterial, OrderTool, OrderPayment, OrderWorker
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
 from purchase.models import Purchase, PurchaseMaterial
@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.staticfiles.finders import find
 from django.core.exceptions import ValidationError
 from rest_framework.fields import DateTimeField
-from asset.models import Asset, AssetInstance
+# from asset.models import Asset, AssetInstance
 from customer.models import Customer
 from material.models import Material
 from service.models import Service
@@ -30,8 +30,8 @@ class TestOrderModels(TestCase):
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=35.0, available_quantity=100)
         cls.tool = Tool.objects.create(name='tool', unit_cost=35.0, available_quantity=100)
-        cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
+        # cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
+#         cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=cls.date)
         cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
         cls.service = Service.objects.create(name='test service')
@@ -41,7 +41,7 @@ class TestOrderModels(TestCase):
         cls.order_picture = OrderPicture.objects.create(order=cls.order, image='pergola-stain.jpg')
         cls.order_material = OrderMaterial.objects.create(order=cls.order, material=cls.material, quantity=10.0)
         cls.order_tool = OrderTool.objects.create(order=cls.order, tool=cls.tool, quantity_used=10, quantity_broken=2)
-        cls.order_asset = OrderAsset.objects.create(order=cls.order, instance=cls.instance, usage=5.34, condition=AssetInstance.CONDITION_CHOICES.MAINTENANCE_SOON)
+        # cls.order_asset = OrderAsset.objects.create(order=cls.order, instance=cls.instance, usage=5.34, condition=AssetInstance.CONDITION_CHOICES.MAINTENANCE_SOON)
         cls.order_payment = OrderPayment.objects.create(order=cls.order, date=cls.date, type=OrderPayment.PAYMENT_CHOICES.CASH, total=cls.order.total, notes='test order payment')
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password), pay_rate=16.55)
         cls.order_worker = OrderWorker.objects.create(order=cls.order, user=cls.user)
@@ -57,9 +57,9 @@ class TestOrderModels(TestCase):
         labor_costs = self.order.hourly_rate * self.order.hours_worked
         total_material_costs = self.material.unit_cost * self.order_material.quantity
         material_costs = total_material_costs * (1 + self.order.material_upcharge / 100)
-        asset_costs = self.instance.rental_cost * self.order_asset.usage
+        # asset_costs = self.instance.rental_cost * self.order_asset.usage
         order_costs = self.order_cost.cost
-        subtotal = labor_costs + material_costs + asset_costs + order_costs + float(self.order.callout)
+        subtotal = labor_costs + material_costs + order_costs + float(self.order.callout)
         tax_amount = (self.order.tax / 100) * subtotal
         discount_amount = (self.order.discount / 100) * subtotal
         expected_total = subtotal + tax_amount - discount_amount
@@ -82,13 +82,13 @@ class TestOrderModels(TestCase):
         order_tool.refresh_from_db()
         self.assertEqual(order_tool.tool.available_quantity, self.tool.available_quantity)
 
-    ## Test Order Asset save method
-    def test_order_asset_save(self):
-        order_asset = OrderAsset(order=self.order, instance=self.instance, usage=2.34, condition=AssetInstance.CONDITION_CHOICES.OUT_OF_SERVICE)
-        order_asset.save()
-        order_asset.refresh_from_db()
-        self.assertAlmostEqual(float(order_asset.instance.usage), float(self.instance.usage), places=2)
-        self.assertEqual(order_asset.instance.condition, order_asset.condition)
+    # ## Test Order Asset save method
+    # def test_order_asset_save(self):
+    #     order_asset = OrderAsset(order=self.order, instance=self.instance, usage=2.34, condition=AssetInstance.CONDITION_CHOICES.OUT_OF_SERVICE)
+    #     order_asset.save()
+    #     order_asset.refresh_from_db()
+    #     self.assertAlmostEqual(float(order_asset.instance.usage), float(self.instance.usage), places=2)
+    #     self.assertEqual(order_asset.instance.condition, order_asset.condition)
 
     ## Test Order Payment save method
     def test_order_payment_save(self):
@@ -428,51 +428,51 @@ class TestOrderToolSerializer(TestCase):
         self.assertIn('quantity_used', serializer.validated_data)
         self.assertIn('quantity_broken', serializer.validated_data)
 
-# Tests for order asset serializer
-class TestOrderAssetSerializer(TestCase):
+# # Tests for order asset serializer
+# class TestOrderAssetSerializer(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.date = timezone.now().date()
-        cls.service = Service.objects.create(name='test service')
-        cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@email.com', phone='1 (234) 567-8901', notes='test customer')
-        cls.order = Order.objects.create(customer=cls.customer, date=cls.date, description='test description', service=cls.service, hourly_rate=50.0, hours_worked=1.25, material_upcharge=9.25, tax=13.5, total=0.0, completed=False, paid=False, discount=1.75, notes='test order', callout=Order.CALLOUT_CHOICES.STANDARD)
-        cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
-        cls.empty_data = {'order': '', 'instance': '', 'usage': '', 'condition': ''}
-        cls.long_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': 1516516165111444252152151561656.51, 'condition': 'a' * 18}
-        cls.negative_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': -10.15, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
-        cls.valid_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': 10.35, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
+#     @classmethod
+#     def setUpTestData(cls):
+#         cls.date = timezone.now().date()
+#         cls.service = Service.objects.create(name='test service')
+#         cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@email.com', phone='1 (234) 567-8901', notes='test customer')
+#         cls.order = Order.objects.create(customer=cls.customer, date=cls.date, description='test description', service=cls.service, hourly_rate=50.0, hours_worked=1.25, material_upcharge=9.25, tax=13.5, total=0.0, completed=False, paid=False, discount=1.75, notes='test order', callout=Order.CALLOUT_CHOICES.STANDARD)
+#         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
+#         cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
+#         cls.empty_data = {'order': '', 'instance': '', 'usage': '', 'condition': ''}
+#         cls.long_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': 1516516165111444252152151561656.51, 'condition': 'a' * 18}
+#         cls.negative_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': -10.15, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
+#         cls.valid_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': 10.35, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
 
-    ## Test order asset serializer with empty data
-    def test_order_asset_serializer_empty_data(self):
-        serializer = OrderAssetSerializer(data=self.empty_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('order', serializer.errors)
-        self.assertIn('instance', serializer.errors)
-        self.assertIn('usage', serializer.errors)
-        self.assertIn('condition', serializer.errors)
+#     ## Test order asset serializer with empty data
+#     def test_order_asset_serializer_empty_data(self):
+#         serializer = OrderAssetSerializer(data=self.empty_data)
+#         self.assertFalse(serializer.is_valid())
+#         self.assertIn('order', serializer.errors)
+#         self.assertIn('instance', serializer.errors)
+#         self.assertIn('usage', serializer.errors)
+#         self.assertIn('condition', serializer.errors)
 
-    ## Test order asset serializer with long data
-    def test_order_asset_serializer_long_data(self):
-        serializer = OrderAssetSerializer(data=self.long_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('condition', serializer.errors)
+#     ## Test order asset serializer with long data
+#     def test_order_asset_serializer_long_data(self):
+#         serializer = OrderAssetSerializer(data=self.long_data)
+#         self.assertFalse(serializer.is_valid())
+#         self.assertIn('condition', serializer.errors)
 
-    ## Test order asset serializer with negative data
-    def test_order_asset_serializer_negative_data(self):
-        serializer = OrderAssetSerializer(data=self.negative_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('usage', serializer.errors)
+#     ## Test order asset serializer with negative data
+#     def test_order_asset_serializer_negative_data(self):
+#         serializer = OrderAssetSerializer(data=self.negative_data)
+#         self.assertFalse(serializer.is_valid())
+#         self.assertIn('usage', serializer.errors)
 
-    ## Test order asset serializer validation success
-    def test_order_asset_serializer_validation_success(self):
-        serializer = OrderAssetSerializer(data=self.valid_data)
-        self.assertTrue(serializer.is_valid())
-        self.assertIn('order', serializer.validated_data)
-        self.assertIn('instance', serializer.validated_data)
-        self.assertIn('usage', serializer.validated_data)
-        self.assertIn('condition', serializer.validated_data)
+#     ## Test order asset serializer validation success
+#     def test_order_asset_serializer_validation_success(self):
+#         serializer = OrderAssetSerializer(data=self.valid_data)
+#         self.assertTrue(serializer.is_valid())
+#         self.assertIn('order', serializer.validated_data)
+#         self.assertIn('instance', serializer.validated_data)
+#         self.assertIn('usage', serializer.validated_data)
+#         self.assertIn('condition', serializer.validated_data)
 
 # Tests for order payment serializer
 class TestOrderPaymentSerializer(TestCase):
@@ -1180,126 +1180,126 @@ class TestOrderToolView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(OrderTool.objects.count(), 0)
 
-# Tests for order asset view
-class TestOrderAssetView(APITestCase):
+# # Tests for order asset view
+# class TestOrderAssetView(APITestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.client = APIClient()
-        cls.password = 'test1234'
-        cls.date = timezone.now().date()
-        cls.service = Service.objects.create(name='test service')
-        cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@email.com', phone='1 (234) 567-8901', notes='test customer')
-        cls.order = Order.objects.create(customer=cls.customer, date=cls.date, description='test description', service=cls.service, hourly_rate=50.0, hours_worked=1.25, material_upcharge=9.25, tax=13.5, total=0.0, completed=False, paid=False, discount=1.75, notes='test order', callout=Order.CALLOUT_CHOICES.STANDARD)
-        cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-        cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
-        cls.order_asset = OrderAsset.objects.create(order=cls.order, instance=cls.instance, usage=4.24, condition=AssetInstance.CONDITION_CHOICES.GOOD)
-        cls.empty_data = {'order': '', 'instance': '', 'usage': '', 'condition': ''}
-        cls.long_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': 15615135418513518351.25, 'condition': 'a' * 18}
-        cls.negative_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': -14.51, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
-        cls.create_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': 25.36, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
-        cls.patch_data = {'usage': 5.23, 'condition': AssetInstance.CONDITION_CHOICES.NEEDS_MAINTENANCE}
-        cls.list_url = lambda order_pk: reverse('order-asset-list', kwargs={'order_pk': order_pk})
-        cls.detail_url = lambda order_pk, asset_pk: reverse('order-asset-detail', kwargs={'order_pk': order_pk, 'asset_pk': asset_pk})
-        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+#     @classmethod
+#     def setUpTestData(cls):
+#         cls.client = APIClient()
+#         cls.password = 'test1234'
+#         cls.date = timezone.now().date()
+#         cls.service = Service.objects.create(name='test service')
+#         cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@email.com', phone='1 (234) 567-8901', notes='test customer')
+#         cls.order = Order.objects.create(customer=cls.customer, date=cls.date, description='test description', service=cls.service, hourly_rate=50.0, hours_worked=1.25, material_upcharge=9.25, tax=13.5, total=0.0, completed=False, paid=False, discount=1.75, notes='test order', callout=Order.CALLOUT_CHOICES.STANDARD)
+#         cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
+#         cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
+#         cls.order_asset = OrderAsset.objects.create(order=cls.order, instance=cls.instance, usage=4.24, condition=AssetInstance.CONDITION_CHOICES.GOOD)
+#         cls.empty_data = {'order': '', 'instance': '', 'usage': '', 'condition': ''}
+#         cls.long_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': 15615135418513518351.25, 'condition': 'a' * 18}
+#         cls.negative_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': -14.51, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
+#         cls.create_data = {'order': cls.order.pk, 'instance': cls.instance.pk, 'usage': 25.36, 'condition': AssetInstance.CONDITION_CHOICES.GOOD}
+#         cls.patch_data = {'usage': 5.23, 'condition': AssetInstance.CONDITION_CHOICES.NEEDS_MAINTENANCE}
+#         cls.list_url = lambda order_pk: reverse('order-asset-list', kwargs={'order_pk': order_pk})
+#         cls.detail_url = lambda order_pk, asset_pk: reverse('order-asset-detail', kwargs={'order_pk': order_pk, 'asset_pk': asset_pk})
+#         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
 
-    ## Test get order asset not found
-    def test_get_order_asset_not_found(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.detail_url(self.order.pk, 79027269))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data['detail'], 'Order Asset Not Found.')
+#     ## Test get order asset not found
+#     def test_get_order_asset_not_found(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.get(self.detail_url(self.order.pk, 79027269))
+#         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+#         self.assertEqual(response.data['detail'], 'Order Asset Not Found.')
 
-    ## Test get order asset success
-    def test_get_order_asset_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.detail_url(self.order.pk, self.order_asset.pk))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['order'], self.order_asset.order.pk)
-        self.assertEqual(response.data['instance'], self.order_asset.instance.pk)
-        self.assertAlmostEqual(float(response.data['usage']), float(self.order_asset.usage), places=2)
-        self.assertEqual(response.data['condition'], self.order_asset.condition)
+#     ## Test get order asset success
+#     def test_get_order_asset_success(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.get(self.detail_url(self.order.pk, self.order_asset.pk))
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(response.data['order'], self.order_asset.order.pk)
+#         self.assertEqual(response.data['instance'], self.order_asset.instance.pk)
+#         self.assertAlmostEqual(float(response.data['usage']), float(self.order_asset.usage), places=2)
+#         self.assertEqual(response.data['condition'], self.order_asset.condition)
 
-    ## Test get order assets success
-    def test_get_order_assets_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.list_url(self.order.pk))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), OrderAsset.objects.filter(order=self.order).count())
+#     ## Test get order assets success
+#     def test_get_order_assets_success(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.get(self.list_url(self.order.pk))
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(len(response.data), OrderAsset.objects.filter(order=self.order).count())
 
-    ## Test create order asset with empty data
-    def test_create_order_asset_empty_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(self.list_url(self.order.pk), data=self.empty_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('instance', response.data)
-        self.assertIn('usage', response.data)
+#     ## Test create order asset with empty data
+#     def test_create_order_asset_empty_data(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.post(self.list_url(self.order.pk), data=self.empty_data)
+#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+#         self.assertIn('instance', response.data)
+#         self.assertIn('usage', response.data)
 
-    ## Test create order asset with long data
-    def test_create_order_asset_long_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(self.list_url(self.order.pk), data=self.long_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('usage', response.data)
-        self.assertIn('condition', response.data)
+#     ## Test create order asset with long data
+#     def test_create_order_asset_long_data(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.post(self.list_url(self.order.pk), data=self.long_data)
+#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+#         self.assertIn('usage', response.data)
+#         self.assertIn('condition', response.data)
 
-    ## Test create order asset with negative data
-    def test_create_order_asset_negative_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(self.list_url(self.order.pk), data=self.negative_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('usage', response.data)
+#     ## Test create order asset with negative data
+#     def test_create_order_asset_negative_data(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.post(self.list_url(self.order.pk), data=self.negative_data)
+#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+#         self.assertIn('usage', response.data)
 
-    ## Test create order asset success
-    def test_create_order_asset_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(self.list_url(self.order.pk), data=self.create_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(OrderAsset.objects.count(), 2)
-        self.assertIn('order', response.data)
-        self.assertIn('instance', response.data)
-        self.assertIn('usage', response.data)
-        self.assertIn('condition', response.data)
+#     ## Test create order asset success
+#     def test_create_order_asset_success(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.post(self.list_url(self.order.pk), data=self.create_data)
+#         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+#         self.assertEqual(OrderAsset.objects.count(), 2)
+#         self.assertIn('order', response.data)
+#         self.assertIn('instance', response.data)
+#         self.assertIn('usage', response.data)
+#         self.assertIn('condition', response.data)
 
-    ## Test update order asset with empty data
-    def test_update_order_asset_empty_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.order.pk, self.order_asset.pk), data=self.empty_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('order', response.data)
-        self.assertIn('instance', response.data)
-        self.assertIn('usage', response.data)
+#     ## Test update order asset with empty data
+#     def test_update_order_asset_empty_data(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.patch(self.detail_url(self.order.pk, self.order_asset.pk), data=self.empty_data)
+#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+#         self.assertIn('order', response.data)
+#         self.assertIn('instance', response.data)
+#         self.assertIn('usage', response.data)
 
-    ## Test update order asset with long data
-    def test_update_order_asset_long_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.order.pk, self.order_asset.pk), data=self.long_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('usage', response.data)
-        self.assertIn('condition', response.data)
+#     ## Test update order asset with long data
+#     def test_update_order_asset_long_data(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.patch(self.detail_url(self.order.pk, self.order_asset.pk), data=self.long_data)
+#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+#         self.assertIn('usage', response.data)
+#         self.assertIn('condition', response.data)
 
-    ## Test update order asset with negative data
-    def test_update_order_asset_negative_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.order.pk, self.order_asset.pk), data=self.negative_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('usage', response.data)
+#     ## Test update order asset with negative data
+#     def test_update_order_asset_negative_data(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.patch(self.detail_url(self.order.pk, self.order_asset.pk), data=self.negative_data)
+#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+#         self.assertIn('usage', response.data)
 
-    ## Test update order asset success
-    def test_update_order_asset_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.order.pk, self.order_asset.pk), data=self.patch_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        asset = OrderAsset.objects.get(pk=self.order_asset.pk)
-        self.assertAlmostEqual(float(asset.usage), float(self.patch_data['usage']), places=2)
-        self.assertEqual(asset.condition, self.patch_data['condition'])
+#     ## Test update order asset success
+#     def test_update_order_asset_success(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.patch(self.detail_url(self.order.pk, self.order_asset.pk), data=self.patch_data)
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         asset = OrderAsset.objects.get(pk=self.order_asset.pk)
+#         self.assertAlmostEqual(float(asset.usage), float(self.patch_data['usage']), places=2)
+#         self.assertEqual(asset.condition, self.patch_data['condition'])
 
-    ## Test delete order asset success
-    def test_delete_order_asset_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.delete(self.detail_url(self.order.pk, self.order_asset.pk))
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(OrderAsset.objects.count(), 0)
+#     ## Test delete order asset success
+#     def test_delete_order_asset_success(self):
+#         self.client.force_authenticate(user=self.user)
+#         response = self.client.delete(self.detail_url(self.order.pk, self.order_asset.pk))
+#         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+#         self.assertEqual(OrderAsset.objects.count(), 0)
 
 # Tests for order payment view
 class TestOrderPaymentView(APITestCase):

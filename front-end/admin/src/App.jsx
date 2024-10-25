@@ -12,7 +12,7 @@ import Customer from './pages/Customer';
 import Password from './pages/Password';
 import Service from './pages/Service';
 import Profile from './pages/Profile';
-import Asset from './pages/Asset';
+// import Asset from './pages/Asset';
 import Order from './pages/Order';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
@@ -41,7 +41,7 @@ function App() {
 
 					<Route path='/tool/' element={<ProtectedRoute><Tool /></ProtectedRoute>} />
 
-					<Route path='/asset/' element={<ProtectedRoute><Asset /></ProtectedRoute>} />
+					{/* <Route path='/asset/' element={<ProtectedRoute><Asset /></ProtectedRoute>} /> */}
 
 					<Route path='/order/' element={<ProtectedRoute><Order /></ProtectedRoute>} />
 					<Route path='/order/:id/' element={<ProtectedRoute><EditOrder /></ProtectedRoute>} />
