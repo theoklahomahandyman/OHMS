@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator, MaxLengthValidator
 from supplier.models import Supplier, SupplierAddress
 from django.db import models, transaction
-from asset.models import AssetInstance
+# from asset.models import AssetInstance
 from material.models import Material
 from tool.models import Tool
 from decimal import Decimal
@@ -12,7 +12,7 @@ class Purchase(models.Model):
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     material_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     tool_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
-    asset_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+    # asset_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
     date = models.DateField()
@@ -27,13 +27,13 @@ class Purchase(models.Model):
         total_tool_costs = sum(tool.cost for tool in tools)
         return max(float(total_tool_costs), 0.0)
 
-    def calculate_asset_total(self):
-        assets = PurchaseAsset.objects.filter(purchase__pk=self.pk)
-        total_asset_costs = sum(asset.cost for asset in assets)
-        return max(float(total_asset_costs), 0.0)
+    # def calculate_asset_total(self):
+    #     assets = PurchaseAsset.objects.filter(purchase__pk=self.pk)
+    #     total_asset_costs = sum(asset.cost for asset in assets)
+    #     return max(float(total_asset_costs), 0.0)
 
     def calculate_subtotal(self):
-        return max(float(self.material_total) + float(self.tool_total) + float(self.asset_total), 0.0)
+        return max(float(self.material_total) + float(self.tool_total), 0.0)
 
     def calculate_total(self):
         return max(float(self.subtotal) + float(self.tax), 0.0)
@@ -46,7 +46,7 @@ class Purchase(models.Model):
             super().save(*args, **kwargs)
         self.material_total = round(self.calculate_material_total(), 2)
         self.tool_total = round(self.calculate_tool_total(), 2)
-        self.asset_total = round(self.calculate_asset_total(), 2)
+        # self.asset_total = round(self.calculate_asset_total(), 2)
         self.subtotal = round(self.calculate_subtotal(), 2)
         self.total = round(self.calculate_total(), 2)
         super().save()
@@ -119,24 +119,24 @@ class PurchaseTool(models.Model):
             super().delete(*args, **kwargs)
             self.purchase.save()
 
-class PurchaseAsset(models.Model):
-    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='assets')
-    instance = models.ForeignKey(AssetInstance, on_delete=models.CASCADE)
-    usage = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
-    condition = models.CharField(max_length=21, choices=AssetInstance.CONDITION_CHOICES, default=AssetInstance.CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
-    cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal(0.0))])
+# class PurchaseAsset(models.Model):
+#     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='assets')
+#     instance = models.ForeignKey(AssetInstance, on_delete=models.CASCADE)
+#     usage = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
+#     condition = models.CharField(max_length=21, choices=AssetInstance.CONDITION_CHOICES, default=AssetInstance.CONDITION_CHOICES.GOOD, validators=[MaxLengthValidator(17)])
+#     cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal(0.0))])
 
-    def save(self, *args, **kwargs):
-        with transaction.atomic():
-            if self.purchase.date >= self.instance.last_maintenance:
-                self.instance.usage = self.usage
-                self.instance.condition = self.condition
-                self.instance.unit_cost = self.cost
-                self.instance.save()
-            super().save(*args, **kwargs)
-            self.purchase.save()
+#     def save(self, *args, **kwargs):
+#         with transaction.atomic():
+#             if self.purchase.date >= self.instance.last_maintenance:
+#                 self.instance.usage = self.usage
+#                 self.instance.condition = self.condition
+#                 self.instance.unit_cost = self.cost
+#                 self.instance.save()
+#             super().save(*args, **kwargs)
+#             self.purchase.save()
 
-    def delete(self, *args, **kwargs):
-        with transaction.atomic():
-            super().delete(*args, **kwargs)
-            self.purchase.save()
+#     def delete(self, *args, **kwargs):
+#         with transaction.atomic():
+#             super().delete(*args, **kwargs)
+#             self.purchase.save()

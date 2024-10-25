@@ -1,4 +1,4 @@
-from purchase.views import PurchaseView, PurchaseMaterialView, PurchaseNewMaterialView, PurchaseRecieptView, PurchaseToolView, PurchaseNewToolView, PurchaseAssetView, PurchaseNewAssetView
+from purchase.views import PurchaseView, PurchaseMaterialView, PurchaseNewMaterialView, PurchaseRecieptView, PurchaseToolView, PurchaseNewToolView
 from django.urls import path
 
 urlpatterns = [
@@ -17,8 +17,8 @@ urlpatterns = [
 
     path('new/tool/<int:purchase_pk>/', PurchaseNewToolView.as_view(), name='purchase-new-tool'),
 
-    path('asset/<int:purchase_pk>/', PurchaseAssetView.as_view(), name='purchase-asset-list'),
-    path('asset/<int:purchase_pk>/<int:asset_pk>/', PurchaseAssetView.as_view(), name='purchase-asset-detail'),
+    # path('asset/<int:purchase_pk>/', PurchaseAssetView.as_view(), name='purchase-asset-list'),
+    # path('asset/<int:purchase_pk>/<int:asset_pk>/', PurchaseAssetView.as_view(), name='purchase-asset-detail'),
 
-    path('new/asset/<int:purchase_pk>/', PurchaseNewAssetView.as_view(), name='purchase-new-asset'),
+    # path('new/asset/<int:purchase_pk>/', PurchaseNewAssetView.as_view(), name='purchase-new-asset'),
 ]
