@@ -73,15 +73,15 @@ function EditPurchase() {
             const allChargeQuantities = [...materialQuantities, ...toolQuantities, 0];
             setMaterialPieChartData({
                 position: 'bottom',
-                title: 'Material Purchase Charges',
+                title: 'Material Charges',
                 labels: materialNames,
-                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }, {label: 'Quantities', data: materialQuantities, offset: 20 }],
+                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }, { label: 'Quantities', data: materialQuantities, offset: 20 }],
             });
             setToolPieChartData({
                 position: 'bottom',
-                title: 'Tool Purchase Charges',
+                title: 'Tool Charges',
                 labels: toolNames,
-                datasets: [{ label: 'Costs', data: toolCosts, offset: 20 }, {label: 'Quantities', data: toolQuantities, offset: 20 }],
+                datasets: [{ label: 'Costs', data: toolCosts, offset: 20 }, { label: 'Quantities', data: toolQuantities, offset: 20 }],
             });
             // setAssetPieChartData({
             //     position: 'bottom',
@@ -91,13 +91,13 @@ function EditPurchase() {
             // });
             setTotalPieChartData({
                 position: 'bottom',
-                title: 'Total Purchase Charges',
+                title: 'Total Charges',
                 labels: allChargeNames,
                 datasets: [{ label: 'Costs', data: allChargeCosts, offset: 20 }, {label: 'Quantities', data: allChargeQuantities, offset: 20 }],
             });
             setBarChartData({
                 position: 'bottom',
-                title: 'Total Purchase Charges and Quantities',
+                title: 'Total Charges and Quantities',
                 labels: allChargeNames,
                 datasets: [{ label: 'Costs', data: allChargeCosts, offset: 20 }, {label: 'Quantities', data: allChargeQuantities, offset: 20 }],
             });

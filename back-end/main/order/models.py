@@ -140,6 +140,7 @@ class OrderMaterial(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='materials')
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
+    cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, validators=[MinValueValidator(Decimal(0.0))])
 
     def save(self, *args, **kwargs):
         with transaction.atomic():

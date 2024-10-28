@@ -1,3 +1,5 @@
+import PieChart from '../components/reusable/chart/PieChart';
+import BarChart from '../components/reusable/chart/BarChart';
 import { useState, useEffect, useCallback } from 'react';
 import Loading from '../components/reusable/Loading';
 import Page from '../components/reusable/Page';
@@ -12,10 +14,15 @@ function EditOrder() {
     const [services, setServices] = useState([]);
     const [materials, setMaterials] = useState([]);
     const [tools, setTools] = useState([]);
-    const [assets, setAssets] = useState([]);
+    // const [assets, setAssets] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
+    const [totalPieChartData, setTotalPieChartData] = useState({});
+    const [totalBarChartData, setTotalBarChartData] = useState({});
+    const [toolBarChartData, setToolBarChartData] = useState({});
+    const [costPieChartData, setCostPieChartData] = useState({});
+    const [materialPieChartData, setMaterialPieChartData] = useState({});
 
     const navigate = useNavigate();
     const { id } = useParams();
@@ -37,10 +44,82 @@ function EditOrder() {
     ];
 
     const fetchData = useCallback(async () => {
+        const fetchMaterialDetail = async (order_id, material_id) => {
+            const response = await api.get(`/order/material/${order_id}/${material_id}/`);
+            return { name: response.data.name, cost: response.data.cost, quantity: response.data.quantity };
+        };
+        const fetchToolDetail = async (order_id, tool_id) => {
+            const response = await api.get(`/order/tool/${order_id}/${tool_id}/`);
+            return { name: response.data.name, quantity_used: response.data.quantity_used, quantity_broken: response.data.quantity_broken };
+        };
+        const fetchCostDetail = async (order_id, cost_id) => {
+            const response = await api.get(`/order/cost/${order_id}/${cost_id}/`);
+            return { name: response.data.name, cost: response.data.cost };
+        };
+        const updateChartData = async (orderData) => {
+            const materialData = orderData.materials || [];
+            const toolData = orderData.tools || [];
+            const costData = orderData.costs || [];
+            const fetchedMaterials = await Promise.all(
+                materialData.map(material => fetchMaterialDetail(orderData.id, material.id))
+            ) || [];
+            const fetchedTools = await Promise.all(
+                toolData.map(tool => fetchToolDetail(orderData.id, tool.id))
+            ) || [];
+            const fetchedCosts = await Promise.all(
+                costData.map(cost => fetchCostDetail(orderData.id, cost.id))
+            ) || [];
+            const materialNames = fetchedMaterials.map(m => m.name);
+            const materialCosts = fetchedMaterials.map(m => m.cost);
+            const materialQuantities = fetchedMaterials.map(m => m.quantity);
+            const toolNames = fetchedTools.map(t => t.name);
+            const toolQuantityUsed = fetchedTools.map(t => t.quantity_used);
+            const toolQuantityBroken = fetchedTools.map(t => t.quantity_broken);
+            const lineNames = fetchedCosts.map(c => c.name);
+            const lineCosts = fetchedCosts.map(c => c.cost);
+            const taxTotal = orderData.tax_total * (orderData.discount / 100) || 0;
+            const laborTotal = orderData.labor_total * (orderData.discount / 100) || 0;
+            const materialTotal = orderData.material_total * (orderData.discount / 100) || 0;
+            const lineTotal = orderData.line_total * (orderData.discount / 100) || 0;
+            const calloutTotal = orderData.callout * (orderData.discount / 100) || 0;
+            const allChargeNames = ['Callout Charge', 'Labor Charge', 'Material Charges', 'Line Item Charges', 'Tax Charge'];
+            const allChargeCosts = [calloutTotal, laborTotal, materialTotal, lineTotal, taxTotal];
+            setMaterialPieChartData({
+                position: 'bottom',
+                title: 'Material Charges',
+                labels: materialNames,
+                datasets: [{ label: 'Charges', data: materialCosts, offset: 20 }, { label: 'Quantities', data: materialQuantities, offset: 20 }],
+            });
+            setToolBarChartData({
+                position: 'bottom',
+                title: 'Tools Used and Broken',
+                labels: toolNames,
+                datasets: [{ label: 'Quantities Used', data: toolQuantityUsed, offset: 20 }, { label: 'Quantities Broken', data: toolQuantityBroken, offset: 20 }],
+            });
+            setCostPieChartData({
+                position: 'bottom',
+                title: 'Line Item Charges',
+                labels: lineNames,
+                datasets: [{ label: 'Charges', data: lineCosts, offset: 20 }],
+            });
+            setTotalPieChartData({
+                position: 'bottom',
+                title: 'Total Charges',
+                labels: allChargeNames,
+                datasets: [{ label: 'Charges', data: allChargeCosts, offset: 20 }],
+            });
+            setTotalBarChartData({
+                position: 'bottom',
+                title: 'Total Charges',
+                labels: allChargeNames,
+                datasets: [{ label: 'Charges', data: allChargeCosts, offset: 20 }],
+            });
+        }
         setLoading(true);
         try {
             const response = await api.get(updateRoute);
             setData(response.data || {});
+            await updateChartData(response.data);
         } catch {
             setData({});
         } finally {
@@ -100,17 +179,17 @@ function EditOrder() {
         fetchTools();
     }, []);
 
-    useEffect(() => {
-        async function fetchAssets() {
-            try {
-                const response = await api.get('/asset/instance/');
-                setAssets(response.data);
-            } catch {
-                toast.error('No Assets Found!');
-            }
-        }
-        fetchAssets();
-    }, []);
+    // useEffect(() => {
+    //     async function fetchAssets() {
+    //         try {
+    //             const response = await api.get('/asset/instance/');
+    //             setAssets(response.data);
+    //         } catch {
+    //             toast.error('No Assets Found!');
+    //         }
+    //     }
+    //     fetchAssets();
+    // }, []);
 
     useEffect(() => {
         async function fetchUsers() {
@@ -129,13 +208,13 @@ function EditOrder() {
         toast.success('Order successfully updated!');
     }
 
-    const conditionChoices = [
-        { value: 'Good', label: 'Good' },
-        { value: 'Maintenance Scheduled', label: 'Maintenance Scheduled' },
-        { value: 'Maintenance Soon', label: 'Maintenance Soon' },
-        { value: 'Needs Maintenance', label: 'Needs Maintenance' },
-        { value: 'Out of Service', label: 'Out of Service' },
-    ];
+    // const conditionChoices = [
+    //     { value: 'Good', label: 'Good' },
+    //     { value: 'Maintenance Scheduled', label: 'Maintenance Scheduled' },
+    //     { value: 'Maintenance Soon', label: 'Maintenance Soon' },
+    //     { value: 'Needs Maintenance', label: 'Needs Maintenance' },
+    //     { value: 'Out of Service', label: 'Out of Service' },
+    // ];
 
     const fields = [
         {name: 'customer', label: 'Customer', required: true, elementType: 'select', data: customers.map(customer => ({ value: customer.id, label: `${customer.first_name} ${customer.last_name}` })), route: '/customer/name'},
@@ -179,11 +258,11 @@ function EditOrder() {
         {name: 'quantity_broken', label: 'Quantity Broken', type: 'number', required: true, elementType: 'input'},
     ];
 
-    const assetFields = [
-        {name: 'instance', label: 'Asset', required: true, elementType: 'select', data: assets.map(asset => ({ value: asset.id, label: asset.asset.name }))},
-        {name: 'usage', label: 'Usage', type: 'number', required: true, elementType: 'input'},
-        {name: 'condition', label: 'Current Condition', elementType: 'select', data: conditionChoices},
-    ];
+    // const assetFields = [
+    //     {name: 'instance', label: 'Asset', required: true, elementType: 'select', data: assets.map(asset => ({ value: asset.id, label: asset.asset.name }))},
+    //     {name: 'usage', label: 'Usage', type: 'number', required: true, elementType: 'input'},
+    //     {name: 'condition', label: 'Current Condition', elementType: 'select', data: conditionChoices},
+    // ];
 
     const paymentFields = [
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
@@ -206,7 +285,7 @@ function EditOrder() {
         {entity: 'Line Item Cost', route: '/order/cost/', fields: costFields, newEntity: false},
         {entity: 'Material', route: '/order/material/', fields: materialFields, newEntity: false},
         {entity: 'Tool', route: '/order/tool/', fields: toolFields, newEntity: false},
-        {entity: 'Asset', route: '/order/asset/', fields: assetFields, newEntity: false},
+        // {entity: 'Asset', route: '/order/asset/', fields: assetFields, newEntity: false},
         {entity: 'Work Log', route: '/order/worklog/', fields: workLogFields, newEntity: false},
         {entity: 'Payment', route: '/order/payment/', fields: paymentFields, newEntity: false},
         {entity: 'Worker', route: '/order/worker/', fields: workerFields, newEntity: false},
@@ -215,7 +294,26 @@ function EditOrder() {
     return (
         <Page heading={heading} text={text}>
             {loading ? <Loading /> : (
-                <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} fetchData={fetchData} initialFiles={{images: data['images']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} />
+                <>
+                    <div className="row justify-content-center">
+                        <div className="col-auto">
+                            <PieChart chartData={materialPieChartData} />
+                        </div>
+                        <div className="col-auto">
+                            <PieChart chartData={toolBarChartData} />
+                        </div>
+                        <div className="col-auto">
+                            <PieChart chartData={costPieChartData} />
+                        </div>
+                        <div className="col-auto">
+                            <PieChart chartData={totalPieChartData} />
+                        </div>
+                        <div className="col-auto">
+                            <BarChart chartData={totalBarChartData} />
+                        </div>
+                    </div>
+                    <Form method='patch' route={updateRoute} baseRoute={baseRoute} initialData={data} fetchData={fetchData} initialFiles={{images: data['images']}} buttonText='Save' buttonStyle='success' onSuccess={handleSuccess} fields={fields} formsets={formsets} id={id} />
+                </>
             )}
         </Page>
     )

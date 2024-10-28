@@ -62,19 +62,29 @@ function SideBar({ toggle, toggleSideBar }) {
                     <span>Order Dashboard</span>
                 </a>
             </li>
-            {/* <!-- Nav Item - Material Menu --> */}
+            {/* <!-- Divider --> */}
+            <hr className="sidebar-divider" />
+            {/* <!-- Heading --> */}
+            <div className="sidebar-heading">Inventory</div>
+            {/* <!-- Nav Item - Purchase Dashboard --> */}
             <li className="nav-item">
-                <a className="nav-link collapsed" href="#" data-toggle="collapse" data-target="#materials" aria-expanded="true" aria-controls="materials">
+                <a className="nav-link" href="/purchase/">
+                    <i className="fas fa-fw fa-shopping-cart"></i>
+                    <span>Purchase Dashboard</span>
+                </a>
+            </li>
+            {/* <!-- Nav Item - Inventory Menu --> */}
+            <li className="nav-item">
+                <a className="nav-link collapsed" href="#" data-toggle="collapse" data-target="#inventory" aria-expanded="true" aria-controls="inventory">
                     <i className="fas fa-fw fa-tags"></i>
                     <span>Inventory</span>
                 </a>
-                <div id="materials" className="collapse" aria-labelledby="materials" data-parent="#accordionSidebar">
+                <div id="inventory" className="collapse" aria-labelledby="inventory" data-parent="#accordionSidebar">
                     <div className="bg-white py-2 collapse-inner rounded">
-                        <h6 className="collapse-header">Manage Materials:</h6>
+                        <h6 className="collapse-header">Manage Inventory:</h6>
                         <a className="collapse-item" href="/supplier/">Supplier Dashboard</a>
                         <a className="collapse-item" href="/material/">Material Dashboard</a>
                         <a className="collapse-item"href="/tool" >Tool Dashboard</a>
-                        <a className="collapse-item" href="/purchase/">Purchase Dashboard</a>
                     </div>
                 </div>
             </li>
