@@ -14,7 +14,7 @@ function EditPurchase() {
     const [addresses, setAddresses] = useState([]);
     const [materials, setMaterials] = useState([]);
     const [tools, setTools] = useState([]);
-    const [assets, setAssets] = useState([]);
+    // const [assets, setAssets] = useState([]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
     const [materialPieChartData, setMaterialPieChartData] = useState({});
@@ -73,15 +73,15 @@ function EditPurchase() {
             const allChargeQuantities = [...materialQuantities, ...toolQuantities, 0];
             setMaterialPieChartData({
                 position: 'bottom',
-                title: 'Material Purchase Charges',
+                title: 'Material Charges',
                 labels: materialNames,
-                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }, {label: 'Quantities', data: materialQuantities, offset: 20 }],
+                datasets: [{ label: 'Costs', data: materialCosts, offset: 20 }, { label: 'Quantities', data: materialQuantities, offset: 20 }],
             });
             setToolPieChartData({
                 position: 'bottom',
-                title: 'Tool Purchase Charges',
+                title: 'Tool Charges',
                 labels: toolNames,
-                datasets: [{ label: 'Costs', data: toolCosts, offset: 20 }, {label: 'Quantities', data: toolQuantities, offset: 20 }],
+                datasets: [{ label: 'Costs', data: toolCosts, offset: 20 }, { label: 'Quantities', data: toolQuantities, offset: 20 }],
             });
             // setAssetPieChartData({
             //     position: 'bottom',
@@ -91,13 +91,13 @@ function EditPurchase() {
             // });
             setTotalPieChartData({
                 position: 'bottom',
-                title: 'Total Purchase Charges',
+                title: 'Total Charges',
                 labels: allChargeNames,
                 datasets: [{ label: 'Costs', data: allChargeCosts, offset: 20 }, {label: 'Quantities', data: allChargeQuantities, offset: 20 }],
             });
             setBarChartData({
                 position: 'bottom',
-                title: 'Total Purchase Charges and Quantities',
+                title: 'Total Charges and Quantities',
                 labels: allChargeNames,
                 datasets: [{ label: 'Costs', data: allChargeCosts, offset: 20 }, {label: 'Quantities', data: allChargeQuantities, offset: 20 }],
             });
@@ -154,17 +154,17 @@ function EditPurchase() {
         fetchTools();
     }, []);
 
-    useEffect(() => {
-        async function fetchAssets() {
-            try {
-                const response = await api.get('/asset/');
-                setAssets(response.data);
-            } catch {
-                toast.error('No Assets Found!');
-            }
-        }
-        fetchAssets();
-    }, []);
+    // useEffect(() => {
+    //     async function fetchAssets() {
+    //         try {
+    //             const response = await api.get('/asset/');
+    //             setAssets(response.data);
+    //         } catch {
+    //             toast.error('No Assets Found!');
+    //         }
+    //     }
+    //     fetchAssets();
+    // }, []);
 
     useEffect(() => {
         const fetchSupplierAddresses = async () => {
@@ -245,7 +245,6 @@ function EditPurchase() {
         {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
     ];
-    console.log(assets)
 
     // const assetFields = [
     //     {name: 'asset', label: 'Asset', required: true, elementType: 'select', data: assets.map(asset => ({ value: asset.id, label: asset.name }))},

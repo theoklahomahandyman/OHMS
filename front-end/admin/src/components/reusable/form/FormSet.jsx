@@ -83,7 +83,7 @@ FormSet.propTypes = {
     entity: PropTypes.string.isRequired,
     route: PropTypes.string.isRequired,
     newEntity: PropTypes.bool.isRequired,
-    fetchRelatedData: PropTypes.func.isRequired,
+    fetchRelatedData: PropTypes.func,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
             name: PropTypes.string.isRequired,

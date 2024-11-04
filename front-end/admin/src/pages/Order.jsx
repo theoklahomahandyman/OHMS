@@ -50,7 +50,7 @@ function Order() {
         {name: 'customer', label: 'Customer', required: true, elementType: 'select', data: customers.map(customer => ({ value: customer.id, label: `${customer.first_name} ${customer.last_name}` })), route: '/customer/name'},
         {name: 'date', label: 'Date', required: true, elementType: 'input', type: 'date'},
         {name: 'service', label: 'Service', required: true, elementType: 'select', data: services.map(service => ({ value: service.id, label: service.name })), route: '/service/name'},
-        {name: 'completed', label: 'Complete', required: false, elementType: 'input', type: 'checkbox'},
+        {name: 'completed', label: 'Complete', required: false, elementType: 'input', type: 'checkbox', disabled: true},
         {name: 'paid', label: 'Paid', required: false, elementType: 'input', type: 'checkbox', disabled: true},
         {name: 'discount', label: 'Discount (%)', required: false, elementType: 'input', type: 'number', minValue: 0.00, maxValue: 100.0},
         {name: 'discount_total', label: 'Discount Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
