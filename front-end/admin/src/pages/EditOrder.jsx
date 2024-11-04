@@ -77,11 +77,11 @@ function EditOrder() {
             const toolQuantityBroken = fetchedTools.map(t => t.quantity_broken);
             const lineNames = fetchedCosts.map(c => c.name);
             const lineCosts = fetchedCosts.map(c => c.cost);
-            const taxTotal = orderData.tax_total * (orderData.discount / 100) || 0;
-            const laborTotal = orderData.labor_total * (orderData.discount / 100) || 0;
-            const materialTotal = orderData.material_total * (orderData.discount / 100) || 0;
-            const lineTotal = orderData.line_total * (orderData.discount / 100) || 0;
-            const calloutTotal = orderData.callout * (orderData.discount / 100) || 0;
+            const taxTotal = orderData.tax_total || 0;
+            const laborTotal = orderData.labor_total || 0;
+            const materialTotal = orderData.material_total || 0;
+            const lineTotal = orderData.line_total || 0;
+            const calloutTotal = orderData.callout;
             const allChargeNames = ['Callout Charge', 'Labor Charge', 'Material Charges', 'Line Item Charges', 'Tax Charge'];
             const allChargeCosts = [calloutTotal, laborTotal, materialTotal, lineTotal, taxTotal];
             setMaterialPieChartData({

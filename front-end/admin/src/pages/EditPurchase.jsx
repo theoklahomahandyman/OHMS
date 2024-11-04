@@ -14,7 +14,7 @@ function EditPurchase() {
     const [addresses, setAddresses] = useState([]);
     const [materials, setMaterials] = useState([]);
     const [tools, setTools] = useState([]);
-    const [assets, setAssets] = useState([]);
+    // const [assets, setAssets] = useState([]);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
     const [materialPieChartData, setMaterialPieChartData] = useState({});
@@ -154,17 +154,17 @@ function EditPurchase() {
         fetchTools();
     }, []);
 
-    useEffect(() => {
-        async function fetchAssets() {
-            try {
-                const response = await api.get('/asset/');
-                setAssets(response.data);
-            } catch {
-                toast.error('No Assets Found!');
-            }
-        }
-        fetchAssets();
-    }, []);
+    // useEffect(() => {
+    //     async function fetchAssets() {
+    //         try {
+    //             const response = await api.get('/asset/');
+    //             setAssets(response.data);
+    //         } catch {
+    //             toast.error('No Assets Found!');
+    //         }
+    //     }
+    //     fetchAssets();
+    // }, []);
 
     useEffect(() => {
         const fetchSupplierAddresses = async () => {
@@ -245,7 +245,6 @@ function EditPurchase() {
         {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
     ];
-    console.log(assets)
 
     // const assetFields = [
     //     {name: 'asset', label: 'Asset', required: true, elementType: 'select', data: assets.map(asset => ({ value: asset.id, label: asset.name }))},

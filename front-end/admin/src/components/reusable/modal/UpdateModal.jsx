@@ -29,9 +29,9 @@ function UpdateModal({ name, fields, formsets, route, id, fetchData }) {
     }, [updateRoute]);
 
     const handleSuccess = () => {
-        fetchData();
         toast.success(`${name} successfully updated!`);
         setVisible(false);
+        fetchData();
     }
 
     return (

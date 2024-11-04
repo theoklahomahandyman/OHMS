@@ -55,6 +55,13 @@ function SideBar({ toggle, toggleSideBar }) {
             <hr className="sidebar-divider" />
             {/* <!-- Heading --> */}
             <div className="sidebar-heading">Work Orders</div>
+            {/* <!-- Nav Item - Service Dashboard --> */}
+            <li className="nav-item">
+                <a className="nav-link" href="/service/">
+                    <i className="fas fa-fw fa-screwdriver"></i>
+                    <span>Service Types</span>
+                </a>
+            </li>
             {/* <!-- Nav Item - Order Dashboard --> */}
             <li className="nav-item">
                 <a className="nav-link" href="/order/">
@@ -66,6 +73,13 @@ function SideBar({ toggle, toggleSideBar }) {
             <hr className="sidebar-divider" />
             {/* <!-- Heading --> */}
             <div className="sidebar-heading">Inventory</div>
+            {/* <!-- Nav Item - Supplier Dashboard --> */}
+            <li className="nav-item">
+                <a className="nav-link" href="/supplier/">
+                    <i className="fas fa-fw fa-industry"></i>
+                    <span>Supplier Dashboard</span>
+                </a>
+            </li>
             {/* <!-- Nav Item - Purchase Dashboard --> */}
             <li className="nav-item">
                 <a className="nav-link" href="/purchase/">
@@ -82,17 +96,10 @@ function SideBar({ toggle, toggleSideBar }) {
                 <div id="inventory" className="collapse" aria-labelledby="inventory" data-parent="#accordionSidebar">
                     <div className="bg-white py-2 collapse-inner rounded">
                         <h6 className="collapse-header">Manage Inventory:</h6>
-                        <a className="collapse-item" href="/supplier/">Supplier Dashboard</a>
                         <a className="collapse-item" href="/material/">Material Dashboard</a>
                         <a className="collapse-item"href="/tool" >Tool Dashboard</a>
                     </div>
                 </div>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="/service/">
-                    <i className="fas fa-fw fa-screwdriver"></i>
-                    <span>Service Types</span>
-                </a>
             </li>
             {/* <!-- Sidebar Toggler (Sidebar) --> */}
             <div className="text-center d-none d-md-inline">

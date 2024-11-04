@@ -44,15 +44,19 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
             if (isNew){
                 await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success(`${name} Successfully Added!`);
-                fetchRelatedData();
                 setEditing(false);
                 setData({});
+                if (fetchRelatedData) {
+                    fetchRelatedData();
+                }
                 fetchData();
             } else if (editing) {
                 await api.patch(`${route}${id}/`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
                 toast.success(`${name} Successfully Edited!`);
-                fetchRelatedData();
                 setEditing(false);
+                if (fetchRelatedData) {
+                    fetchRelatedData();
+                }
                 fetchData();
             }
         } catch (error) {
@@ -176,7 +180,7 @@ SubForm.propTypes = {
     route: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     fetchData: PropTypes.func.isRequired,
-    fetchRelatedData: PropTypes.func.isRequired,
+    fetchRelatedData: PropTypes.func,
     isNew: PropTypes.bool.isRequired,
     fields: PropTypes.arrayOf(
         PropTypes.shape({
