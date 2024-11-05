@@ -1,5 +1,8 @@
+from dotenv import load_dotenv
 from pathlib import Path
 import os
+
+load_dotenv()
 
 AUTH_USER_MODEL = 'user.User'
 
@@ -35,7 +38,7 @@ INSTALLED_APPS = [
     'customer.apps.CustomerConfig',
     'material.apps.MaterialConfig',
     'tool.apps.ToolConfig',
-    'asset.apps.AssetConfig',
+    # 'asset.apps.AssetConfig',
     'order.apps.OrderConfig',
     'purchase.apps.PurchaseConfig',
     'service.apps.ServiceConfig',
@@ -77,10 +80,23 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# Development database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+# Production database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
 
