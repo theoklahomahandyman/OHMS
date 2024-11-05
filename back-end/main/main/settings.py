@@ -26,6 +26,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'corsheaders',
+    'storages',
     'rest_framework',
     'rest_framework_simplejwt',
     'django.contrib.admin',
@@ -88,6 +89,17 @@ WSGI_APPLICATION = 'main.wsgi.application'
 #     }
 # }
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+# STATIC_URL = 'static/'
+
+# STATICFILES_DIRS = [ BASE_DIR / 'static', ]
+
+# MEDIA_URL = '/media/'
+
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Production database
 DATABASES = {
     'default': {
@@ -100,6 +112,17 @@ DATABASES = {
     }
 }
 
+# S3 Settings
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+
+# Media files
+DEFAULT_FILE_STORAGE = 'storages.backends.s3.S3Boto3Storage'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -130,18 +153,6 @@ TIME_ZONE = 'America/Chicago'
 USE_I18N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = 'static/'
-
-STATICFILES_DIRS = [ BASE_DIR / 'static', ]
-
-MEDIA_URL = '/media/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
