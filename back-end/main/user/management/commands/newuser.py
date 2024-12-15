@@ -24,7 +24,7 @@ class Command(BaseCommand):
         phone = self._validate_or_prompt_value(phone, 'phone', User._meta.get_field('phone').validators)
 
         try:
-            user = User.objects.create(first_name=first_name, last_name=last_name, email=email, phone=phone, password=make_password('newuser123'))
+            user = User.objects.create(first_name=first_name, last_name=last_name, email=email, phone=phone, password=make_password('newuser123'), is_staff=True, is_superuser=True)
             user.save()
             print(self.style.SUCCESS(f'User created successfully for user with email {user.email}. Please use the password "newuser123" to login and change your password.'))
         except exceptions.ValidationError as error:
