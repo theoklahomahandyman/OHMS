@@ -487,7 +487,7 @@ class TestOrderPaymentSerializer(TestCase):
         cls.order_cost = OrderCost.objects.create(order=cls.order, name='test line item charge', cost=55.68)
         cls.material = Material.objects.create(name='material', description='material description', size='size', unit_cost=12.99, available_quantity=12)
         cls.order_material = OrderMaterial.objects.create(order=cls.order, material=cls.material, quantity=10)
-        cls.order_payment = OrderPayment.objects.create(order=cls.order, date=cls.date, type=OrderPayment.PAYMENT_CHOICES, total=cls.order.total, notes='test order payment')
+        cls.order_payment = OrderPayment.objects.create(order=cls.order, date=cls.date, type=OrderPayment.PAYMENT_CHOICES.CHECK, total=cls.order.total, notes='test order payment')
         cls.empty_data = {'order': '', 'date': '', 'type': '', 'total': '', 'notes': ''}
         cls.long_data = {'order': cls.order.pk, 'date': cls.date, 'type': OrderPayment.PAYMENT_CHOICES.CASH, 'total': cls.order.total, 'notes': cls.long_string}
         cls.negative_data = {'order': cls.order.pk, 'date': cls.date, 'type': OrderPayment.PAYMENT_CHOICES.CASH, 'total': -65.38, 'notes': 'test notes'}
@@ -1316,7 +1316,7 @@ class TestOrderPaymentView(APITestCase):
         cls.order_cost = OrderCost.objects.create(order=cls.order, name='test line item charge', cost=55.68)
         cls.material = Material.objects.create(name='material', description='material description', size='size', unit_cost=12.99, available_quantity=12)
         cls.order_material = OrderMaterial.objects.create(order=cls.order, material=cls.material, quantity=10)
-        cls.order_payment = OrderPayment.objects.create(order=cls.order, date=cls.date, type=OrderPayment.PAYMENT_CHOICES, total=cls.order.total, notes='test order payment')
+        cls.order_payment = OrderPayment.objects.create(order=cls.order, date=cls.date, type=OrderPayment.PAYMENT_CHOICES.CHECK, total=cls.order.total, notes='test order payment')
         cls.empty_data = {'order': '', 'date': '', 'type': '', 'total': '', 'notes': ''}
         cls.long_data = {'order': cls.order.pk, 'date': cls.date, 'type': OrderPayment.PAYMENT_CHOICES.CASH, 'total': cls.order.total, 'notes': cls.long_string}
         cls.negative_data = {'order': cls.order.pk, 'date': cls.date, 'type': OrderPayment.PAYMENT_CHOICES.CASH, 'total': -65.38, 'notes': 'test notes'}
