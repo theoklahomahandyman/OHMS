@@ -3,3 +3,5 @@
 .DS_Store
 static
 staticfiles
+node_modules
+*.log
