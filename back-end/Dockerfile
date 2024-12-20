@@ -1,38 +1,56 @@
+# Stage 1: Build stage
+FROM python:3.12-slim as builder
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONBUFFERED 1
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc libpq-dev python3-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN python3 -m pip install --no-cache-dir --upgrade pip && \
+    pip wheel --no-cache-dir --no-deps --wheel-dir /wheels -r requirements.txt
+
+# Stage 2: Final Image
 FROM python:3.12-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONBUFFERFED 1
+ENV PYTHONBUFFERED 1
 ENV PATH="/scripts:${PATH}"
 
-# Set the working directory
-WORKDIR / app
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install and update dependencies
-COPY requirements.txt .
-RUN apt-get update && \
-    apt-get install -y gcc libpq-dev python3-dev && \
-    python3 -m pip install pip --upgrade pip && \
-    pip install -r requirements.txt
-
-# Copy application code and set the working directory
-RUN mkdir /app
-COPY . /app
+# Copy application code and wheels from builder  stage
 WORKDIR /app
+COPY --from=builder /wheels /wheels
+COPY --from=builder /app/requirements.txt .
+RUN python3 -m pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --no-index --find-links=/wheels -r requirements.txt && \
+    rm -rf /wheels
+COPY . /app
 
-# Copy utility scripts and give executable permissions
+# Copy utility scripts and set permissions
 COPY ./scripts /scripts
 RUN chmod +x /scripts/*
 
 # Create storage directories for media and static files
-RUN mkdir -p /vol/web/media && \
-    mkdir -p /vol/web/static
-
-# Create user in container and gives ownership of new directories
-RUN adduser --disabled-password --no-create-home user && \
-    chown -R user:user /vol && \
+RUN mkdir -p /vol/web/media /vol/web/static && \
+    chown -R 1000:1000 /vol && \
     chmod -R 755 /vol/web
-USER user
 
+# Switch to a non-root user
+USER 1000
+
+# Set the entrypoint script
 CMD ["entrypoint.sh"]
-
