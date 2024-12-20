@@ -17,9 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-w5_t$fb#)xzvwud1f$)^64i&i2ml_-+!earyo1y7k*abuc8(94'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', True)
 
-ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOSTS', '').split(',')]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -85,9 +85,11 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [ BASE_DIR / 'static', ]
+# Static file storage
+STATIC_URL = '/static/'
+STATIC_ROOT = Path(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [ Path(BASE_DIR / 'static'), ]
 
 if DEBUG:
     # Development database
@@ -98,9 +100,9 @@ if DEBUG:
         }
     }
 
+    # Development media file storage
     MEDIA_URL = '/media/'
-
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_ROOT = Path(BASE_DIR, 'media')
 else:
     # Production database
     DATABASES = {
