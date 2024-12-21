@@ -42,7 +42,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_INSTANCE_SG_ID: ${{ secrets.AWS_INSTANCE_SG_ID }}
-      VPC_ID: ${{ secrets.VPC_ID }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -61,7 +60,6 @@ jobs:
             --protocol tcp \
             --port 22 \
             --cidr $(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)/32
-            --vpc-id ${{ env.VPC_ID }}
 
       - name: Deploy Backend
         env:
