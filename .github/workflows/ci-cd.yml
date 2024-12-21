@@ -55,11 +55,13 @@ jobs:
 
       - name: Whitelist Runner IP Address
         run: |
+
           aws ec2 authorize-security-group-ingress \
             --group-name AWS_INSTANCE_SG_ID \
             --protocol tcp \
             --port 22 \
             --cidr $(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)/32
+            --vpc-id $(aws ec2 describe-security-groups --group-ids $AWS_INSTANCE_SG_ID --query "SecurityGroups[0].VpcId" --output text)
 
       - name: Deploy Backend
         env:
