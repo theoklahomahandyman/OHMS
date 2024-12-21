@@ -55,7 +55,9 @@ jobs:
 
       - name: Get Runner IP Address
         id: ip
-        uses: haythem/public-ip@v1
+        run: |
+          IPV4=$(curl -s 'https://api64.ipfy.org')
+          echo "RUNNER_IP=$IPPV4" >> $GITHUB_ENV
 
       - name: Whitelist Runner IP Address
         run: |
@@ -63,7 +65,7 @@ jobs:
             --group-id $AWS_INSTANCE_SG_ID \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+            --cidr $RUNNER_IP/32
 
       - name: Deploy Backend
         env:
