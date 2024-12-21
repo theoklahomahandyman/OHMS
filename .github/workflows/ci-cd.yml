@@ -56,10 +56,10 @@ jobs:
       - name: Whitelist Runner IP Address
         run: |
           aws ec2 authorize-security-group-ingress \
-            --group-id $AWS_INSTANCE_SG_ID \
+            --group-name launch-wizard-1 \
             --protocol tcp \
             --port 22 \
-            --cidr $(/sbin/ip -o addr list | awk '{print $4}' | cut -d/ -f1)/32
+            --cidr $(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)/32
 
       - name: Deploy Backend
         env:
