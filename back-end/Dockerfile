@@ -42,7 +42,7 @@ COPY . /app
 
 # Copy utility scripts and set permissions
 COPY ./scripts /scripts
-RUN chmod +x /scripts/*
+RUN chmod +x /scripts/entrypoint.sh
 
 # Create storage directories for media and static files
 RUN mkdir -p /vol/web/media /vol/web/static && \
@@ -53,4 +53,4 @@ RUN mkdir -p /vol/web/media /vol/web/static && \
 USER 1000
 
 # Set the entrypoint script
-CMD ["entrypoint.sh"]
+CMD ["scripts/entrypoint.sh"]
