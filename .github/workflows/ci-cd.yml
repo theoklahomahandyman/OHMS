@@ -53,19 +53,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_S3_REGION_NAME }}
 
-      - name: Get Runner IP Address
-        id: ip
-        run: |
-          IPV4=$(curl -s 'https://api64.ipfy.org')
-          echo "RUNNER_IP=$IPPV4" >> $GITHUB_ENV
-
       - name: Whitelist Runner IP Address
         run: |
+          IP_ADDRESS=$(curl -s 'https://api64.ipfy.org')
           aws ec2 authorize-security-group-ingress \
             --group-id $AWS_INSTANCE_SG_ID \
             --protocol tcp \
             --port 22 \
-            --cidr $RUNNER_IP/32
+            --cidr ${IP_ADDRESS}/32
 
       - name: Deploy Backend
         env:
