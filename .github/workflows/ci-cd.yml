@@ -17,9 +17,14 @@ jobs:
         with:
           python-version: 3.12
 
+      - name: List files in the repository
+        run: |
+          ls -R
+
       - name: Install Dependencies
         run: |
-          cd OHMS/back-end/
+          echo "Current directory: $(pwd)"
+          cd src/OHMS/back-end/
           python3 -m venv .venv
           source .venv/bin/activate
           python3 -m pip install --upgrade pip
@@ -29,7 +34,7 @@ jobs:
         env:
           DEBUG: "True"
         run: |
-          cd /OHMS/back-end/
+          cd src/OHMS/back-end/
           source .venv/bin/activate
           coverage run manage.py test
           coverage report --fail-under=80
@@ -120,26 +125,26 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: |
-          cd OHMS/front-end/public/
+          cd src/OHMS/front-end/public/
           echo "VITE_API_URL=$VITE_API_URL" > .env
           npm install
           npm run build
 
       - name: Sync Public Frontend To S3
         run: |
-          aws s3 sync OHMS/front-end/public/dist/ s3://ohms-public --delete
+          aws s3 sync src/OHMS/front-end/public/dist/ s3://ohms-public --delete
           aws cloudfront create-invalidation --distribution-id ${{ secrets.PUBLIC_CF_DIST_ID }} --paths "/*"
 
       - name: Build Frontend - Admin
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: |
-          cd OHMS/front-end/admin/
+          cd src/OHMS/front-end/admin/
           echo "VITE_API_URL=$VITE_API_URL" > .env
           npm install
           npm run build
 
       - name: Sync Admin Frontend To S3
         run: |
-          aws s3 sync OHMS/front-end/admin/dist/ s3://ohms-admin --delete
+          aws s3 sync src/OHMS/front-end/admin/dist/ s3://ohms-admin --delete
           aws cloudfront create-invalidation --distribution-id ${{ secrets.ADMIN_CF_DIST_ID }} --paths "/*"
