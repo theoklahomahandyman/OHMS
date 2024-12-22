@@ -3,7 +3,7 @@
 NAME='back-end'
 DJANGODIR='OHMS/back-end'
 SOCKFILE=/OHMS/back-end/run/gunicorn.sock
-USER=ohms-usser
+USER=ohms-user
 GROUP=ohms
 NUM_WORKERS=3
 DJANGO_SETTINGS_MODULE=main.settings
