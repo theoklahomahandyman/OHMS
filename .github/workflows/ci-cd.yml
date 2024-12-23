@@ -25,6 +25,11 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set Up Environment Variables
+        run: |
+          cd back-end/
+          echo "DEBUG=$DEBUG" > back-end/.env
+
       - name: Run Tests With Coverage
         working-directory: back-end
         run: |
