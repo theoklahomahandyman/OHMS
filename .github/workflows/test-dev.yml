@@ -33,7 +33,6 @@ jobs:
 
       - name: Run Tests With Coverage
         run: |
-          cd back-end/
           source .venv/bin/activate
           coverage run manage.py test
           coverage report --fail-under=80
