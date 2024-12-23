@@ -28,5 +28,6 @@ jobs:
       - name: Run Tests With Coverage
         working-directory: back-end
         run: |
+          source .venv/bin/activate
           coverage run manage.py test
           coverage report --fail-under=80
