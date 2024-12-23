@@ -9,7 +9,6 @@ jobs:
   test-backend:
     runs-on: ubuntu-latest
     env:
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DEBUG: "True"
     steps:
       - name: Checkout Repository
@@ -28,9 +27,12 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set Up Environment Variables
+        run: |
+          cd back-end/
+          echo "DEBUG=$DEBUG" > back-end/.env
+
       - name: Run Tests With Coverage
-        env:
-          DEBUG: "True"
         run: |
           cd back-end/
           source .venv/bin/activate
