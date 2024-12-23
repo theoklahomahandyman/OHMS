@@ -30,6 +30,7 @@ jobs:
       - name: Set Up Environment Variables
         working-directory: back-end
         run: |
+          touch .env
           echo "DEBUG=$DEBUG" > back-end/.env
 
       - name: Run Tests With Coverage
