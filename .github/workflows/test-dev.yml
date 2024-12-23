@@ -29,9 +29,6 @@ jobs:
 
       - name: Set Up Environment Variables
         run: |
-          cd back-end/
-          mkdir -p $(dirname .env)
-          touch .env
           echo "DEBUG=$DEBUG" > back-end/.env
 
       - name: Run Tests With Coverage
