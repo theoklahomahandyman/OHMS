@@ -124,5 +124,5 @@ jobs:
 
       - name: Sync Admin Frontend To S3
         run: |
-          aws s3 sync src/OHMS/front-end/admin/dist/ s3://ohms-admin --delete
+          aws s3 sync front-end/admin/dist/ s3://ohms-admin --delete
           aws cloudfront create-invalidation --distribution-id $ADMIN_CF_DIST_ID --paths "/*"
