@@ -60,7 +60,6 @@ jobs:
             --cidr $(curl -s https://checkip.amazonaws.com)/32
 
       - name: Deploy Backend
-        working-directory: back-end
         run: |
           echo "$AWS_EC2_KEY" > api.pem
           chmod 400 "api.pem"
@@ -68,6 +67,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i "api.pem" $AWS_EC2_USERNAME@$AWS_EC2_HOST << EOF
 
           set -e
+          cd /home/OHMS/back-end
           git pull origin main
           python3 manage.py makemigrations --noinput
           python3 manage.py migrate --noinput
@@ -83,7 +83,6 @@ jobs:
             --protocol tcp \
             --port 22 \
             --cidr $(curl -s https://checkip.amazonaws.com)/32
-
 
   deploy-frontends:
     needs: deploy-backend
