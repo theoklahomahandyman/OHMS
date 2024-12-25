@@ -67,8 +67,9 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i "api.pem" $AWS_EC2_USERNAME@$AWS_EC2_HOST << EOF
 
           set -e
-          cd /home/ubuntu/OHMS/back-end
+          cd /home/$AWS_EC2_USERNAME/OHMS/back-end
           git pull origin main
+          source .venv/bin/activate
           python3 manage.py makemigrations --noinput
           python3 manage.py migrate --noinput
           sudo supervisorctl restart ohms:ohms
