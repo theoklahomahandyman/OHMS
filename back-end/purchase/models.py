@@ -76,12 +76,9 @@ class PurchaseReceipt(models.Model):
     @receiver(models.signals.pre_save, sender='purchase.PurchaseReceipt')
     def server_update_files(sender, instance, **kwargs):
         if instance.pk is not None:
-            try:
-                current_image = PurchaseReceipt.objects.get(pk=instance.pk).image
-                if (current_image and current_image != instance.image):
-                    current_image.delete(save=False)
-            except PurchaseReceipt.DoesNotExist:
-                pass
+            current_image = PurchaseReceipt.objects.get(pk=instance.pk).image
+            if (current_image and current_image != instance.image):
+                current_image.delete(save=False)
 
     '''
         Reciever signal to delete the image file using pre-delete actions.
