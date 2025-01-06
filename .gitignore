@@ -161,7 +161,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# MacBook files
 .DS_Store
+
+# npm packages
 node_modules/
 
 # Stored media files

@@ -1,5 +1,5 @@
 from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer
-from purchase.models import Purchase, PurchaseReciept, PurchaseMaterial, PurchaseTool
+from purchase.models import Purchase, PurchaseReceipt, PurchaseMaterial, PurchaseTool
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.hashers import make_password
@@ -10,22 +10,27 @@ from material.models import Material
 from rest_framework import status
 from django.utils import timezone
 from django.test import TestCase
+from django.conf import settings
 from django.urls import reverse
 from user.models import User
 from tool.models import Tool
+import shutil
 
 # Tests for purchase model
 class TestPurchaseModel(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.receipt_path = 'pergola-stain.jpg'
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100)
         cls.tool = Tool.objects.create(name='tool', description='tool description', unit_cost=4.20, available_quantity=1)
         # cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
-#         cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
+        # cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
+        cls.image = SimpleUploadedFile(name=cls.receipt_path, content=open(find(cls.receipt_path), 'rb').read(), content_type='image/jpg')
+        cls.receipt = PurchaseReceipt.objects.create(purchase=cls.purchase, image=cls.image)
         cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
         cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=26, cost=854.39)
         # cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, instance=cls.instance, cost=156.35, usage=103.23, condition=AssetInstance.CONDITION_CHOICES.GOOD)
@@ -40,6 +45,40 @@ class TestPurchaseModel(TestCase):
         purchase = Purchase(supplier=self.supplier, supplier_address=self.address, tax=5.0, date=timezone.now().date())
         purchase.save()
         self.assertEqual(purchase.total, purchase.tax)
+
+    '''
+        Test receipt creation with image
+        Verifies that the image is properly saved and exists after the receipt is created.
+    '''
+    def test_receipt_creation_with_image(self):
+        # Verify image exists after creating a receipt
+        self.assertTrue(self.receipt.image.storage.exists(self.receipt.image.name))
+
+    '''
+        Test old receipt image deletion on save
+        Verifies that the old image is deleted and the new image is saved when updating a receipt's image.
+    '''
+    def test_receipt_image_deleted_on_save(self):
+        old_image_name = self.receipt.image.name
+        new_image = SimpleUploadedFile(name='new-image.jpg', content=b'new_image_data', content_type='image/jpg')
+        self.receipt.image = new_image
+        self.receipt.save()
+        self.receipt.refresh_from_db()
+        # Verify the old image is deleted
+        self.assertFalse(self.receipt.image.storage.exists(old_image_name))
+        # Verify the new image is saved
+        self.assertTrue(self.receipt.image.storage.exists(self.receipt.image.name))
+
+    '''
+        Test receipt image deletion on delete
+        Verifiess that the image is deleted from storage when the receipt is deleted.
+    '''
+    def test_receipt_image_deleted_on_delete(self):
+        # Ensure the image exists in storage
+        self.assertTrue(self.receipt.image.storage.exists(self.receipt.image.name))
+        # Delete the receipt and verify the image is removed
+        self.receipt.delete()
+        self.assertFalse(self.receipt.image.storage.exists(self.receipt_path))
 
     ## Test save method for purchase material model
     def test_purchase_material_save(self):
@@ -157,12 +196,16 @@ class TestPurchaseSerializer(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.supplier = Supplier.objects.create(name='supplier')
-        cls.reciept = SimpleUploadedFile(name='pergola-stain.jpg', content=open(find('pergola-stain.jpg'), 'rb').read(), content_type='image/jpg')
+        cls.receipt = SimpleUploadedFile(name='pergola-stain.jpg', content=open(find('pergola-stain.jpg'), 'rb').read(), content_type='image/jpg')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
         cls.empty_data = {'supplier': '', 'supplier_address': '', 'tax': '', 'total': '', 'date': '', 'uploaded_images': []}
-        cls.negative_data = {'supplier': cls.supplier.pk, 'supplier_address': cls.address.pk, 'tax': -6.78, 'total': -6.78, 'date': timezone.now().date(), 'uploaded_images': [cls.reciept]}
-        cls.valid_data = {'supplier': cls.supplier.pk, 'supplier_address': cls.address.pk, 'tax': 6.78, 'total': 6.78, 'date': timezone.now().date(), 'uploaded_images': [cls.reciept]}
+        cls.negative_data = {'supplier': cls.supplier.pk, 'supplier_address': cls.address.pk, 'tax': -6.78, 'total': -6.78, 'date': timezone.now().date(), 'uploaded_images': [cls.receipt]}
+        cls.valid_data = {'supplier': cls.supplier.pk, 'supplier_address': cls.address.pk, 'tax': 6.78, 'total': 6.78, 'date': timezone.now().date(), 'uploaded_images': [cls.receipt]}
+
+    @classmethod
+    def tearDown(self):
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     ## Test purchase serializer with empty data
     def test_purchase_serializer_empty_data(self):
@@ -338,21 +381,25 @@ class TestPurchaseView(APITestCase):
     def setUpTestData(cls):
         cls.client = APIClient()
         cls.password = 'test1234'
-        cls.reciept_path = 'pergola-stain.jpg'
+        cls.receipt_path = 'pergola-stain.jpg'
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().strftime('%Y-%m-%d'))
-        cls.image = SimpleUploadedFile(name=cls.reciept_path, content=open(find(cls.reciept_path), 'rb').read(), content_type='image/jpg')
-        cls.reciept = PurchaseReciept.objects.create(purchase=cls.purchase, image=cls.image)
+        cls.image = SimpleUploadedFile(name=cls.receipt_path, content=open(find(cls.receipt_path), 'rb').read(), content_type='image/jpg')
+        cls.receipt = PurchaseReceipt.objects.create(purchase=cls.purchase, image=cls.image)
         cls.empty_data = {'supplier': '', 'supplier_address': '', 'tax': '', 'total': '', 'date': ''}
         cls.negative_data = {'supplier': cls.supplier.pk, 'supplier_address': cls.address.pk, 'tax': -6.78, 'total': -6.78, 'date': timezone.now().strftime('%Y-%m-%d')}
-        cls.create_data = {'supplier': cls.supplier.pk, 'supplier_address': cls.address.pk, 'tax': 6.78, 'total': 6.78, 'date': timezone.now().date(), 'uploaded_images': [SimpleUploadedFile(name=cls.reciept_path, content=open(find(cls.reciept_path), 'rb').read(), content_type='image/jpg')]}
+        cls.create_data = {'supplier': cls.supplier.pk, 'supplier_address': cls.address.pk, 'tax': 6.78, 'total': 6.78, 'date': timezone.now().date(), 'uploaded_images': [SimpleUploadedFile(name=cls.receipt_path, content=open(find(cls.receipt_path), 'rb').read(), content_type='image/jpg')]}
         cls.update_data = {'supplier': cls.supplier.pk, 'supplier_address': cls.address.pk, 'tax': 10.29, 'total': 10.29, 'date': timezone.now().strftime('%Y-%m-%d')}
         cls.patch_data = {'date': timezone.now().date()}
         cls.list_url = reverse('purchase-list')
         cls.detail_url = lambda pk: reverse('purchase-detail', kwargs={'pk': pk})
-        cls.reciept_url = lambda pk: reverse('purchase-picture-detail', kwargs={'pk': pk})
+        cls.receipt_url = lambda pk: reverse('purchase-picture-detail', kwargs={'pk': pk})
         cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
+
+    @classmethod
+    def tearDown(self):
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     ## Test get purchase not found
     def test_get_purchase_not_found(self):
@@ -431,10 +478,10 @@ class TestPurchaseView(APITestCase):
         purchase = Purchase.objects.filter(date=self.patch_data['date'])
         self.assertTrue(purchase.exists())
 
-    ## Test delete purchase reciept success
-    def test_delete_purchase_reciept_success(self):
+    ## Test delete purchase receipt success
+    def test_delete_purchase_receipt_success(self):
         self.client.force_authenticate(user=self.user)
-        response = self.client.delete(self.reciept_url(self.reciept.pk))
+        response = self.client.delete(self.receipt_url(self.receipt.pk))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Purchase.objects.count(), 1)
 

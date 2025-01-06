@@ -1,10 +1,10 @@
-from purchase.models import Purchase, PurchaseReciept, PurchaseMaterial, PurchaseTool
+from purchase.models import Purchase, PurchaseReceipt, PurchaseMaterial, PurchaseTool
 from django.contrib import admin
 
 class PurchaseAdmin(admin.ModelAdmin):
     pass
 
-class PurchaseRecieptAdmin(admin.ModelAdmin):
+class PurchaseReceiptAdmin(admin.ModelAdmin):
     pass
 
 class PurchaseMaterialAdmin(admin.ModelAdmin):
@@ -14,6 +14,6 @@ class PurchaseToolAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(Purchase, PurchaseAdmin)
-admin.site.register(PurchaseReciept, PurchaseRecieptAdmin)
+admin.site.register(PurchaseReceipt, PurchaseReceiptAdmin)
 admin.site.register(PurchaseMaterial, PurchaseMaterialAdmin)
 admin.site.register(PurchaseTool, PurchaseToolAdmin)
