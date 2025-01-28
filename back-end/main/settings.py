@@ -24,11 +24,11 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*.theoklahomahandyman.com', 'theokla
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost',
-    'http://127.0.0.1',
-    'https://ohms-production.up.railway.app',
-    'https://ohms-admin.pages.dev',
-    'https://ohms.pages.dev'
+    'http://localhost/',
+    'http://127.0.0.1/',
+    'https://ohms-production.up.railway.app/',
+    'https://ohms-admin.pages.dev/',
+    'https://ohms.pages.dev/'
 ]
 
 # Application definition
