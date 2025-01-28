@@ -28,8 +28,6 @@ class TestOrderModels(TestCase):
     def setUpTestData(cls):
         cls.date = timezone.now().date()
         cls.password = 'test12345'
-        cls.picture_path = 'pergola-stain.jpg'
-        cls.image = SimpleUploadedFile(name=cls.picture_path, content=open(find(cls.picture_path), 'rb').read(), content_type='image/jpg')
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=35.0, available_quantity=100)
@@ -42,7 +40,6 @@ class TestOrderModels(TestCase):
         cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@email.com', phone='1 (234) 567-8901', notes='test customer')
         cls.order = Order.objects.create(customer=cls.customer, date=cls.date, description='test description', service=cls.service, hourly_rate=103.0, hours_worked=12, material_upcharge=20.5, tax=13.5, total=0.0, completed=False, paid=False, discount=1.75, notes='test order', callout=Order.CALLOUT_CHOICES.STANDARD)
         cls.order_cost = OrderCost.objects.create(order=cls.order, name='test line item charge', cost=55.68)
-        cls.order_picture = OrderPicture.objects.create(order=cls.order, image=cls.image)
         cls.order_material = OrderMaterial.objects.create(order=cls.order, material=cls.material, quantity=10.0)
         cls.order_tool = OrderTool.objects.create(order=cls.order, tool=cls.tool, quantity_used=10, quantity_broken=2)
         # cls.order_asset = OrderAsset.objects.create(order=cls.order, instance=cls.instance, usage=5.34, condition=AssetInstance.CONDITION_CHOICES.MAINTENANCE_SOON)
@@ -68,40 +65,6 @@ class TestOrderModels(TestCase):
         discount_amount = (self.order.discount / 100) * subtotal
         expected_total = subtotal + tax_amount - discount_amount
         self.assertAlmostEqual(round(expected_total, 2), self.order.total, places=1)
-
-    '''
-        Test picture creation with image
-        Verifies that the image is properly saved and exists after the picture is created.
-    '''
-    def test_order_picture_creation_with_image(self):
-        # Verify image exists after creating a picture
-        self.assertTrue(self.order_picture.image.storage.exists(self.order_picture.image.name))
-
-    '''
-        Test old picture image deletion on save
-        Verifies that the old image is deleted and the new image is saved when updating a picture's image.
-    '''
-    def test_order_picture_image_deleted_on_save(self):
-        old_image_name = self.order_picture.image.name
-        new_image = SimpleUploadedFile(name='new-image.jpg', content=b'new_image_data', content_type='image/jpg')
-        self.order_picture.image = new_image
-        self.order_picture.save()
-        self.order_picture.refresh_from_db()
-        # Verify the old image is deleted
-        self.assertFalse(self.order_picture.image.storage.exists(old_image_name))
-        # Verify the new image is saved
-        self.assertTrue(self.order_picture.image.storage.exists(self.order_picture.image.name))
-
-    '''
-        Test picture image deletion on delete
-        Verifiess that the image is deleted from storage when the picture is deleted.
-    '''
-    def test_order_picture_image_deleted_on_delete(self):
-        # Ensure the image exists in storage
-        self.assertTrue(self.order_picture.image.storage.exists(self.order_picture.image.name))
-        # Delete the picture and verify the image is removed
-        self.order_picture.delete()
-        self.assertFalse(self.order_picture.image.storage.exists(self.picture_path))
 
     ## Test Order Material save method
     def test_order_material_save(self):

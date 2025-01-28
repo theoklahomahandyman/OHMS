@@ -1,12 +1,12 @@
 from django.core.validators import MinValueValidator, MaxLengthValidator
 from supplier.models import Supplier, SupplierAddress
-from django.shortcuts import get_object_or_404
 from django.db import models, transaction
 # from asset.models import AssetInstance
-from django.dispatch import receiver
 from material.models import Material
 from tool.models import Tool
 from decimal import Decimal
+import uuid
+import os
 
 class Purchase(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
@@ -53,44 +53,20 @@ class Purchase(models.Model):
         self.total = round(self.calculate_total(), 2)
         super().save()
 
+'''Generate a unique file name for the uploaded purchase reciept.'''
+def purchase_reciept_upload_path(instance, filename):
+    base_name, ext = os.path.splitext(filename)
+    unique_id = uuid.uuid4().hex[:8]
+    return f'purchases/{base_name}-{unique_id}{ext}'
+
 '''
     Model for purchase receipts
     ---------------------------
-    Contains recievers to ensure stored image is removed when updating or deleting receipts.
-
-    - **server_update_files** - Deletes the old image file when updating the receipt's image.
-                                It ensures the previous image is removed from storage only if it is being replaced with a new image.
-    - **server_delete_files** - Deletes the image file from storage when the receipt is deleted.
-                                This ensures that the image associated with the receipt is also deleted.
-
     Note: Ensure the 'Pillow' library is installed to handle image storage and manipulation.
 '''
 class PurchaseReceipt(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='purchases', null=True, blank=True)
-
-    '''
-        Reciever signal to delete the old image file using pre-save actions.
-        Ensures old image file is deleted from storage when related receipt is updated, but only if the image has been changed.
-    '''
-    @receiver(models.signals.pre_save, sender='purchase.PurchaseReceipt')
-    def server_update_files(sender, instance, **kwargs):
-        if instance.pk is not None:
-            current_image = PurchaseReceipt.objects.get(pk=instance.pk).image
-            if (current_image and current_image != instance.image):
-                current_image.delete(save=False)
-
-    '''
-        Reciever signal to delete the image file using pre-delete actions.
-        Ensures image file is deleted from storage when related receipt is deleted.
-    '''
-    @receiver(models.signals.pre_delete, sender='purchase.PurchaseReceipt')
-    def server_delete_files(sender, instance, **kwargs):
-        for field in instance._meta.fields:
-            if field.name == 'image':
-                file = getattr(instance, field.name)
-                if file:
-                    file.delete(save=False)
+    image = models.ImageField(upload_to=purchase_reciept_upload_path, null=True, blank=True)
 
 class PurchaseMaterial(models.Model):
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='materials')

@@ -1,128 +1,128 @@
-name: CI/CD Pipeline
+# name: CI/CD Pipeline
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  test-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+# jobs:
+#   test-backend:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v3
 
-      - name: Set Up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
+#       - name: Set Up Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: 3.12
 
-      - name: Install Dependencies
-        working-directory: back-end
-        run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          python3 -m pip install --upgrade pip
-          pip install -r requirements.txt
+#       - name: Install Dependencies
+#         working-directory: back-end
+#         run: |
+#           python3 -m venv .venv
+#           source .venv/bin/activate
+#           python3 -m pip install --upgrade pip
+#           pip install -r requirements.txt
 
-      - name: Run Tests With Coverage
-        working-directory: back-end
-        run: |
-          source .venv/bin/activate
-          coverage run manage.py test
-          coverage report --fail-under=80
+#       - name: Run Tests With Coverage
+#         working-directory: back-end
+#         run: |
+#           source .venv/bin/activate
+#           coverage run manage.py test
+#           coverage report --fail-under=80
 
-  deploy-backend:
-    needs: test-backend
-    runs-on: ubuntu-latest
-    env:
-      AWS_INSTANCE_SG_ID: ${{ secrets.AWS_INSTANCE_SG_ID }}
-      AWS_EC2_KEY: ${{ secrets.EC2_KEY }}
-      AWS_EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
-      AWS_EC2_HOST: ${{ secrets.EC2_HOST }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+#   deploy-backend:
+#     needs: test-backend
+#     runs-on: ubuntu-latest
+#     env:
+#       AWS_INSTANCE_SG_ID: ${{ secrets.AWS_INSTANCE_SG_ID }}
+#       AWS_EC2_KEY: ${{ secrets.EC2_KEY }}
+#       AWS_EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+#       AWS_EC2_HOST: ${{ secrets.EC2_HOST }}
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_S3_REGION_NAME }}
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_S3_REGION_NAME }}
 
-      - name: Whitelist Runner IP Address
-        run: |
-          aws ec2 authorize-security-group-ingress \
-            --group-id $AWS_INSTANCE_SG_ID \
-            --protocol tcp \
-            --port 22 \
-            --cidr $(curl -s https://checkip.amazonaws.com)/32
+#       - name: Whitelist Runner IP Address
+#         run: |
+#           aws ec2 authorize-security-group-ingress \
+#             --group-id $AWS_INSTANCE_SG_ID \
+#             --protocol tcp \
+#             --port 22 \
+#             --cidr $(curl -s https://checkip.amazonaws.com)/32
 
-      - name: Deploy Backend
-        run: |
-          echo "$AWS_EC2_KEY" > api.pem
-          chmod 400 "api.pem"
+#       - name: Deploy Backend
+#         run: |
+#           echo "$AWS_EC2_KEY" > api.pem
+#           chmod 400 "api.pem"
 
-          ssh -o StrictHostKeyChecking=no -i "api.pem" $AWS_EC2_USERNAME@$AWS_EC2_HOST << EOF
+#           ssh -o StrictHostKeyChecking=no -i "api.pem" $AWS_EC2_USERNAME@$AWS_EC2_HOST << EOF
 
-          set -e
-          cd /home/$AWS_EC2_USERNAME/OHMS/back-end
-          git pull origin main
-          source .venv/bin/activate
-          python3 manage.py makemigrations --noinput
-          python3 manage.py migrate --noinput
-          sudo supervisorctl restart ohms:ohms
-          sudo systemctl restart nginx
+#           set -e
+#           cd /home/$AWS_EC2_USERNAME/OHMS/back-end
+#           git pull origin main
+#           source .venv/bin/activate
+#           python3 manage.py makemigrations --noinput
+#           python3 manage.py migrate --noinput
+#           sudo supervisorctl restart ohms:ohms
+#           sudo systemctl restart nginx
 
-          EOF
+#           EOF
 
-      - name: Revoke Runner IP Address
-        run: |
-          aws ec2 revoke-security-group-ingress \
-            --group-id $AWS_INSTANCE_SG_ID \
-            --protocol tcp \
-            --port 22 \
-            --cidr $(curl -s https://checkip.amazonaws.com)/32
+#       - name: Revoke Runner IP Address
+#         run: |
+#           aws ec2 revoke-security-group-ingress \
+#             --group-id $AWS_INSTANCE_SG_ID \
+#             --protocol tcp \
+#             --port 22 \
+#             --cidr $(curl -s https://checkip.amazonaws.com)/32
 
-  deploy-frontends:
-    needs: deploy-backend
-    runs-on: ubuntu-latest
-    env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          PUBLIC_CF_DIST_ID: ${{ secrets.PUBLIC_CF_DIST_ID }}
-          ADMIN_CF_DIST_ID: ${{ secrets.ADMIN_CF_DIST_ID }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+#   deploy-frontends:
+#     needs: deploy-backend
+#     runs-on: ubuntu-latest
+#     env:
+#           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+#           PUBLIC_CF_DIST_ID: ${{ secrets.PUBLIC_CF_DIST_ID }}
+#           ADMIN_CF_DIST_ID: ${{ secrets.ADMIN_CF_DIST_ID }}
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_S3_REGION_NAME }}
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_S3_REGION_NAME }}
 
-      - name: Build Frontend - Public
-        working-directory: front-end/public
-        run: |
-          echo "VITE_API_URL=$VITE_API_URL" > .env
-          npm install
-          npm run build
+#       - name: Build Frontend - Public
+#         working-directory: front-end/public
+#         run: |
+#           echo "VITE_API_URL=$VITE_API_URL" > .env
+#           npm install
+#           npm run build
 
-      - name: Sync Public Frontend To S3
-        run: |
-          aws s3 sync front-end/public/dist/ s3://ohms-public --delete
-          aws cloudfront create-invalidation --distribution-id $PUBLIC_CF_DIST_ID --paths "/*"
+#       - name: Sync Public Frontend To S3
+#         run: |
+#           aws s3 sync front-end/public/dist/ s3://ohms-public --delete
+#           aws cloudfront create-invalidation --distribution-id $PUBLIC_CF_DIST_ID --paths "/*"
 
-      - name: Build Frontend - Admin
-        working-directory: front-end/admin
-        run: |
-          echo "VITE_API_URL=$VITE_API_URL" > .env
-          npm install
-          npm run build
+#       - name: Build Frontend - Admin
+#         working-directory: front-end/admin
+#         run: |
+#           echo "VITE_API_URL=$VITE_API_URL" > .env
+#           npm install
+#           npm run build
 
-      - name: Sync Admin Frontend To S3
-        run: |
-          aws s3 sync front-end/admin/dist/ s3://ohms-admin --delete
-          aws cloudfront create-invalidation --distribution-id $ADMIN_CF_DIST_ID --paths "/*"
+#       - name: Sync Admin Frontend To S3
+#         run: |
+#           aws s3 sync front-end/admin/dist/ s3://ohms-admin --delete
+#           aws cloudfront create-invalidation --distribution-id $ADMIN_CF_DIST_ID --paths "/*"

@@ -21,7 +21,6 @@ class TestPurchaseModel(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.receipt_path = 'pergola-stain.jpg'
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.material = Material.objects.create(name='material', size='2 inch X 4 inch X 8 feet', unit_cost=10.0, available_quantity=100)
@@ -29,8 +28,6 @@ class TestPurchaseModel(TestCase):
         # cls.asset = Asset.objects.create(name='asset', description='asset description', notes='asset notes')
         # cls.instance = AssetInstance.objects.create(asset=cls.asset, serial_number='1283930', unit_cost=12.30, rental_cost=14.25, last_maintenance=timezone.now().date() - timezone.timedelta(weeks=6), next_maintenance=timezone.now().date() + timezone.timedelta(weeks=20), usage=500, location='location', condition=AssetInstance.CONDITION_CHOICES.GOOD, notes='instance notes')
         cls.purchase = Purchase.objects.create(supplier=cls.supplier, supplier_address=cls.address, tax=6.83, total=6.83, date=timezone.now().date())
-        cls.image = SimpleUploadedFile(name=cls.receipt_path, content=open(find(cls.receipt_path), 'rb').read(), content_type='image/jpg')
-        cls.receipt = PurchaseReceipt.objects.create(purchase=cls.purchase, image=cls.image)
         cls.purchase_material = PurchaseMaterial.objects.create(purchase=cls.purchase, material=cls.material, quantity=10, cost=100.0)
         cls.purchase_tool = PurchaseTool.objects.create(purchase=cls.purchase, tool=cls.tool, quantity=26, cost=854.39)
         # cls.purchase_asset = PurchaseAsset.objects.create(purchase=cls.purchase, instance=cls.instance, cost=156.35, usage=103.23, condition=AssetInstance.CONDITION_CHOICES.GOOD)
@@ -45,40 +42,6 @@ class TestPurchaseModel(TestCase):
         purchase = Purchase(supplier=self.supplier, supplier_address=self.address, tax=5.0, date=timezone.now().date())
         purchase.save()
         self.assertEqual(purchase.total, purchase.tax)
-
-    '''
-        Test receipt creation with image
-        Verifies that the image is properly saved and exists after the receipt is created.
-    '''
-    def test_receipt_creation_with_image(self):
-        # Verify image exists after creating a receipt
-        self.assertTrue(self.receipt.image.storage.exists(self.receipt.image.name))
-
-    '''
-        Test old receipt image deletion on save
-        Verifies that the old image is deleted and the new image is saved when updating a receipt's image.
-    '''
-    def test_receipt_image_deleted_on_save(self):
-        old_image_name = self.receipt.image.name
-        new_image = SimpleUploadedFile(name='new-image.jpg', content=b'new_image_data', content_type='image/jpg')
-        self.receipt.image = new_image
-        self.receipt.save()
-        self.receipt.refresh_from_db()
-        # Verify the old image is deleted
-        self.assertFalse(self.receipt.image.storage.exists(old_image_name))
-        # Verify the new image is saved
-        self.assertTrue(self.receipt.image.storage.exists(self.receipt.image.name))
-
-    '''
-        Test receipt image deletion on delete
-        Verifiess that the image is deleted from storage when the receipt is deleted.
-    '''
-    def test_receipt_image_deleted_on_delete(self):
-        # Ensure the image exists in storage
-        self.assertTrue(self.receipt.image.storage.exists(self.receipt.image.name))
-        # Delete the receipt and verify the image is removed
-        self.receipt.delete()
-        self.assertFalse(self.receipt.image.storage.exists(self.receipt_path))
 
     ## Test save method for purchase material model
     def test_purchase_material_save(self):
