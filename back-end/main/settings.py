@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', True)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*.theoklahomahandyman.com', 'theoklahomahandyman.com', 'ohms-production.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*.theoklahomahandyman.com', 'theoklahomahandyman.com', 'ohms-production.up.railway.app', 'ohms-admin.pages.dev', 'ohms.pages.dev']
 
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1',
@@ -27,6 +27,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://theoklahomahandyman.com',
     'https://*.theoklahomahandyman.com',
     'https://ohms-production.up.railway.app'
+    'https://ohms-admin.pages.dev',
+    'https://ohms.pages.dev'
 ]
 
 # Application definition
