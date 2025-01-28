@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,7 +88,7 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 
 # Static file storage
-STATIC_URL = '/back-end/staticfiles/'
+STATIC_URL = '/static/'
 STATIC_ROOT = Path(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [ Path(BASE_DIR / 'static'), ]
 
@@ -126,7 +127,7 @@ else:
     AWS_STORAGE_BUCKET_NAME = os.environ.get('R2_STORAGE_BUCKET_NAME')
     AWS_S3_ENDPOINT_URL = os.environ.get('R2_ENDPOINT_URL')
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     AWS_S3_REGION_NAME = 'auto'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
