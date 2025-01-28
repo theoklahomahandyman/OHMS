@@ -113,6 +113,10 @@ else:
             'PASSWORD': os.environ.get('DB_PASSWORD'),
             'HOST': os.environ.get('DB_HOST'),
             'PORT': os.environ.get('DB_PORT'),
+            'OPTIONS': {
+                'connect_timeout': 30,
+                'application_name': 'ohms',
+            }
         }
     }
 
