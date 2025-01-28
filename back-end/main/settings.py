@@ -21,6 +21,8 @@ DEBUG = os.environ.get('DEBUG', True)
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'api.theoklahomahandyman.com', 'admin.theoklahomahandyman.com', 'theoklahomahandyman.com', 'ohms-production.up.railway.app']
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
@@ -166,9 +168,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
