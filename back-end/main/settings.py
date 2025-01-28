@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 
 # Static file storage
-STATIC_URL = '/static/'
+STATIC_URL = '/staticfiles/'
 STATIC_ROOT = Path(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [ Path(BASE_DIR / 'static'), ]
 
