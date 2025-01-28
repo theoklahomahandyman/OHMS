@@ -24,17 +24,17 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*.theoklahomahandyman.com', 'theokla
 CORS_ALLOW_CREDENTIALS : True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost',
-    'http://127.0.0.1',
-    'https://ohms-production.up.railway.app:0000',
-    'https://ohms-admin.pages.dev:0000',
-    'https://ohms.pages.dev:0000'
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://ohms-production.up.railway.app:8080',
+    'https://ohms-admin.pages.dev',
+    'https://ohms.pages.dev'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost',
-    'http://127.0.0.1',
-    'https://ohms-production.up.railway.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://ohms-production.up.railway.app:8080',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
