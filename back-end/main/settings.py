@@ -19,10 +19,15 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', True)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'api.theoklahomahandyman.com', 'admin.theoklahomahandyman.com', 'theoklahomahandyman.com', 'ohms-production.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*.theoklahomahandyman.com', 'theoklahomahandyman.com', 'ohms-production.up.railway.app']
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1',
+    'http://localhost',
+    'https://theoklahomahandyman.com',
+    'https://*.theoklahomahandyman.com',
+    'https://ohms-production.up.railway.app'
+]
 
 # Application definition
 
