@@ -21,38 +21,8 @@ DEBUG = os.environ.get('DEBUG', True)
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'api.theoklahomahandyman.com', 'admin.theoklahomahandyman.com', 'theoklahomahandyman.com', 'ohms-production.up.railway.app']
 
-CSRF_TRUSTED_ORIGINS = [
-    '127.0.0.1',
-    'localhost',
-    'https://ohms-production.up.railway.app',
-    'https://theoklahomahandyman.com',
-    'https://admin.theoklahomahandyman.com',
-    'https://api.theoklahomahandyman.com'
-]
-CSRF_ALLOWED_ORIGINS = [
-    '127.0.0.1',
-    'localhost',
-    'https://ohms-production.up.railway.app',
-    'https://theoklahomahandyman.com',
-    'https://admin.theoklahomahandyman.com',
-    'https://api.theoklahomahandyman.com'
-]
-CORS_ORIGINS_WHITELIST = [
-    '127.0.0.1',
-    'localhost',
-    'https://ohms-production.up.railway.app',
-    'https://theoklahomahandyman.com',
-    'https://admin.theoklahomahandyman.com',
-    'https://api.theoklahomahandyman.com'
-]
-CORS_ALLOWED_ORIGINS = [
-    '127.0.0.1',
-    'localhost',
-    'https://ohms-production.up.railway.app',
-    'https://theoklahomahandyman.com',
-    'https://admin.theoklahomahandyman.com',
-    'https://api.theoklahomahandyman.com'
-]
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
