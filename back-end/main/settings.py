@@ -126,6 +126,7 @@ else:
     AWS_STORAGE_BUCKET_NAME = os.environ.get('R2_STORAGE_BUCKET_NAME')
     AWS_S3_ENDPOINT_URL = os.environ.get('R2_ENDPOINT_URL')
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
     AWS_S3_REGION_NAME = 'auto'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
