@@ -25,13 +25,13 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost',
-    'http://127.0.0.1',
-    'https://ohms-production.up.railway.app',
-    'https://ohms-admin.pages.dev',
-    'https://ohms.pages.dev'
-]
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost',
+#     'http://127.0.0.1',
+#     'https://ohms-production.up.railway.app',
+#     'https://ohms-admin.pages.dev',
+#     'https://ohms.pages.dev'
+# ]
 
 # Application definition
 
