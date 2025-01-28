@@ -26,7 +26,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'https://theoklahomahandyman.com',
     'https://*.theoklahomahandyman.com',
-    'https://ohms-production.up.railway.app'
+    'https://ohms-production.up.railway.app',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
