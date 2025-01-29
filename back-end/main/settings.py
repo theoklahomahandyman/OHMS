@@ -24,23 +24,23 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'api.theoklahomahandyman.com', 'admin
 CORS_ALLOW_CREDENTIALS : True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'https://api.theoklahomahandyman.com:8080',
+    'http://localhost',
+    'http://127.0.0.1',
+    'https://api.theoklahomahandyman.com',
     'https://admin.theoklahomahandyman.com',
     'https://theoklahomahandyman.com',
-    'https://ohms-production.up.railway.app:8080',
+    'https://ohms-production.up.railway.app',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'https://api.theoklahomahandyman.com:8080',
+    'http://localhost',
+    'http://127.0.0.1',
+    'https://api.theoklahomahandyman.com',
     'https://admin.theoklahomahandyman.com',
     'https://theoklahomahandyman.com',
-    'https://ohms-production.up.railway.app:8080',
+    'https://ohms-production.up.railway.app',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
