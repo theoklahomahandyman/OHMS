@@ -9,9 +9,13 @@ function ContactInfo() {
                             <div className="card py-y h-100">
                                 <div className="card-body text-center">
                                     <i className="fas fa-map-marked-alt text-primary mb-2"></i>
-                                    <h4 className="text-uppercase m-0">Address</h4>
+                                    <h4 className="text-uppercase m-0">Location</h4>
                                     <hr className="my-4 mx-auto"/>
-                                    <div className="small text-black-50">19<sup>th</sup> Street, Moore OK</div>
+                                    <div className="small text-black-50">
+                                        <a href="https://www.google.com/maps/search/?api=1&query=Moore,Oklahoma" target="_blank">
+                                            Moore, Oklahoma
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -22,8 +26,11 @@ function ContactInfo() {
                                     <i className="fas fa-envelope text-primary mb-2"></i>
                                     <h4 className="text-uppercase m-0">Email</h4>
                                     <hr className="my-4 mx-auto"/>
-                                    <div className="small text-black-50"><a
-                                            href="mailto:cdkonstruction@gmail.com">cdkonstruction@gmail.com</a></div>
+                                    <div className="small text-black-50">
+                                        <a href="mailto:cdkonstruction@gmail.com">
+                                            cdkonstruction@gmail.com
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -34,7 +41,9 @@ function ContactInfo() {
                                     <i className="fas fa-mobile-alt text-primary mb-2"></i>
                                     <h4 className="text-uppercase m-0">Phone</h4>
                                     <hr className="my-4 mx-auto"/>
-                                    <div className="small text-black-50">+1 (940) 452-6011</div>
+                                    <div className="small text-black-50">
+                                        <a href="tel:+19404526011">+1 (940) 452-6011</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
