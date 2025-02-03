@@ -28,10 +28,10 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:8000',
     'http://127.0.0.1:5173',
-    'https://api.theoklahomahandyman.com',
+    'https://api.theoklahomahandyman.com:8080',
     'https://admin.theoklahomahandyman.com',
     'https://theoklahomahandyman.com',
-    'https://ohms-production.up.railway.app',
+    'https://ohms-production.up.railway.app:8080',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
@@ -142,10 +142,6 @@ else:
             'PASSWORD': os.environ.get('DB_PASSWORD'),
             'HOST': os.environ.get('DB_HOST'),
             'PORT': os.environ.get('DB_PORT'),
-            'OPTIONS': {
-                'connect_timeout': 30,
-                'application_name': 'ohms',
-            }
         }
     }
 
