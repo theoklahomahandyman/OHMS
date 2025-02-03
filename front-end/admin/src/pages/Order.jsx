@@ -2,7 +2,7 @@ import Table from '../components/reusable/Table';
 import Page from '../components/reusable/Page';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import api from '../api';
+import makeRequest from '../api';
 
 function Order() {
     const [customers, setCustomers] = useState([]);
@@ -20,7 +20,7 @@ function Order() {
     useEffect(() => {
         async function fetchCustomers() {
             try {
-                const response = await api.get('/customer/');
+                const response = await makeRequest('get', '/customer/');
                 setCustomers(response.data);
             } catch {
                 toast.error('No Customers Found!');
@@ -32,7 +32,7 @@ function Order() {
     useEffect(() => {
         async function fetchServices() {
             try {
-                const response = await api.get('/service/');
+                const response = await makeRequest('get', '/service/');
                 setServices(response.data);
             } catch {
                 toast.error('No Services Found!');

@@ -1,12 +1,12 @@
 import TextArea from '../input/TextArea';
 import { toast } from 'react-toastify';
+import makeRequest from '../../../api';
 import FormSet from '../form/FormSet';
 import Select from '../input/Select';
 import PropTypes from 'prop-types';
 import Input from '../input/Input';
 import Loading from '../Loading';
 import { useState } from 'react';
-import api from '../../../api';
 
 function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fetchData, buttonText, buttonStyle, onSuccess, customError, children }) {
     const [loading, setLoading] = useState(false);
@@ -30,19 +30,8 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fe
             });
         }
         try {
-            if (method === 'post'){
-                const response = await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-                onSuccess(response.data)
-            } else if (method === 'patch') {
-                const response = await api.patch(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-                onSuccess(response.data)
-            } else if (method === 'put') {
-                const response = await api.put(route, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-                onSuccess(response.data)
-            } else if (method === 'delete') {
-                const response = await api.delete(route);
-                onSuccess(response)
-            }
+            const response = await makeRequest(method, route, formData);
+            onSuccess(response);
         } catch (error) {
             if (error.response && error.response.data) {
                 if (setErrors) {
@@ -86,7 +75,7 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fe
 
     const removeImage = async (id) => {
         try {
-            api.delete(`${baseRoute}image/${id}/`);
+            makeRequest('delete', `${baseRoute}image/${id}/`);
             setData((prevState) => ({
                 ...prevState,
                 images: prevState.images.filter((image) => image.id !== id),

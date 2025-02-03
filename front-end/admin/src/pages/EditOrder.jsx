@@ -7,7 +7,7 @@ import Form from '../components/reusable/form/Form';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import api from '../api';
+import makeRequest from '../api';
 
 function EditOrder() {
     const [customers, setCustomers] = useState([]);
@@ -45,15 +45,15 @@ function EditOrder() {
 
     const fetchData = useCallback(async () => {
         const fetchMaterialDetail = async (order_id, material_id) => {
-            const response = await api.get(`/order/material/${order_id}/${material_id}/`);
+            const response = await makeRequest('get', `/order/material/${order_id}/${material_id}/`);
             return { name: response.data.name, cost: response.data.cost, quantity: response.data.quantity };
         };
         const fetchToolDetail = async (order_id, tool_id) => {
-            const response = await api.get(`/order/tool/${order_id}/${tool_id}/`);
+            const response = await makeRequest('get', `/order/tool/${order_id}/${tool_id}/`);
             return { name: response.data.name, quantity_used: response.data.quantity_used, quantity_broken: response.data.quantity_broken };
         };
         const fetchCostDetail = async (order_id, cost_id) => {
-            const response = await api.get(`/order/cost/${order_id}/${cost_id}/`);
+            const response = await makeRequest('get', `/order/cost/${order_id}/${cost_id}/`);
             return { name: response.data.name, cost: response.data.cost };
         };
         const updateChartData = async (orderData) => {
@@ -117,7 +117,7 @@ function EditOrder() {
         }
         setLoading(true);
         try {
-            const response = await api.get(updateRoute);
+            const response = await makeRequest('get', updateRoute);
             setData(response.data || {});
             await updateChartData(response.data);
         } catch {
@@ -134,7 +134,7 @@ function EditOrder() {
     useEffect(() => {
         async function fetchCustomers() {
             try {
-                const response = await api.get('/customer/');
+                const response = await makeRequest('get', '/customer/');
                 setCustomers(response.data);
             } catch {
                 toast.error('No Customers Found!');
@@ -146,7 +146,7 @@ function EditOrder() {
     useEffect(() => {
         async function fetchServices() {
             try {
-                const response = await api.get('/service/');
+                const response = await makeRequest('get', '/service/');
                 setServices(response.data);
             } catch {
                 toast.error('No Services Found!');
@@ -158,7 +158,7 @@ function EditOrder() {
     useEffect(() => {
         async function fetchMaterials() {
             try {
-                const response = await api.get('/material/');
+                const response = await makeRequest('get', '/material/');
                 setMaterials(response.data);
             } catch {
                 toast.error('No Materials Found!');
@@ -170,7 +170,7 @@ function EditOrder() {
     useEffect(() => {
         async function fetchTools() {
             try {
-                const response = await api.get('/tool/');
+                const response = await makeRequest('get', '/tool/');
                 setTools(response.data);
             } catch {
                 toast.error('No Tools Found!');
@@ -194,7 +194,7 @@ function EditOrder() {
     useEffect(() => {
         async function fetchUsers() {
             try {
-                const response = await api.get('/user/admin/');
+                const response = await makeRequest('get', '/user/admin/');
                 setUsers(response.data);
             } catch {
                 toast.error('No Users Found!');

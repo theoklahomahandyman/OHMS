@@ -8,7 +8,7 @@ import Nav from '../components/Nav';
 
 function Home() {
     return (
-        <div>
+        <>
             <Nav />
             <Header />
             <About />
@@ -16,7 +16,7 @@ function Home() {
             <ContactForm />
             <ContactInfo />
             <Footer />
-        </div>
+        </>
     )
 }
 

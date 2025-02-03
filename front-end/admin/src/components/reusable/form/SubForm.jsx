@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import makeRequest from '../../../api';
 import Select from '../input/Select';
 import Input from '../input/Input';
 import PropTypes from 'prop-types';
 import Loading from '../Loading';
-import api from '../../../api';
 
 function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isNew, id, name }) {
     const [data, setData] = useState(initialData || {});
@@ -42,7 +42,7 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
 
         try {
             if (isNew){
-                await api.post(route, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+                await makeRequest('post', route, formData);
                 toast.success(`${name} Successfully Added!`);
                 setEditing(false);
                 setData({});
@@ -51,7 +51,7 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
                 }
                 fetchData();
             } else if (editing) {
-                await api.patch(`${route}${id}/`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+                await makeRequest('patch', `${route}${id}/`, formData);
                 toast.success(`${name} Successfully Edited!`);
                 setEditing(false);
                 if (fetchRelatedData) {
@@ -78,7 +78,7 @@ function SubForm ({ fields, route, initialData, fetchData, fetchRelatedData, isN
         event.preventDefault();
         setLoading(true);
         try {
-            await api.delete(`${route}${id}/`);
+            await makeRequest('delete', `${route}${id}/`);
             toast.success(`${name} Successfully Removed!`);
             fetchRelatedData();
             fetchData();

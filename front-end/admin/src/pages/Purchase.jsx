@@ -2,7 +2,7 @@ import Table from '../components/reusable/Table';
 import Page from '../components/reusable/Page';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import api from '../api';
+import makeRequest from '../api';
 
 function Purchase() {
     const [suppliers, setSuppliers] = useState([]);
@@ -16,7 +16,7 @@ function Purchase() {
     useEffect(() => {
         async function fetchSuppliers() {
             try {
-                const response = await api.get('/supplier/');
+                const response = await makeRequest('get', '/supplier/');
                 setSuppliers(response.data);
             } catch {
                 toast.error('No Suppliers Found!');
@@ -31,7 +31,7 @@ function Purchase() {
                 const updatedAddresses = [];
                 await Promise.all(suppliers.map(async (supplier) => {
                     try {
-                        const response = await api.get(`/supplier/address/${supplier.id}/`);
+                        const response = await makeRequest('get', `/supplier/address/${supplier.id}/`);
                         updatedAddresses.push({
                             id: supplier.id,
                             ...response.data
@@ -52,7 +52,7 @@ function Purchase() {
         setAddresses([])
         if (supplier) {
             try {
-                const response = await api.get(`/supplier/addresses/${supplier}`);
+                const response = await makeRequest('get', `/supplier/addresses/${supplier}`);
                 setAddresses(response.data);
             } catch {
                 toast.error('No Addresses Found!');
