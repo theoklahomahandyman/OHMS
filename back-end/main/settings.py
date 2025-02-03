@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'health.apps.HealthConfig',
     'user.apps.UserConfig',
     'customer.apps.CustomerConfig',
     'material.apps.MaterialConfig',

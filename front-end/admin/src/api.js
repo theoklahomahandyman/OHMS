@@ -19,7 +19,25 @@ api.interceptors.request.use(
     }
 )
 
+const checkHealth = async (retries = 5, delay = 1000) => {
+    try {
+        const response = await api.get('/health/check/');
+        if (response.data.status === 'ready') {
+            return true;
+        }
+        throw new Error('Back-End is not connected!')
+    } catch (error) {
+        if (retries > 0) {
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            return checkHealth(retries - 1, delay * 2);
+        } else {
+            throw error;
+        }
+    }
+};
+
 const makeRequest = async (method, route, formData) => {
+    checkHealth();
     const optionalHeader = { headers: { 'Content-Type': 'multipart/form-data' } }
     let response = null;
     if (method === 'get') {
