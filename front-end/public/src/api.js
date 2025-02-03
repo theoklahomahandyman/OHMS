@@ -4,7 +4,7 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL
 });
 
-const checkHealth = async (retries = 5, delay = 1000) => {
+const checkHealth = async (retries = 6, delay = 1000) => {
     try {
         const response = await api.get('/health/check/');
         if (response.data.status === 'ready') {

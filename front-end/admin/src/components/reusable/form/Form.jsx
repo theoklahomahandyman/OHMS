@@ -102,7 +102,7 @@ function Form ({ id, fields, formsets, method, route, baseRoute, initialData, fe
                                                     <div className="file-info">
                                                         {data.images.map((image, index) => (
                                                             <div key={index} className='mb-3'>
-                                                                <a href={`http://localhost:8000${image.image}`} target="_blank" rel="noopener noreferrer">{image.image.split('/').pop()}</a>
+                                                                <a href={`${image.image}`} target="_blank" rel="noopener noreferrer">{image.image.split('/').pop()}</a>
                                                                 <button className="btn btn-sm btn-danger ml-2" type='button' onClick={() => removeImage(image.id)}>Remove</button>
                                                             </div>
                                                         ))}
