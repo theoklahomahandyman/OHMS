@@ -4,7 +4,7 @@ import Form from '../components/reusable/form/Form';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import api from '../api';
+import makeRequest from '../api';
 
 
 function Profile() {
@@ -24,7 +24,7 @@ function Profile() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const response = await api.get(route);
+                const response = await makeRequest('get', route);
                 console.log(response.data);
                 setData(response.data || {});
             } catch (error) {

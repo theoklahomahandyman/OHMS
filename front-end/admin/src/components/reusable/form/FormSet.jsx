@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
+import makeRequest from '../../../api';
 import PropTypes from 'prop-types';
 import Loading from '../Loading';
 import SubForm from './SubForm';
-import api from '../../../api';
 
 function FormSet({ entity, fields, route, fetchRelatedData, id, newEntity }) {
     const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ function FormSet({ entity, fields, route, fetchRelatedData, id, newEntity }) {
         if (!newEntity) {
             setLoading(true);
             try {
-                const response = await api.get(route);
+                const response = await makeRequest('get', route);
                 const responseData = response.data || [];
                 if (Array.isArray(responseData) && response.data.length > 0) {
                     responseData.forEach(item => {

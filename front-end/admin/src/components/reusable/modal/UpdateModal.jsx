@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import makeRequest from '../../../api';
 import PropTypes from 'prop-types';
 import Loading from '../Loading';
 import Form from '../form/Form';
-import api from '../../../api';
 import Modal from './Modal';
 
 function UpdateModal({ name, fields, formsets, route, id, fetchData }) {
@@ -17,7 +17,7 @@ function UpdateModal({ name, fields, formsets, route, id, fetchData }) {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const response = await api.get(updateRoute);
+                const response = await makeRequest('get', updateRoute);
                 setData(response.data || {});
             } catch {
                 setData({});

@@ -7,7 +7,7 @@ import Page from '../components/reusable/Page';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import api from '../api';
+import makeRequest from '../api';
 
 function EditPurchase() {
     const [suppliers, setSuppliers] = useState([]);
@@ -34,11 +34,11 @@ function EditPurchase() {
 
     const fetchData = useCallback(async () => {
         const fetchMaterialDetail = async (purchase_id, material_id) => {
-            const response = await api.get(`/purchase/material/${purchase_id}/${material_id}/`);
+            const response = await makeRequest('get', `/purchase/material/${purchase_id}/${material_id}/`);
             return { name: response.data.name, cost: response.data.cost, quantity: response.data.quantity };
         };
         const fetchToolDetail = async (purchase_id, tool_id) => {
-            const response = await api.get(`/purchase/tool/${purchase_id}/${tool_id}/`);
+            const response = await makeRequest('get', `/purchase/tool/${purchase_id}/${tool_id}/`);
             return { name: response.data.name, cost: response.data.cost, quantity: response.data.quantity };
         };
         // const fetchAssetDetail = async (purchase_id, asset_id) => {
@@ -104,7 +104,7 @@ function EditPurchase() {
         };
         setLoading(true);
         try {
-            const response = await api.get(updateRoute);
+            const response = await makeRequest('get', updateRoute);
             setData(response.data || {});
             await updateChartData(response.data);
         } catch {
@@ -121,7 +121,7 @@ function EditPurchase() {
     useEffect(() => {
         async function fetchSuppliers() {
             try {
-                const response = await api.get('/supplier/');
+                const response = await makeRequest('get', '/supplier/');
                 setSuppliers(response.data);
             } catch {
                 toast.error('No Suppliers Found!');
@@ -133,7 +133,7 @@ function EditPurchase() {
     useEffect(() => {
         async function fetchMaterials() {
             try {
-                const response = await api.get('/material/');
+                const response = await makeRequest('get', '/material/');
                 setMaterials(response.data);
             } catch {
                 toast.error('No Materials Found!');
@@ -145,7 +145,7 @@ function EditPurchase() {
     useEffect(() => {
         async function fetchTools() {
             try {
-                const response = await api.get('/tool/');
+                const response = await makeRequest('get', '/tool/');
                 setTools(response.data);
             } catch {
                 toast.error('No Tools Found!');
@@ -170,7 +170,7 @@ function EditPurchase() {
         const fetchSupplierAddresses = async () => {
             if (data.supplier) {
                 try {
-                    const response = await api.get(`/supplier/addresses/${data.supplier}`);
+                    const response = await makeRequest('get', `/supplier/addresses/${data.supplier}`);
                     setAddresses(response.data);
                 } catch {
                     toast.error('No Addresses Found!');
@@ -185,7 +185,7 @@ function EditPurchase() {
         setAddresses([])
         if (supplier) {
             try {
-                const response = await api.get(`/supplier/addresses/${supplier}`);
+                const response = await makeRequest('get', `/supplier/addresses/${supplier}`);
                 setAddresses(response.data);
             } catch {
                 toast.error('No Addresses Found!');
@@ -214,7 +214,7 @@ function EditPurchase() {
         {name: 'tax', label: 'Tax ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00},
         {name: 'material_total', label: 'Material Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'tool_total', label: 'Tool Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
-        {name: 'asset_total', label: 'Asset Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
+        // {name: 'asset_total', label: 'Asset Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'subtotal', label: 'Subtotal ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
         {name: 'total', label: 'Total ($)', required: false, elementType: 'input', type: 'number', minValue: 0.00, disabled: true},
     ];

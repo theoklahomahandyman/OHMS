@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import CreateModal from './modal/CreateModal';
 import UpdateModal from './modal/UpdateModal';
 import DeleteModal from './modal/DeleteModal';
+import makeRequest from '../../api';
 import PropTypes from 'prop-types';
 import Loading from './Loading';
-import api from '../../api';
 import $ from 'jquery';
 
 import 'datatables.net-bs4';
@@ -17,7 +17,7 @@ function Table({ name, fields, formsets, extraFields, route, updateType, related
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await api.get(route);
+            const response = await makeRequest('get', route);
             setData(response.data || []);
         } catch {
             setData([]);
