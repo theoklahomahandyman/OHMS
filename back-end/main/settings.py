@@ -28,10 +28,10 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:8000',
     'http://127.0.0.1:5173',
-    'https://api.theoklahomahandyman.com:8080',
+    'https://api.theoklahomahandyman.com',
     'https://admin.theoklahomahandyman.com',
     'https://theoklahomahandyman.com',
-    'https://ohms-production.up.railway.app:8080',
+    'https://ohms-production.up.railway.app',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
