@@ -37,7 +37,7 @@ const checkHealth = async (retries = 5, delay = 1000) => {
 };
 
 const makeRequest = async (method, route, formData) => {
-    checkHealth();
+    await checkHealth();
     const optionalHeader = { headers: { 'Content-Type': 'multipart/form-data' } }
     let response = null;
     if (method === 'get') {
