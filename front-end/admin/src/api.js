@@ -29,7 +29,7 @@ const checkHealth = async (retries = 5, delay = 1000) => {
     } catch (error) {
         if (retries > 0) {
             await new Promise((resolve) => setTimeout(resolve, delay));
-            return checkHealth(retries - 1, delay * 1.25);
+            return checkHealth(retries - 1, delay * 2);
         } else {
             throw error;
         }
