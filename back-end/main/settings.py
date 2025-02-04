@@ -22,7 +22,6 @@ DEBUG = os.environ.get('DEBUG', True)
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'api.theoklahomahandyman.com', 'admin.theoklahomahandyman.com', 'theoklahomahandyman.com', 'ohms-production.up.railway.app', 'ohms-admin.pages.dev', 'ohms.pages.dev']
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
