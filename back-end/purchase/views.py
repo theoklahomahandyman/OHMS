@@ -1,18 +1,14 @@
 from purchase.serializers import PurchaseSerializer, PurchaseMaterialSerializer, PurchaseToolSerializer
 from purchase.models import Purchase, PurchaseMaterial, PurchaseReceipt, PurchaseTool
-# from asset.serializers import AssetSerializer, AssetInstanceSerializer
+from inventory.serializers import MaterialSerializer, ToolSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
-from material.serializers import MaterialSerializer
-# from asset.models import Asset, AssetInstance
 from rest_framework.response import Response
-from tool.serializers import ToolSerializer
+from inventory.models import Material, Tool
 from rest_framework.views import APIView
-from material.models import Material
 from rest_framework import status
-from tool.models import Tool
 
-# CRUD view for purchase model
+''' CRUD view for purchase model '''
 class PurchaseView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -58,6 +54,7 @@ class PurchaseView(APIView):
         purchase.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+''' View for purchase receipt model '''
 class PurchaseReceiptView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -70,7 +67,7 @@ class PurchaseReceiptView(APIView):
         receipt.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# CRUD view for purchase material model
+''' CRUD view for purchase material model '''
 class PurchaseMaterialView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -120,11 +117,12 @@ class PurchaseMaterialView(APIView):
         purchase_material.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+''' View for purchasing new materials '''
 class PurchaseNewMaterialView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk=None, name=None):
-        return PurchaseMaterial.objects.get(purchase__pk=pk, material__name=name)
+        return PurchaseMaterial.objects.get(purchase__pk=pk, inventory_item__name=name)
 
     def post(self, request, *args, **kwargs):
         purchase_pk = kwargs.pop('purchase_pk', None)
@@ -144,7 +142,7 @@ class PurchaseNewMaterialView(APIView):
                     material = Material.objects.get(name=request.data['name'], size=request.data['size'], description=request.data['description'])
                 except ValidationError as error:
                     return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-            purchase_material_data = {'purchase': purchase_pk, 'material': material.pk, 'quantity': request.data['quantity'], 'cost': request.data['cost']}
+            purchase_material_data = {'purchase': purchase_pk, 'inventory_item': material.pk, 'quantity': request.data['quantity'], 'cost': request.data['cost']}
             serializer = PurchaseMaterialSerializer(data=purchase_material_data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -153,7 +151,7 @@ class PurchaseNewMaterialView(APIView):
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
-# CRUD view for purchase tool model
+''' CRUD view for purchase tool model '''
 class PurchaseToolView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -203,11 +201,12 @@ class PurchaseToolView(APIView):
         purchase_tool.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+''' View for purchasing new tools '''
 class PurchaseNewToolView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk=None, name=None):
-        return PurchaseTool.objects.get(purchase__pk=pk, tool__name=name)
+        return PurchaseTool.objects.get(purchase__pk=pk, inventory_item__name=name)
 
     def post(self, request, *args, **kwargs):
         purchase_pk = kwargs.pop('purchase_pk', None)
@@ -227,7 +226,7 @@ class PurchaseNewToolView(APIView):
                     tool = Tool.objects.get(name=request.data['name'], description=request.data['description'])
                 except ValidationError as error:
                     return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
-            purchase_tool_data = {'purchase': purchase_pk, 'tool': tool.pk, 'quantity': request.data['quantity'], 'cost': request.data['cost']}
+            purchase_tool_data = {'purchase': purchase_pk, 'inventory_item': tool.pk, 'quantity': request.data['quantity'], 'cost': request.data['cost']}
             serializer = PurchaseToolSerializer(data=purchase_tool_data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -236,7 +235,7 @@ class PurchaseNewToolView(APIView):
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
-# # CRUD view for purchase asset model
+''' CRUD view for purchase asset model '''
 # class PurchaseAssetView(APIView):
 #     permission_classes = [IsAuthenticated]
 
@@ -290,6 +289,7 @@ class PurchaseNewToolView(APIView):
 #         purchase_asset.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
+''' View for purchasing new assets '''
 # class PurchaseNewAssetView(APIView):
 #     permission_classes = [IsAuthenticated]
 

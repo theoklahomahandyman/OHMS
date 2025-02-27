@@ -18,7 +18,7 @@ function Tool() {
 
     return (
         <Page heading={heading} text={text}>
-            <Table fields={fields} name='Tool' route='/tool/' extraFields={extraFields} />
+            <Table fields={fields} name='Tool' route='/inventory/tool/' extraFields={extraFields} />
         </Page>
     )
 }

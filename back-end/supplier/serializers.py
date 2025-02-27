@@ -1,14 +1,14 @@
 from supplier.models import Supplier, SupplierAddress
 from rest_framework import serializers
 
-# Serializer for supplier model
+''' Serializer for supplier model '''
 class SupplierSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Supplier
         fields = ['id', 'name', 'notes']
 
-# Serializer for supplier address model
+''' Serializer for supplier address model '''
 class SupplierAddressSerializer(serializers.ModelSerializer):
 
     class Meta:

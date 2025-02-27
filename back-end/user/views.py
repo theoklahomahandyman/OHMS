@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from user.models import User
 
+''' User view for basic profile management '''
 class UserView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -27,6 +28,7 @@ class UserView(APIView):
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
+''' CRUD view for admin users '''
 class AdminView(APIView):
     permission_classes = [IsAuthenticated]
 

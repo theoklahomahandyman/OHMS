@@ -9,6 +9,7 @@ from customer.models import Customer
 from service.models import Service
 from rest_framework import status
 
+''' View for public site contact form '''
 class PublicView(APIView):
     permission_classes = [AllowAny]
 
@@ -51,7 +52,7 @@ class PublicView(APIView):
         except ValidationError as error:
             return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
 
-# CRUD view for order model
+''' CRUD view for order model '''
 class OrderView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -97,6 +98,7 @@ class OrderView(APIView):
         order.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+''' View for order picture model '''
 class OrderPictureView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -109,7 +111,7 @@ class OrderPictureView(APIView):
         picture.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-## CRUD view for order work log model
+''' CRUD view for order work log model '''
 class OrderWorkLogView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -157,12 +159,9 @@ class OrderWorkLogView(APIView):
         pk = kwargs.get('work_log_pk', None)
         work_log = self.get_object(pk)
         work_log.delete()
-        work_log.order.hours_worked = work_log.order.calculate_hours_worked()
-        work_log.order.total = work_log.order.calculate_total()
-        work_log.order.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-## CRUD view for order cost model
+''' CRUD view for order cost model '''
 class OrderCostView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -210,11 +209,9 @@ class OrderCostView(APIView):
         pk = kwargs.get('cost_pk', None)
         cost = self.get_object(pk)
         cost.delete()
-        cost.order.total = cost.order.calculate_total()
-        cost.order.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-## CRUD view for order material model
+''' CRUD view for order material model '''
 class OrderMaterialView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -262,11 +259,9 @@ class OrderMaterialView(APIView):
         pk = kwargs.get('material_pk', None)
         material = self.get_object(pk)
         material.delete()
-        material.order.save()
-        material.material.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-## CRUD view for order tool model
+''' CRUD view for order tool model '''
 class OrderToolView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -314,11 +309,9 @@ class OrderToolView(APIView):
         pk = kwargs.get('tool_pk', None)
         tool = self.get_object(pk)
         tool.delete()
-        tool.order.save()
-        tool.tool.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# ## CRUD view for order asset model
+''' CRUD view for order asset model '''
 # class OrderAssetView(APIView):
 #     permission_classes = [IsAuthenticated]
 
@@ -368,7 +361,7 @@ class OrderToolView(APIView):
 #         asset.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
-## CRUD view for order payment model
+''' CRUD view for order payment model '''
 class OrderPaymentView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -416,10 +409,9 @@ class OrderPaymentView(APIView):
         pk = kwargs.get('payment_pk', None)
         payment = self.get_object(pk)
         payment.delete()
-        payment.order.determine_paid()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-## CRUD view for order worker model
+''' CRUD view for order worker model '''
 class OrderWorkerView(APIView):
     permission_classes = [IsAuthenticated]
 
