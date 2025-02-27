@@ -92,7 +92,7 @@ class Order(models.Model):
     ''' Dynamically calculate if the order is paid '''
     @property
     def paid(self):
-        if self.working_total == 0:
+        if round(self.working_total, 2) <= 0:
             return True
         else:
             return False
@@ -125,7 +125,7 @@ class OrderCost(AtomicOperationsMixin, models.Model):
 '''
 class OrderPicture(AtomicOperationsMixin, models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='images')
-    image = PresignedURLImageField(upload_to='orders', null=True, blank=True)
+    image = PresignedURLImageField(folder_name='orders', null=True, blank=True)
 
 ''' Abstract base model for order inventory items with shared fields and overrides '''
 class OrderInventory(AtomicOperationsMixin, models.Model):
