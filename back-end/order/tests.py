@@ -115,7 +115,7 @@ class TestOrderModels(TestCase):
     def test_labor_total(self):
         OrderWorkLog.objects.create(order=self.order, start=timezone.now() - timezone.timedelta(hours=5), end=timezone.now())
         self.order.hourly_rate = 100
-        self.assertAlmostEqual(self.order.labor_total, 500.0, places=2)
+        self.assertAlmostEqual(self.order.labor_total, Decimal(500.0), places=2)
 
     ''' Test order calculate material total '''
     def test_material_total(self):
