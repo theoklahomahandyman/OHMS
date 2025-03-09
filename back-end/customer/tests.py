@@ -7,20 +7,22 @@ from django.test import TestCase
 from django.urls import reverse
 from user.models import User
 
-# Tests for customer model
+''' Tests for customer model '''
 class TestCustomerModel(TestCase):
 
+    ''' Set up test data '''
     @classmethod
     def setUpTestData(cls):
         cls.customer = Customer.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901')
 
-    ## Test string method for customer model
+    ''' Test string method for customer model '''
     def test_customer_string(self):
         self.assertEqual(str(self.customer), f'{self.customer.first_name} {self.customer.last_name}')
 
-# Tests for customer serializer
+''' Tests for customer serializer '''
 class TestCustomerSerializer(TestCase):
 
+    ''' Set up test data '''
     @classmethod
     def setUpTestData(cls):
         cls.long_string = 'a' * 256
@@ -56,7 +58,7 @@ class TestCustomerSerializer(TestCase):
             'phone': '45 (192) 937-9329',
         }
 
-    ## Test validate with empty data
+    ''' Test validate with empty data '''
     def test_validate_empty_data(self):
         serializer = CustomerSerializer(data=self.empty_data)
         self.assertFalse(serializer.is_valid())
@@ -65,7 +67,7 @@ class TestCustomerSerializer(TestCase):
         self.assertIn('email', serializer.errors)
         self.assertIn('phone', serializer.errors)
 
-    ## Test validate with data too long
+    ''' Test validate with data too long '''
     def test_validate_long_data(self):
         serializer = CustomerSerializer(data=self.long_data)
         self.assertFalse(serializer.is_valid())
@@ -74,7 +76,7 @@ class TestCustomerSerializer(TestCase):
         self.assertIn('email', serializer.errors)
         self.assertIn('phone', serializer.errors)
 
-    ## Test validate with data too short
+    ''' Test validate with data too short '''
     def test_validate_short_data(self):
         serializer = CustomerSerializer(data=self.short_data)
         self.assertFalse(serializer.is_valid())
@@ -83,14 +85,14 @@ class TestCustomerSerializer(TestCase):
         self.assertIn('email', serializer.errors)
         self.assertIn('phone', serializer.errors)
 
-    ## Test validate with incorrectly formatted phone number
+    ''' Test validate with incorrectly formatted phone number '''
     def test_validate_incorrectly_formatted_phone(self):
         self.create_data['phone'] = '+51-234-567-8901'
         serializer = CustomerSerializer(data=self.create_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('phone', serializer.errors)
 
-    ## Test create success
+    ''' Test create success '''
     def test_create_success(self):
         serializer = CustomerSerializer(data=self.create_data)
         self.assertTrue(serializer.is_valid())
@@ -102,7 +104,7 @@ class TestCustomerSerializer(TestCase):
         self.assertEqual(customer.email, self.create_data['email'])
         self.assertEqual(customer.phone, self.create_data['phone'])
 
-    ## Test update success
+    ''' Test update success '''
     def test_update_success(self):
         serializer = CustomerSerializer(instance=self.customer, data=self.update_data)
         self.assertTrue(serializer.is_valid())
@@ -113,9 +115,10 @@ class TestCustomerSerializer(TestCase):
         self.assertEqual(customer.email, self.update_data['email'])
         self.assertEqual(customer.phone, self.update_data['phone'])
 
-# Tests for customer view
+''' Tests for customer view '''
 class TestCustomerView(APITestCase):
 
+    ''' Set up test data '''
     @classmethod
     def setUpTestData(cls):
         cls.client = APIClient()
@@ -160,14 +163,14 @@ class TestCustomerView(APITestCase):
             'phone': '45 (192) 937-9329',
         }
 
-    ## Test get customer not found
+    ''' Test get customer not found '''
     def test_get_customer_not_found(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.detail_url(96))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data['detail'], 'Customer Not Found.')
 
-    ## Test get customer success
+    ''' Test get customer success '''
     def test_get_customer_success(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.detail_url(self.customer.pk))
@@ -177,14 +180,14 @@ class TestCustomerView(APITestCase):
         self.assertEqual(response.data['email'], self.customer.email)
         self.assertEqual(response.data['phone'], self.customer.phone)
 
-    ## Test get customers success
+    ''' Test get customers success '''
     def test_get_customers_success(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), Customer.objects.count())
 
-    ## Test create customer with empty data
+    ''' Test create customer with empty data '''
     def test_create_customer_empty_data(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.list_url, data=self.empty_data)
@@ -194,7 +197,7 @@ class TestCustomerView(APITestCase):
         self.assertIn('email', response.data)
         self.assertIn('phone', response.data)
 
-    ## Test create customer with short data
+    ''' Test create customer with short data '''
     def test_create_customer_short_data(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.list_url, data=self.short_data)
@@ -204,7 +207,7 @@ class TestCustomerView(APITestCase):
         self.assertIn('email', response.data)
         self.assertIn('phone', response.data)
 
-    ## Test create customer with long data
+    ''' Test create customer with long data '''
     def test_create_customer_long_data(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.list_url, data=self.long_data)
@@ -214,7 +217,7 @@ class TestCustomerView(APITestCase):
         self.assertIn('email', response.data)
         self.assertIn('phone', response.data)
 
-    ## Test create customer with existing email
+    ''' Test create customer with existing email '''
     def test_create_customer_existing_email(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.list_url, data=self.create_data)
@@ -223,7 +226,7 @@ class TestCustomerView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('email', response.data)
 
-    ## Test create customer with invalid phone
+    ''' Test create customer with invalid phone '''
     def test_create_customer_invalid_phone(self):
         self.client.force_authenticate(user=self.user)
         invalid_phone_data = self.create_data.copy()
@@ -232,7 +235,7 @@ class TestCustomerView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('phone', response.data)
 
-    ## Test create customer success
+    ''' Test create customer success '''
     def test_create_customer_success(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.list_url, data=self.create_data)
@@ -244,7 +247,7 @@ class TestCustomerView(APITestCase):
         self.assertEqual(customer.email, self.create_data['email'])
         self.assertEqual(customer.phone, self.create_data['phone'])
 
-    ## Test update customer with empty data
+    ''' Test update customer with empty data '''
     def test_update_customer_empty_data(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.customer.pk), data=self.empty_data)
@@ -254,7 +257,7 @@ class TestCustomerView(APITestCase):
         self.assertIn('email', response.data)
         self.assertIn('phone', response.data)
 
-    ## Test update customer with short data
+    ''' Test update customer with short data '''
     def test_update_customer_short_data(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.customer.pk), data=self.short_data)
@@ -264,7 +267,7 @@ class TestCustomerView(APITestCase):
         self.assertIn('email', response.data)
         self.assertIn('phone', response.data)
 
-    ## Test update customer with long data
+    ''' Test update customer with long data '''
     def test_update_customer_long_data(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.customer.pk), data=self.long_data)
@@ -274,7 +277,7 @@ class TestCustomerView(APITestCase):
         self.assertIn('email', response.data)
         self.assertIn('phone', response.data)
 
-    ## Test update customer with existing email
+    ''' Test update customer with existing email '''
     def test_update_customer_existing_email(self):
         self.client.force_authenticate(user=self.user)
         another_customer = Customer.objects.create(first_name='Jane', last_name='Doe', email='janedoe@example.com', phone='1 (586) 375-3896')
@@ -282,14 +285,14 @@ class TestCustomerView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('email', response.data)
 
-    ## Test update customer with invalid phone
+    ''' Test update customer with invalid phone '''
     def test_update_customer_with_invalid_phone(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.customer.pk), data={'phone': '+51-234-567-8901'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('phone', response.data)
 
-    ## Test update customer success
+    ''' Test update customer success '''
     def test_update_customer_success(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(self.detail_url(self.customer.pk), data=self.patch_data)
@@ -297,7 +300,7 @@ class TestCustomerView(APITestCase):
         customer = Customer.objects.get(pk=self.customer.pk)
         self.assertEqual(customer.email, self.patch_data['email'])
 
-    ## Test delete customer success
+    ''' Test delete customer success '''
     def test_delete_customer_success(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(self.detail_url(self.customer.pk))

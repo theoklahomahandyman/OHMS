@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from customer.models import Customer
 from rest_framework import status
 
+''' CRUD view for customer model '''
 class CustomerView(APIView):
     permission_classes = [IsAuthenticated]
 

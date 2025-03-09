@@ -1,8 +1,9 @@
 from django.core.validators import MinLengthValidator, MaxLengthValidator
+from utils.mixins import AtomicOperationsMixin
 from django.db import models
 
-# Customer model
-class Customer(models.Model):
+''' Model for customers '''
+class Customer(AtomicOperationsMixin, models.Model):
     first_name = models.CharField(max_length=100, validators=[MinLengthValidator(2), MaxLengthValidator(100)])
     last_name = models.CharField(max_length=100, validators=[MinLengthValidator(2), MaxLengthValidator(100)])
     email = models.EmailField(unique=True, max_length=255, validators=[MinLengthValidator(8), MaxLengthValidator(255)])

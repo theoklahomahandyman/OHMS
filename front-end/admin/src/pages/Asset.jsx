@@ -14,7 +14,7 @@ function Asset() {
 
     return (
         <Page heading={heading} text={text}>
-            <Table fields={fields} name='Asset' route='/asset/' updateType='page' />
+            <Table fields={fields} name='Asset' route='/inventory/asset/' updateType='page' />
         </Page>
     )
 }

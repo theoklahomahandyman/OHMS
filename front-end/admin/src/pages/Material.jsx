@@ -19,7 +19,7 @@ function Material() {
 
     return (
         <Page heading={heading} text={text}>
-            <Table fields={fields} name='Material' route='/material/' extraFields={extraFields} />
+            <Table fields={fields} name='Material' route='/inventory/material/' extraFields={extraFields} />
         </Page>
     )
 }

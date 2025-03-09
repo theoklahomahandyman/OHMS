@@ -1,41 +1,42 @@
 from order.models import Order, OrderCost, OrderMaterial, OrderTool, OrderPicture, OrderPayment, OrderWorkLog, OrderWorker
 from rest_framework import serializers
+from decimal import Decimal
 
-# Serializer for order picture model
+''' Serializer for order picture model '''
 class OrderPictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderPicture
         fields = ['id', 'order', 'image']
 
-# Serializer for order work log model
+''' Serializer for order work log model '''
 class OrderWorkLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderWorkLog
         fields = ['id', 'order', 'start', 'end']
 
-# Serializer for order cost model
+''' Serializer for order cost model '''
 class OrderCostSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderCost
         fields = ['id', 'order', 'name', 'cost']
 
-# Serializer for order material model
+''' Serializer for order material model '''
 class OrderMaterialSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='material.name', read_only=True)
+    name = serializers.CharField(source='inventory_item.name', read_only=True)
 
     class Meta:
         model = OrderMaterial
-        fields = ['id', 'order', 'material', 'name', 'quantity', 'cost']
+        fields = ['id', 'order', 'inventory_item', 'name', 'quantity', 'cost']
 
-# Serializer for order tool model
+''' Serializer for order tool model '''
 class OrderToolSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='tool.name', read_only=True)
+    name = serializers.CharField(source='inventory_item.name', read_only=True)
 
     class Meta:
         model = OrderTool
-        fields = ['id', 'order', 'tool', 'name', 'quantity_used', 'quantity_broken']
+        fields = ['id', 'order', 'inventory_item', 'name', 'quantity', 'quantity_broken']
 
-# # Serializer for order asset model
+''' Serializer for order asset model '''
 # class OrderAssetSerializer(serializers.ModelSerializer):
 #     name = serializers.CharField(source='instance.asset.name', read_only=True)
 #     serial_number = serializers.CharField(source='instance.serial_number', read_only=True)
@@ -44,19 +45,19 @@ class OrderToolSerializer(serializers.ModelSerializer):
 #         model = OrderAsset
 #         fields = ['id', 'order', 'instance', 'name', 'serial_number', 'usage', 'condition']
 
-# Serializer for order payment model
+''' Serializer for order payment model '''
 class OrderPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderPayment
         fields = ['id', 'order', 'type', 'date', 'total', 'notes']
 
-# Serializer for order worker model
+''' Serializer for order worker model '''
 class OrderWorkerSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderWorker
         fields = ['id', 'order', 'user', 'total']
 
-# Serializer for order model
+''' Serializer for order model '''
 class OrderSerializer(serializers.ModelSerializer):
     images = OrderPictureSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False), write_only=True, required=False)
@@ -68,6 +69,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'customer', 'callout', 'date', 'description', 'service', 'hourly_rate', 'hours_worked', 'labor_total', 'material_upcharge', 'material_total', 'line_total', 'subtotal', 'tax', 'tax_total','completed', 'paid', 'discount', 'discount_total', 'total', 'payment_total', 'working_total', 'notes', 'images', 'uploaded_images', 'materials', 'tools', 'costs']
 
+    ''' Override create method to handle uploading images '''
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])
         order = Order.objects.create(**validated_data)
@@ -75,6 +77,7 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderPicture.objects.create(order=order, image=image)
         return order
 
+    ''' Override update method to handle deleting images and updating fields'''
     def update(self, instance, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])
         instance.customer = validated_data.get('customer', instance.customer)

@@ -1,10 +1,11 @@
 from django.core.validators import MinLengthValidator, MaxLengthValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
+from utils.mixins import AtomicOperationsMixin
 from django.db import models
 from decimal import Decimal
 
-# User model
-class User(AbstractUser):
+''' Model for users '''
+class User(AtomicOperationsMixin, AbstractUser):
     username = None
     first_name = models.CharField(max_length=100, validators=[MinLengthValidator(2), MaxLengthValidator(100)])
     last_name = models.CharField(max_length=100, validators=[MinLengthValidator(2), MaxLengthValidator(100)])

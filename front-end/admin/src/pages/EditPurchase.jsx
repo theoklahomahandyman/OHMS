@@ -220,7 +220,7 @@ function EditPurchase() {
     ];
 
     const materialFields = [
-        {name: 'material', label: 'Material', required: true, elementType: 'select', data: materials.map(material => ({ value: material.id, label: material.name }))},
+        {name: 'inventory_item', label: 'Material', required: true, elementType: 'select', data: materials.map(material => ({ value: material.id, label: material.name }))},
         {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
     ];
@@ -234,7 +234,7 @@ function EditPurchase() {
     ];
 
     const toolFields = [
-        {name: 'tool', label: 'Tool', required: true, elementType: 'select', data: tools.map(tool => ({ value: tool.id, label: tool.name }))},
+        {name: 'inventory_item', label: 'Tool', required: true, elementType: 'select', data: tools.map(tool => ({ value: tool.id, label: tool.name }))},
         {name: 'quantity', label: 'Quantity', type: 'number', required: true, elementType: 'input'},
         {name: 'cost', label: 'Cost', type: 'number', required: true, elementType: 'input'},
     ];

@@ -1,27 +1,27 @@
 from purchase.models import Purchase, PurchaseMaterial, PurchaseReceipt, PurchaseTool
 from rest_framework import serializers
 
-# Serializer for purchase receipt model
+''' Serializer for purchase receipt model '''
 class PurchaseReceiptSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseReceipt
         fields = ['id', 'purchase', 'image']
 
-# Serializer for purchase material model
+''' Serializer for purchase material model '''
 class PurchaseMaterialSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='material.name', read_only=True)
+    name = serializers.CharField(source='inventory_item.name', read_only=True)
 
     class Meta:
         model = PurchaseMaterial
-        fields = ['id', 'purchase', 'material', 'name', 'quantity', 'cost']
+        fields = ['id', 'purchase', 'inventory_item', 'name', 'quantity', 'cost']
 
-# Serializer for purchase tool model
+''' Serializer for purchase tool model '''
 class PurchaseToolSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='tool.name', read_only=True)
+    name = serializers.CharField(source='inventory_item.name', read_only=True)
 
     class Meta:
         model = PurchaseTool
-        fields = ['id', 'purchase', 'tool', 'name', 'quantity', 'cost']
+        fields = ['id', 'purchase', 'inventory_item', 'name', 'quantity', 'cost']
 
 # class PurchaseAssetSerializer(serializers.ModelSerializer):
 #     asset = serializers.CharField(source='instance.asset', read_only=True)
@@ -35,7 +35,7 @@ class PurchaseToolSerializer(serializers.ModelSerializer):
 #         model = PurchaseAsset
 #         fields = ['id', 'purchase', 'instance', 'asset', 'asset_name', 'serial_number', 'cost', 'charge', 'last_maintenance', 'next_maintenance', 'usage', 'condition']
 
-# Serializer for purchase model
+''' Serializer for purchase model '''
 class PurchaseSerializer(serializers.ModelSerializer):
     images = PurchaseReceiptSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False), write_only=True)
@@ -59,7 +59,6 @@ class PurchaseSerializer(serializers.ModelSerializer):
         instance.supplier = validated_data.get('supplier', instance.supplier)
         instance.supplier_address = validated_data.get('supplier_address', instance.supplier_address)
         instance.tax = validated_data.get('tax', instance.tax)
-        instance.total = validated_data.get('total', instance.total)
         instance.date = validated_data.get('date', instance.date)
         instance.save()
         for image in uploaded_images:

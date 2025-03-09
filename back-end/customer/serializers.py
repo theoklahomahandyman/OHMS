@@ -2,7 +2,7 @@ from rest_framework import serializers
 from customer.models import Customer
 import re
 
-# Serializer for customer model
+''' Serializer for customer model '''
 class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
