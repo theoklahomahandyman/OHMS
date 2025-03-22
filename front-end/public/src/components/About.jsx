@@ -1,9 +1,11 @@
+import { Container, Row, Col } from 'react-bootstrap';
+
 function About() {
     return (
         <section className="about-section text-center" id="about" aria-label="About Oklahoma Handyman Service">
-            <div className="container px-4 px-lg-5">
-                <div className="row gx-4 gx-lg-5 justify-content-center">
-                    <div className="col-lg-8">
+            <Container className="px-4 px-lg-5">
+                <Row className="gx-4 gx-lg-5 justify-content-center">
+                    <Col lg={8}>
                         <h2 className="text-white mb-4">Oklahoma Handyman Service</h2>
                         <p className="text-white">
                             We proudly offer a wide range of home repair and maintenance services throughout the central Oklahoma area.
@@ -15,12 +17,12 @@ function About() {
                             Ready to start your project?{" "}
                             <a href="#contact" aria-label="Contact us for a quote">Contact us today</a>!
                         </p>
-                    </div>
-                </div>
+                    </Col>
+                </Row>
                 {/* <img className="img-fluid" src="assets/img/ipad.png" alt="Example of our handyman services in action" /> */}
-            </div>
+            </Container>
         </section>
-    )
+    );
 }
 
 export default About;

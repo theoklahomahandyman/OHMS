@@ -4,12 +4,12 @@ import Projects from '../components/Projects';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import About from '../components/About';
-import Nav from '../components/Nav';
+import NavBar from '../components/Nav';
 
 function Home() {
     return (
         <>
-            <Nav />
+            <NavBar />
             <Header />
             <About />
             <Projects />

@@ -1,3 +1,4 @@
+import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import submit_contact_form from '../api';
 import { toast } from 'react-toastify';
@@ -33,7 +34,7 @@ function ContactForm() {
         setErrors({ first_name: '', last_name: '', email: '', phone: '', date: '', description: '' });
         setConfirmEmail('');
         toast.success('Your request has been successfully submitted. We will be in touch soon!');
-    }
+    };
 
     const handleError = (data) => {
         const formattedErrors = {};
@@ -52,7 +53,7 @@ function ContactForm() {
             }
         }
         setErrors(formattedErrors);
-    }
+    };
 
     const formatPhone = (digits) => {
         // Remove any non-digit characters to simplify the formatting logic
@@ -120,78 +121,85 @@ function ContactForm() {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <section className="signup-section" id="contact" aria-label="Contact form for Oklahoma Handyman Service">
-            <div className="container px-4 px-lg-5">
-                <div className="row gx-4 gx-lg-5">
-                    <div className="col-md-10 col-lg-8 mx-auto text-center">
+            <Container className="px-4 px-lg-5">
+                <Row className="gx-4 gx-lg-5 justify-content-center">
+                    <Col md={10} lg={8} className="mx-auto text-center">
                         <i className="far fa-paper-plane fa-2x mb-2 text-white" aria-hidden="true"></i>
                         <h2 className="text-white mb-5">Contact us to get started with your project!</h2>
-                        <form className="form" id="contactForm" onSubmit={handleSubmit}>
+                        <Form id="contactForm" onSubmit={handleSubmit}>
                             {loading ? <Loading /> : (
                                 <>
-                                    <div className="row mb-3">
+                                    <Row className="mb-3">
                                         {/* First name input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="first_name" className="sr-only">First Name</label>
-                                            <input type="text" id="first_name" name="first_name" value={data['first_name']} onChange={handleChange} className="form-control" required placeholder="John" minLength="2" maxLength="100" aria-describedby='first_name_error'/>
-                                        </div>
-                                        {errors['first_name'] && <div className='alert alert-danger mt-2' id="first_name_error">{errors['first_name']}</div>}
+                                        <Col md={6}>
+                                            <Form.Group controlId="first_name">
+                                                <Form.Control type="text" placeholder="First Name" value={data.first_name} onChange={handleChange} required />
+                                                {errors.first_name && <Alert variant="danger" className="mt-2">{errors.first_name}</Alert>}
+                                            </Form.Group>
+                                        </Col>
                                         {/* Last name input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="last_name" className='sr-only'>Last Name</label>
-                                            <input type="text" id="last_name" name="last_name" value={data['last_name']} onChange={handleChange} className="form-control" required placeholder="Doe" minLength="2" maxLength="100" aria-describedby='last_name_error' />
-                                        </div>
-                                        {errors['last_name'] && <div className='alert alert-danger mt-2' id="last_name_error">{errors['last_name']}</div>}
-                                    </div>
-                                    <div className="row mb-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="last_name">
+                                                <Form.Control type="text" placeholder="Last Name" value={data.last_name} onChange={handleChange} required />
+                                                {errors.last_name && <Alert variant="danger" className="mt-2">{errors.last_name}</Alert>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
                                         {/* Email input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="email" className='sr-only'>Email</label>
-                                            <input type="email" id="email" name="email" value={data['email']} onChange={handleChange} className="form-control" required placeholder="johndoe@example.com" minLength="8" maxLength="255" aria-describedby='email_error' />
-                                        </div>
-                                        {errors['email'] && <div className='alert alert-danger mt-2' id="email_error">{errors['email']}</div>}
+                                        <Col md={6}>
+                                            <Form.Group controlId="email">
+                                                <Form.Control type="email" placeholder="Email" value={data.email} onChange={handleChange} required />
+                                                {errors.email && <Alert variant="danger" className="mt-2">{errors.email}</Alert>}
+                                            </Form.Group>
+                                        </Col>
                                         {/* Confirm email input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="confirm_email" className='sr-only'>Confirm Email</label>
-                                            <input type="email" id="confirm_email" name="confirm_email" value={confirmEmail} onChange={() => setConfirmEmail(event.target.value)} className="form-control" required placeholder="johndoe@example.com" minLength="8" maxLength="255" aria-describedby='confirm_email_error' />
-                                        </div>
-                                        {errors['confirm_email'] && <div className='alert alert-danger mt-2' id="confirm_email_error">{errors['confirm_email']}</div>}
-                                    </div>
-                                    <div className="row mb-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="confirm_email">
+                                                <Form.Control type="email" placeholder="Email" value={data.confirm_email} onChange={(e) => setConfirmEmail(e.target.value)} required />
+                                                {errors.confirm_email && <Alert variant="danger" className="mt-2">{errors.confirm_email}</Alert>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
                                         {/* Phone number input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="phone" className='sr-only'>Phone Number</label>
-                                            <input type="text" id="phone" name="phone" value={data['phone']} onChange={handleChange} className="form-control" required placeholder="1 (234) 567-8901" minLength="16" maxLength="17" aria-describedby='phone_error' />
-                                        </div>
-                                        {errors['phone'] && <div className='alert alert-danger mt-2' id="phone_error">{errors['phone']}</div>}
+                                        <Col md={6}>
+                                            <Form.Group controlId="phone">
+                                                <Form.Control type="text" placeholder="Phone Number" value={data.phone} onChange={handleChange} required />
+                                                {errors.phone && <Alert variant="danger" className="mt-2">{errors.phone}</Alert>}
+                                            </Form.Group>
+                                        </Col>
                                         {/* Date input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="date" className='sr-only'>Project Date</label>
-                                            <input type="date" id="date" name="date" value={data['date']} onChange={handleChange} className="form-control" required aria-describedby='date_error' />
-                                        </div>
-                                        {errors['date'] && <div className='alert alert-danger mt-2' id="date_error">{errors['date']}</div>}
-                                    </div>
-                                    <div className="row mb-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="date">
+                                                <Form.Control type="date" placeholder="Project Date" value={data.date} onChange={handleChange} required />
+                                                {errors.date && <Alert variant="danger" className="mt-2">{errors.date}</Alert>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
                                         {/* Description input */}
-                                        <div className="form-group col-12 mb-2">
-                                            <label htmlFor="description" className='sr-only'>Project Description</label>
-                                            <textarea id="description" name="description" value={data['description']} onChange={handleChange} className="form-control" required placeholder="Please write a description of the project..." minLength="2" maxLength="2000" aria-describedby='description_error'></textarea>
-                                        </div>
-                                        {errors['description'] && <div className='alert alert-danger mt-2' id="description_error">{errors['description']}</div>}
-                                    </div>
+                                        <Col md={12}>
+                                            <Form.Group controlId="description">
+                                                <Form.Control as="textarea" rows={6} placeholder="Description" value={data.description} onChange={handleChange} required />
+                                                {errors.description && <Alert variant="danger" className="mt-2">{errors.description}</Alert>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
                                     {/* Submit button */}
-                                    <button id="submit" className="btn btn-primary" type="submit" aria-label="Submit contact form">Submit</button>
+                                    <Button variant="primary" type="submit" aria-label="Submit contact form" disabled={loading}>{ loading ? 'Submitting...' : 'Submit' }</Button>
                                 </>
                             )}
-                        </form>
-                    </div>
-                </div>
-            </div>
+                        </Form>
+                    </Col>
+                </Row>
+            </Container>
         </section>
-    )
+    );
 }
 
 export default ContactForm;

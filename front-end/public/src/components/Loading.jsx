@@ -1,12 +1,13 @@
-import '../styles/loading.css';
+import { Spinner } from 'react-bootstrap';
 
 function Loading() {
     return (
-        <div className='spinner'>
-            <div className="double-bounce1"></div>
-            <div className="double-bounce2"></div>
+        <div className="text-center">
+            <Spinner animation="border" role="status" variant="light">
+                <span className="sr-only">Loading...</span>
+            </Spinner>
         </div>
-    )
+    );
 }
 
 export default Loading;
