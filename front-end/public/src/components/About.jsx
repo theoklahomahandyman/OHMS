@@ -8,6 +8,12 @@ function About() {
                         <p className="text-white">
                             We proudly offer a wide range of home repair and maintenance services throughout the central Oklahoma area.
                             Whether you need property maintenance, drywall repair, fence construction, or other home improvement tasks, we&apos;ve got you covered!
+                            Check out our <a href="#projects" aria-label="View our completed projects">completed projects</a> to see our work in action
+                        </p>
+                        <p className="text-white">
+                            Serving Moore, Oklahoma City, Norman, and the surrounding areas, we are committed to delivering quality craftsmanshsip and exceptional customer service.
+                            Ready to start your project?{" "}
+                            <a href="#contact" aria-label="Contact us for a quote">Contact us today</a>!
                         </p>
                     </div>
                 </div>
