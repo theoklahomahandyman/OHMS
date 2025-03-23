@@ -1,22 +1,24 @@
-function Nav() {
+import { Navbar, Nav, Container } from 'react-bootstrap';
+
+function NavBar() {
     return (
-        <nav className="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav" aria-label="Navigation Bar for Oklahoma Handyman Service">
-            <div className="container px-4 px-lg-5 d-flex justify-content-between">
-                <a className="navbar-brand" href="#page-top" aria-label="Oklahoma Handyman Service Home">OHMS</a>
-                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
-                    aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation bar">
-                    <span className="navbar-toggler-icon"></span>
-                </button>
-                <div className="collapse navbar-collapse" id="navbarResponsive">
-                    <ul className="navbar-nav ms-auto">
-                        <li className="nav-item"><a className="nav-link" href="#about">About</a></li>
-                        <li className="nav-item"><a className="nav-link" href="#projects">Projects</a></li>
-                        <li className="nav-item"><a className="nav-link" href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    )
+        <Navbar expand="lg" className="navbar-light fixed-top" id="mainNav" aria-label="Navigation Bar for Oklahoma Handyman Service">
+            <Container>
+                {/* Brand logo */}
+                <Navbar.Brand href="#page-top" aria-label="Oklahoma Handyman Service Home">OHMS</Navbar.Brand>
+                {/* Toggle button for mobile */}
+                <Navbar.Toggle aria-controls="navbarResponsive" aria-label="Toggle navigation bar" />
+                {/* Collapsisble menu */}
+                <Navbar.Collapse id="navbarResponsive">
+                    <Nav className="ms-auto">
+                        <Nav.Link href="#about">About</Nav.Link>
+                        <Nav.Link href="#projects">Projects</Nav.Link>
+                        <Nav.Link href="#contact">Contact Us</Nav.Link>
+                    </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
+    );
 }
 
-export default Nav;
+export default NavBar;

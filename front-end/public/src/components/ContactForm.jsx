@@ -1,3 +1,4 @@
+import { Container, Row, Col, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import submit_contact_form from '../api';
 import { toast } from 'react-toastify';
@@ -9,6 +10,15 @@ function ContactForm() {
     const [data, setData] = useState({ first_name: '', last_name: '', email: '', phone: '', date: '', description: '' });
 
     const [confirmEmail, setConfirmEmail] = useState('');
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [agreePrivacy, setAgreePrivacy] = useState(false);
+    const [showTerms, setShowTerms] = useState(false);
+    const [showPrivacy, setShowPrivacy] = useState(false);
+
+    const handleShowTerms = () => setShowTerms(true);
+    const handleCloseTerms = () => setShowTerms(false);
+    const handleShowPrivacy = () => setShowPrivacy(true);
+    const handleClosePrivacy = () => setShowPrivacy(false);
 
     useEffect(() => {
         const checkEmail = () => {
@@ -32,8 +42,10 @@ function ContactForm() {
         setData({ first_name: '', last_name: '', email: '', phone: '', date: '', description: '' });
         setErrors({ first_name: '', last_name: '', email: '', phone: '', date: '', description: '' });
         setConfirmEmail('');
+        setAgreeTerms(false);
+        setAgreePrivacy(false);
         toast.success('Your request has been successfully submitted. We will be in touch soon!');
-    }
+    };
 
     const handleError = (data) => {
         const formattedErrors = {};
@@ -52,7 +64,7 @@ function ContactForm() {
             }
         }
         setErrors(formattedErrors);
-    }
+    };
 
     const formatPhone = (digits) => {
         // Remove any non-digit characters to simplify the formatting logic
@@ -102,6 +114,13 @@ function ContactForm() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
+        if (!agreeTerms || !agreePrivacy) {
+            setErrors(prev => ({
+                ...prev,
+                non_field_errors: ['Please read and accept both our terms of use and privacy policy']
+            }));
+            return;
+        }
         const formData = new FormData();
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -120,78 +139,172 @@ function ContactForm() {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <section className="signup-section" id="contact" aria-label="Contact form for Oklahoma Handyman Service">
-            <div className="container px-4 px-lg-5">
-                <div className="row gx-4 gx-lg-5">
-                    <div className="col-md-10 col-lg-8 mx-auto text-center">
+            <Container className="px-4 px-lg-5">
+                <Row className="gx-4 gx-lg-5 justify-content-center">
+                    <Col md={10} lg={8} className="mx-auto text-center">
                         <i className="far fa-paper-plane fa-2x mb-2 text-white" aria-hidden="true"></i>
-                        <h2 className="text-white mb-5">Contact us to get started with your project!</h2>
-                        <form className="form" id="contactForm" onSubmit={handleSubmit}>
+                        <h3 className="text-white mb-5">Contact us to get started with your project!</h3>
+                        <Form id="contactForm" onSubmit={handleSubmit}>
                             {loading ? <Loading /> : (
                                 <>
-                                    <div className="row mb-3">
+                                    <Row className="mb-3">
                                         {/* First name input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="first_name" className="sr-only">First Name</label>
-                                            <input type="text" id="first_name" name="first_name" value={data['first_name']} onChange={handleChange} className="form-control" required placeholder="John" minLength="2" maxLength="100" aria-describedby='first_name_error'/>
-                                        </div>
-                                        {errors['first_name'] && <div className='alert alert-danger mt-2' id="first_name_error">{errors['first_name']}</div>}
+                                        <Col md={6} className="mb-2">
+                                            <Form.Group controlId="first_name">
+                                                <Form.Control type="text" placeholder="First Name" value={data.first_name} onChange={handleChange} required />
+                                                {errors.first_name && <Alert variant="danger" className="mt-2">{errors.first_name}</Alert>}
+                                            </Form.Group>
+                                        </Col>
                                         {/* Last name input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="last_name" className='sr-only'>Last Name</label>
-                                            <input type="text" id="last_name" name="last_name" value={data['last_name']} onChange={handleChange} className="form-control" required placeholder="Doe" minLength="2" maxLength="100" aria-describedby='last_name_error' />
-                                        </div>
-                                        {errors['last_name'] && <div className='alert alert-danger mt-2' id="last_name_error">{errors['last_name']}</div>}
-                                    </div>
-                                    <div className="row mb-3">
+                                        <Col md={6} className="mb-2">
+                                            <Form.Group controlId="last_name">
+                                                <Form.Control type="text" placeholder="Last Name" value={data.last_name} onChange={handleChange} required />
+                                                {errors.last_name && <Alert variant="danger" className="mt-2">{errors.last_name}</Alert>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
                                         {/* Email input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="email" className='sr-only'>Email</label>
-                                            <input type="email" id="email" name="email" value={data['email']} onChange={handleChange} className="form-control" required placeholder="johndoe@example.com" minLength="8" maxLength="255" aria-describedby='email_error' />
-                                        </div>
-                                        {errors['email'] && <div className='alert alert-danger mt-2' id="email_error">{errors['email']}</div>}
+                                        <Col md={6} className="mb-2">
+                                            <Form.Group controlId="email">
+                                                <Form.Control type="email" placeholder="Email" value={data.email} onChange={handleChange} required />
+                                                {errors.email && <Alert variant="danger" className="mt-2">{errors.email}</Alert>}
+                                            </Form.Group>
+                                        </Col>
                                         {/* Confirm email input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="confirm_email" className='sr-only'>Confirm Email</label>
-                                            <input type="email" id="confirm_email" name="confirm_email" value={confirmEmail} onChange={() => setConfirmEmail(event.target.value)} className="form-control" required placeholder="johndoe@example.com" minLength="8" maxLength="255" aria-describedby='confirm_email_error' />
-                                        </div>
-                                        {errors['confirm_email'] && <div className='alert alert-danger mt-2' id="confirm_email_error">{errors['confirm_email']}</div>}
-                                    </div>
-                                    <div className="row mb-3">
+                                        <Col md={6} className="mb-2">
+                                            <Form.Group controlId="confirm_email">
+                                                <Form.Control type="email" placeholder="Confirm Email" value={data.confirm_email} onChange={(e) => setConfirmEmail(e.target.value)} required />
+                                                {errors.confirm_email && <Alert variant="danger" className="mt-2">{errors.confirm_email}</Alert>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
                                         {/* Phone number input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="phone" className='sr-only'>Phone Number</label>
-                                            <input type="text" id="phone" name="phone" value={data['phone']} onChange={handleChange} className="form-control" required placeholder="1 (234) 567-8901" minLength="16" maxLength="17" aria-describedby='phone_error' />
-                                        </div>
-                                        {errors['phone'] && <div className='alert alert-danger mt-2' id="phone_error">{errors['phone']}</div>}
+                                        <Col md={6} className="mb-2">
+                                            <Form.Group controlId="phone">
+                                                <Form.Control type="text" placeholder="Phone Number" value={data.phone} onChange={handleChange} required />
+                                                {errors.phone && <Alert variant="danger" className="mt-2">{errors.phone}</Alert>}
+                                            </Form.Group>
+                                        </Col>
                                         {/* Date input */}
-                                        <div className="form-group col-md-6 mb-2">
-                                            <label htmlFor="date" className='sr-only'>Project Date</label>
-                                            <input type="date" id="date" name="date" value={data['date']} onChange={handleChange} className="form-control" required aria-describedby='date_error' />
-                                        </div>
-                                        {errors['date'] && <div className='alert alert-danger mt-2' id="date_error">{errors['date']}</div>}
-                                    </div>
-                                    <div className="row mb-3">
+                                        <Col md={6} className="mb-2">
+                                            <Form.Group controlId="date">
+                                                <Form.Control type="date" placeholder="Project Date" value={data.date} onChange={handleChange} required />
+                                                {errors.date && <Alert variant="danger" className="mt-2">{errors.date}</Alert>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
                                         {/* Description input */}
-                                        <div className="form-group col-12 mb-2">
-                                            <label htmlFor="description" className='sr-only'>Project Description</label>
-                                            <textarea id="description" name="description" value={data['description']} onChange={handleChange} className="form-control" required placeholder="Please write a description of the project..." minLength="2" maxLength="2000" aria-describedby='description_error'></textarea>
-                                        </div>
-                                        {errors['description'] && <div className='alert alert-danger mt-2' id="description_error">{errors['description']}</div>}
-                                    </div>
+                                        <Col md={12} className="mb-2">
+                                            <Form.Group controlId="description">
+                                                <Form.Control as="textarea" rows={6} placeholder="Description" value={data.description} onChange={handleChange} required />
+                                                {errors.description && <Alert variant="danger" className="mt-2">{errors.description}</Alert>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={12} className="d-flex flex-column align-items-center">
+                                            {/* Terms of use agreement */}
+                                            <Form.Group controlId="terms" className="d-flex justify-content-center align-items-center mb-2">
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    label={
+                                                        <span className="text-white">
+                                                            I agree to the {" "}
+                                                            <span className="text-primary cursor-pointer" style={{ textDecoration: 'underline' }} onClick={handleShowTerms}>
+                                                                Terms of Use
+                                                            </span>
+                                                        </span>}
+                                                    checked={agreeTerms}
+                                                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                                                    isInvalid={!!errors.non_field_errors}
+                                                    className="me-2"
+                                                />
+                                            </Form.Group>
+                                            {/* Privacy policy agreement */}
+                                            <Form.Group controlId="privacy" className="d-flex justify-content-center align-items-center mb-2">
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    label={
+                                                        <span className="text-white">
+                                                            I agree to the {" "}
+                                                            <span className="text-primary cursor-pointer" style={{ textDecoration: 'underline' }} onClick={handleShowPrivacy}>
+                                                                Privacy Policy
+                                                            </span>
+                                                        </span>
+                                                    }
+                                                    checked={agreePrivacy}
+                                                    onChange={(e) => setAgreePrivacy(e.target.checked)}
+                                                    isInvalid={!!errors.non_field_errors}
+                                                    className="me-2"
+                                                />
+                                            </Form.Group>
+                                            {/* Terms of use modal */}
+                                            <Modal show={showTerms} onHide={handleCloseTerms} centered>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title className="text-center w-100">Terms of Use</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body>
+                                                    <p>By using our services, you agree to:</p>
+                                                    <ul>
+                                                        <li>Provide accurate information</li>
+                                                        <li>Use services legally and appropriately</li>
+                                                        <li>Accept our cancellation/rescheduling policy</li>
+                                                    </ul>
+                                                    <p>We reserve the right to refuse service and modify these terms at any time.</p>
+                                                </Modal.Body>
+                                                <Modal.Footer className="justify-content-center">
+                                                    <Button variant="primary" onClick={handleCloseTerms}>Close</Button>
+                                                </Modal.Footer>
+                                            </Modal>
+                                            {/* Privacy policy modal */}
+                                            <Modal show={showPrivacy} onHide={handleClosePrivacy} centered>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title className="text-center w-100">Privacy Policy</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body>
+                                                    <p>We collect information you provide through our contact form including:</p>
+                                                    <ul>
+                                                        <li>Name</li>
+                                                        <li>Email address</li>
+                                                        <li>Phone number</li>
+                                                        <li>Project details</li>
+                                                    </ul>
+                                                    <p>This data is used solely for processing your service request and is stored securely using:</p>
+                                                    <ul>
+                                                        <li>HTTPS encryption</li>
+                                                        <li>Password hashing</li>
+                                                        <li>JWT token authentication</li>
+                                                        <li>Encrypted database storage</li>
+                                                    </ul>
+                                                </Modal.Body>
+                                                <Modal.Footer className="justify-content-center">
+                                                    <Button variant="primary" onClick={handleClosePrivacy}>Close</Button>
+                                                </Modal.Footer>
+                                            </Modal>
+                                            {errors.non_field_errors && (
+                                                <Alert variant="danger" className="mt-2">
+                                                    {errors.non_field_errors}
+                                                </Alert>
+                                            )}
+                                        </Col>
+                                    </Row>
                                     {/* Submit button */}
-                                    <button id="submit" className="btn btn-primary" type="submit" aria-label="Submit contact form">Submit</button>
+                                    <Button variant="primary" type="submit" aria-label="Submit contact form" disabled={loading || !agreeTerms || !agreePrivacy}>{ loading ? 'Submitting...' : 'Submit' }</Button>
                                 </>
                             )}
-                        </form>
-                    </div>
-                </div>
-            </div>
+                        </Form>
+                    </Col>
+                </Row>
+            </Container>
         </section>
-    )
+    );
 }
 
 export default ContactForm;
