@@ -2,7 +2,7 @@ import { Navbar, Nav, Container } from 'react-bootstrap';
 
 function NavBar() {
     return (
-        <Navbar expanded="lg" className="navbar-light fixed-top" id="mainNav" aria-label="Navigation Bar for Oklahoma Handyman Service">
+        <Navbar expand="lg" className="navbar-light fixed-top" id="mainNav" aria-label="Navigation Bar for Oklahoma Handyman Service">
             <Container>
                 {/* Brand logo */}
                 <Navbar.Brand href="#page-top" aria-label="Oklahoma Handyman Service Home">OHMS</Navbar.Brand>

@@ -10,7 +10,7 @@ function ContactInfo() {
                         <Card className="h-100 border-0">
                             <Card.Body className="text-center">
                                 <i className="fas fa-map-marked-alt text-primary mb-2" aria-hidden="true"></i>
-                                <Card.Title as="h3" className="text-uppercase m-0">Location</Card.Title>
+                                <Card.Title as="h4" className="text-uppercase m-0">Location</Card.Title>
                                 <hr className="my-4 mx-auto" aria-hidden="true"/>
                                 <Card.Text className="small text-black-50">
                                     <a href="https://www.google.com/maps/search/?api=1&query=Moore,Oklahoma" target="_blank" rel="noopener noreferrer" aria-label="Find us on Google Maps in Moore, Oklahoma">
@@ -25,7 +25,7 @@ function ContactInfo() {
                         <Card className="h-100 border-0">
                             <Card.Body className="text-center">
                                 <i className="fas fa-envelope text-primary mb-2" aria-hidden="true"></i>
-                                <Card.Title as="h3" className="text-uppercase m-0">Email</Card.Title>
+                                <Card.Title as="h4" className="text-uppercase m-0">Email</Card.Title>
                                 <hr className="my-4 mx-auto" aria-hidden="true"/>
                                 <Card.Text className="small text-black-50">
                                     <a href="mailto:cdkonstruction@gmail.com" aria-label="Email cdkonstruction@gmail.com">
@@ -40,7 +40,7 @@ function ContactInfo() {
                         <Card className="py-y h-100">
                             <Card.Body className="text-center">
                                 <i className="fas fa-mobile-alt text-primary mb-2" aria-hidden="true"></i>
-                                <Card.Title as="h3" className="text-uppercase m-0">Phone</Card.Title>
+                                <Card.Title as="h4" className="text-uppercase m-0">Phone</Card.Title>
                                 <hr className="my-4 mx-auto" aria-hidden="true"/>
                                 <Card.Text className="small text-black-50">
                                     <a href="tel:+19404526011" aria-label="Call +1 (940) 452-6011">+1 (940) 452-6011</a>

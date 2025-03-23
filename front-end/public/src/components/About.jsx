@@ -6,7 +6,7 @@ function About() {
             <Container className="px-4 px-lg-5">
                 <Row className="gx-4 gx-lg-5 justify-content-center">
                     <Col lg={8}>
-                        <h2 className="text-white mb-4">Oklahoma Handyman Service</h2>
+                        <h3 className="text-white mb-4">Oklahoma Handyman Service</h3>
                         <p className="text-white">
                             We proudly offer a wide range of home repair and maintenance services throughout the central Oklahoma area.
                             Whether you need property maintenance, drywall repair, fence construction, or other home improvement tasks, we&apos;ve got you covered!

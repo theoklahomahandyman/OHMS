@@ -2,7 +2,7 @@ import { Container, Button } from 'react-bootstrap';
 
 function Header() {
     return (
-        <header className="masthead" aria-label="Main Header for Oklahoma Handyman Service">
+        <header className="masthead" id="page-top" aria-label="Main Header for Oklahoma Handyman Service">
             <Container className="px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
                 <div className="d-flex justify-content-center">
                     <div className="text-center">
