@@ -7,7 +7,7 @@ function Projects() {
                 {/* Featured project row */}
                 <Row className="gx-0 mb-4 mb-lg-5 align-items-center">
                     <Col xl={8} lg={7}>
-                        <img src="/assets/img/construction-site.jpg" alt="Local construction site" loading="lazy" className="img-fluid mb-3 mb-lg-0" aria-describedby="construction-site-desc" />
+                        <img src="/assets/img/construction-site.jpg" alt="Local construction site" loading="lazy" className="img-fluid rounded mb-3 mb-lg-0" aria-describedby="construction-site-desc" />
                         <p id="construction-site-desc" className="sr-only">This image  shows a construction site with concrete forms set up with rebar support, ready for the concrete to be poured.</p>
                     </Col>
                     <Col xl={4} lg={5}>
