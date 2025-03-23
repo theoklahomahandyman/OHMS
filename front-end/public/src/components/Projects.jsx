@@ -7,7 +7,7 @@ function Projects() {
                 {/* Featured project row */}
                 <Row className="gx-0 mb-4 mb-lg-5 align-items-center">
                     <Col xl={8} lg={7}>
-                        <img src="/assets/img/construction-site.jpg" alt="Local construction site" loading="lazy" className="img-fluid rounded mb-3 mb-lg-0" aria-describedby="construction-site-desc" />
+                        <img role="img" src="/assets/img/construction-site.jpg" alt="Local construction site" loading="lazy" decoding="async" className="img-fluid rounded mb-3 mb-lg-0" aria-describedby="construction-site-desc" />
                         <p id="construction-site-desc" className="sr-only">This image  shows a construction site with concrete forms set up with rebar support, ready for the concrete to be poured.</p>
                     </Col>
                     <Col xl={4} lg={5}>
@@ -28,7 +28,7 @@ function Projects() {
                 {/* Project 1 row */}
                 <Row className="gx-0 mb-5 mb-lg-0 justify-content-center align-items-stretch">
                     <Col lg={6}>
-                        <img src="/assets/img/pergola-stain.jpg" alt="Pergola staining service in Moore, Oklahoma by OHMS" loading="lazy" className="img-fluid rounded mb-3" aria-describedby="pergola-stain-desc" />
+                        <img role="img" src="/assets/img/pergola-stain.jpg" alt="Pergola staining service in Moore, Oklahoma by OHMS" loading="lazy" decoding="async" className="img-fluid rounded mb-3" aria-describedby="pergola-stain-desc" />
                         <p id="pergola-stain-desc" className="sr-only">This image  shows an outdoor pergola after being cleaned and restained.</p>
                     </Col>
                     <Col lg={6} className="mb-3">
@@ -48,7 +48,7 @@ function Projects() {
                 {/* Project 2 row */}
                 <Row className="gx-0 justify-content-center align-items-stretch">
                     <Col lg={6}>
-                        <img src="/assets/img/drywall-repair.jpg" alt="Fixed drywall in a shower where paint and sheetrock were previously damaged" loading="lazy" className="img-fluid rounded mb-3" aria-describedby="drywall-repair-desc" />
+                        <img role="img" src="/assets/img/drywall-repair.jpg" alt="Fixed drywall in a shower where paint and sheetrock were previously damaged" loading="lazy" decoding="async" className="img-fluid rounded mb-3" aria-describedby="drywall-repair-desc" />
                         <p id="drywall-repair-desc" className="sr-only">This image  shows a shower after the drywall repair was completed, with smooth, fresh paint applied.</p>
                     </Col>
                     <Col lg={6} className="order-lg-first mb-3">
@@ -59,7 +59,7 @@ function Projects() {
                                     This customer reached out because paint and sheetrock began falling on them in the shower.
                                     After a single afternoon, we were able to get it looking brand new again!
                                     Need drywall repair?{" "}
-                                    <a href="#contact">Schedule an appointment</a>!
+                                    <a href="#contact" aria-label="Schedule drywall repair appointment">Schedule an appointment</a>!
                                 </Card.Text>
                             </Card.Body>
                         </Card>
