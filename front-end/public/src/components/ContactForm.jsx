@@ -147,7 +147,7 @@ function ContactForm() {
                 <Row className="gx-4 gx-lg-5 justify-content-center">
                     <Col md={10} lg={8} className="mx-auto text-center">
                         <i className="far fa-paper-plane fa-2x mb-2 text-white" aria-hidden="true"></i>
-                        <h2 className="text-white mb-5">Contact us to get started with your project!</h2>
+                        <h3 className="text-white mb-5">Contact us to get started with your project!</h3>
                         <Form id="contactForm" onSubmit={handleSubmit}>
                             {loading ? <Loading /> : (
                                 <>
