@@ -255,7 +255,7 @@ function EditOrder() {
     const toolFields = [
         {name: 'inventory_item', label: 'Tool', required: true, elementType: 'select', data: tools.map(tool => ({ value: tool.id, label: tool.name }))},
         {name: 'quantity', label: 'Quantity Needed', type: 'number', required: true, elementType: 'input'},
-        {name: 'quantity_broken', label: 'Quantity Broken', type: 'number', required: true, elementType: 'input'},
+        {name: 'quantity_broken', label: 'Quantity Broken', type: 'number', required: false, elementType: 'input'},
     ];
 
     // const assetFields = [
