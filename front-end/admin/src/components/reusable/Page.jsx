@@ -35,13 +35,13 @@ function Page({ heading, text, children }) {
                 <i className="fas fa-angle-up"></i>
             </a>
         </>
-    )
-}
+    );
+};
 
 Page.propTypes = {
     heading: PropTypes.string,
     text: PropTypes.string,
     children: PropTypes.any
-}
+};
 
 export default Page;
