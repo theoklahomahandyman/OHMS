@@ -2,7 +2,7 @@ import Table from '../components/reusable/Table';
 import Page from '../components/reusable/Page';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import makeRequest from '../api';
+import {makeRequest} from '../api';
 
 function Purchase() {
     const [suppliers, setSuppliers] = useState([]);

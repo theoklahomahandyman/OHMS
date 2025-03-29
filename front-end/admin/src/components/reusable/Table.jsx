@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import CreateModal from './modal/CreateModal';
 import UpdateModal from './modal/UpdateModal';
 import DeleteModal from './modal/DeleteModal';
-import makeRequest from '../../api';
+import { makeRequest } from '../../api';
 import PropTypes from 'prop-types';
 import Loading from './Loading';
 import $ from 'jquery';

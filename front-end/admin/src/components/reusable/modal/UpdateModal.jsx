@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import makeRequest from '../../../api';
+import { makeRequest } from '../../../api';
 import PropTypes from 'prop-types';
 import Loading from '../Loading';
 import Form from '../form/Form';

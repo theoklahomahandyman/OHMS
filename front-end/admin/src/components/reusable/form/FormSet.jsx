@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
-import makeRequest from '../../../api';
+import { makeRequest } from '../../../api';
 import PropTypes from 'prop-types';
 import Loading from '../Loading';
 import SubForm from './SubForm';

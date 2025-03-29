@@ -7,7 +7,7 @@ import Form from '../components/reusable/form/Form';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import makeRequest from '../api';
+import { makeRequest } from '../api';
 
 function EditOrder() {
     const [customers, setCustomers] = useState([]);
