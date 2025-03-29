@@ -363,5 +363,145 @@ export const orderAPI = {
 
 // Purchase Routes
 export const purchaseAPI = {
-
+    url: '/purchase/',
+    materialURL: 'material/',
+    toolURL: 'tool/',
+    imageURL: 'image/',
+    createPurchase: async (data) => {
+        try {
+            const response = await makeRequest('post', purchaseAPI.url, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.createPurchase():', error);
+            throw error;
+        }
+    },
+    getPurchases: async () => {
+        try {
+            const response = await makeRequest('get', purchaseAPI.url);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.getPurchases():', error);
+            throw error;
+        }
+    },
+    updatePurchase: async (purchaseID, data) => {
+        try {
+            const response = await makeRequest('patch', `${purchaseAPI.url}${purchaseID}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.updatePurchase():', error);
+            throw error;
+        }
+    },
+    deletePurchase: async (purchaseID) => {
+        try {
+            const response = await makeRequest('delete', `${purchaseAPI.url}${purchaseID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.deletePurchase():', error);
+            throw error;
+        }
+    },
+    addMaterial: async (purchaseID, data) => {
+        try {
+            const response = await makeRequest('post', `${purchaseAPI.url}${purchaseAPI.materialURL}${purchaseID}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.addMaterial():', error);
+            throw error;
+        }
+    },
+    getMaterials: async (purchaseID) => {
+        try {
+            const response = await makeRequest('get', `${purchaseAPI.url}${purchaseAPI.materialURL}${purchaseID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.getMaterials():', error);
+            throw error;
+        }
+    },
+    updateMaterial: async (purchaseID, materialID, data) => {
+        try {
+            const response = await makeRequest('patch', `${purchaseAPI.url}${purchaseAPI.materialURL}${purchaseID}/${materialID}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.updateMaterial():', error);
+            throw error;
+        }
+    },
+    deleteMaterial: async (purchaseID, materialID) => {
+        try {
+            const response = await makeRequest('delete', `${purchaseAPI.url}${purchaseAPI.materialURL}${purchaseID}/${materialID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.deleteMaterial():', error);
+            throw error;
+        }
+    },
+    addTool: async (purchaseID, data) => {
+        try {
+            const response = await makeRequest('post', `${purchaseAPI.url}${purchaseAPI.toolURL}${purchaseID}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.addTool():', error);
+            throw error;
+        }
+    },
+    getTools: async (purchaseID) => {
+        try {
+            const response = await makeRequest('get', `${purchaseAPI.url}${purchaseAPI.toolURL}${purchaseID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.getTools():', error);
+            throw error;
+        }
+    },
+    updateTool: async (purchaseID, toolID, data) => {
+        try {
+            const response = await makeRequest('patch', `${purchaseAPI.url}${purchaseAPI.toolURL}${purchaseID}/${toolID}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.updateTool():', error);
+            throw error;
+        }
+    },
+    deleteTool: async (purchaseID, toolID) => {
+        try {
+            const response = await makeRequest('delete', `${purchaseAPI.url}${purchaseAPI.toolURL}${purchaseID}/${toolID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.deleteTool():', error);
+            throw error;
+        }
+    },
+    addReceipt: async (purchaseID, data) => {
+        try {
+            const response = await makeRequest('post', `${purchaseAPI.url}${purchaseAPI.imageURL}${purchaseID}/`, data, {
+                headers: { 'Content-Type': 'multipart/form/data'}
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.addReceipt():', error);
+            throw error;
+        }
+    },
+    getReceipts: async (purchaseID) => {
+        try {
+            const response = await makeRequest('get', `${purchaseAPI.url}${purchaseAPI.imageURL}${purchaseID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.getReceipts():', error);
+            throw error;
+        }
+    },
+    deleteReceipt: async (purchaseID, receiptID) => {
+        try {
+            const response = await makeRequest('delete', `${purchaseAPI.url}${purchaseAPI.imageURL}${purchaseID}/${receiptID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.deleteReceipt():', error);
+            throw error;
+        }
+    },
 };
