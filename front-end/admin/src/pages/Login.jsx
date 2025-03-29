@@ -1,52 +1,30 @@
-import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
-import Form from '../components/reusable/form/Form';
-import { useNavigate } from 'react-router';
-import { toast } from 'react-toastify';
-import Cookies from 'js-cookie';
+import { Container, Row, Col, Card } from 'react-bootstrap';
+import LoginForm from '../components/profile/LoginForm';
 
 function Login() {
-    const navigate = useNavigate();
-
-    const customError = 'Email or password incorrect, please try again!';
-
-    const fields = [
-        {name: 'email', label: 'Email Address', type: 'email', elementType: 'input', required: true},
-        {name: 'password', label: 'Password', type: 'password', elementType: 'input', required: true}
-    ]
-
-    const handleSuccess = (data) => {
-        Cookies.set(ACCESS_TOKEN, data.access);
-        Cookies.set(REFRESH_TOKEN, data.refresh);
-        navigate('/');
-        setTimeout(() => {
-            toast.success('Welcome!');
-        }, 500);
-    }
-
     return (
-        <div className="bg-gradient-primary min-vh-100 d-flex align-items-center justify-content-center">
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-lg-6 col-md-8">
-                        <div className="card o-hidden border-0 shadow-lg my-5">
-                            <div className="card-body p-0">
-                                <div className="text-center p-5">
-                                    <i className="fas fa-tools fa-4x mb-3 text-primary"></i>
-                                    <h1 className="h3 text-primary mb-4">OHMS</h1>
-                                    <h1 className="h4 text-gray-900 mb-4">OHMS Admin Login</h1>
-                                    <Form fields={fields} method='post' route='/user/login/' buttonText='Login' buttonStyle='primary' onSuccess={handleSuccess} customError={customError} />
-                                    <hr />
-                                    <div className="text-center">
-                                        <a className="small" href="forgot-password.html">Forgot Password?</a>
-                                    </div>
+        <div className='bg-gradient-primary min-vh-100 d-flex align-items-center'>
+            <Container className='py-5'>
+                <Row className='justify-content-center'>
+                    <Col md={8} lg={6} xl={5}>
+                        <Card className='shadow'>
+                            <Card.Body className='p-4 p-md-5'>
+                                <div className='text-center mb-3'>
+                                    <i className='fas fa-tools fa-4x mb-3 text-primary'></i>
+                                    <h1 className='h3 text-primary mb-4'>OHMS</h1>
+                                    <h2 className='h5 text-muted'>OHMS Admin Login</h2>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                <LoginForm />
+                                <div className='text-center mt-3'>
+                                    <a className='small text-decoration-none' href='/forgot-password'>Forgot Password?</a>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
         </div>
     );
-}
+};
 
 export default Login;
