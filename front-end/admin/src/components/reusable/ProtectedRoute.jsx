@@ -1,12 +1,12 @@
 import { REFRESH_TOKEN, ACCESS_TOKEN } from '../../constants';
 import { Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { profileAPI } from '../../api';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import Cookies from 'js-cookie';
 import Loading from './Loading';
-import api from '../../api';
 
 const ProtectedRoute = ({ children }) => {
     const [isAuthorized, setIsAuthorized] = useState(null);
@@ -49,7 +49,7 @@ const ProtectedRoute = ({ children }) => {
             }
 
             try {
-                const response = await api.post('/token/refresh/', { refresh: refreshToken });
+                const response = await profileAPI.refreshToken({ refresh: refreshToken });
                 if (response.status === 200) {
                     Cookies.set(ACCESS_TOKEN, response.data.access);
                     setIsAuthorized(true);

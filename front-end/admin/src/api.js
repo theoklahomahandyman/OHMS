@@ -171,6 +171,15 @@ export const profileAPI = {
             throw error;
         }
     },
+    refreshToken: async (data) => {
+        try {
+            const response = await makeRequest('post', '/token/refresh/', data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with profileAPI.refreshToken():', error);
+            throw error;
+        }
+    },
     getProfile: async () => {
         try {
             const response = await makeRequest('get', profileAPI.url);
