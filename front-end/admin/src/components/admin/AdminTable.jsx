@@ -44,7 +44,7 @@ export default function AdminTable() {
     useEffect(() => {
         if (Array.isArray(data) && data.length > 0) {
             setTimeout(() => {
-                $('#dataTable').DataTable();
+                $('#adminTable').DataTable();
             }, 1);
         }
     }, [data]);
@@ -65,7 +65,7 @@ export default function AdminTable() {
                             </Spinner>
                         </div>
                     ) : (
-                        <Table responsive striped bordered hover>
+                        <Table responsive striped bordered hover id='adminTable'>
                             <thead>
                                 <tr>
                                     { fields.map((field) => (

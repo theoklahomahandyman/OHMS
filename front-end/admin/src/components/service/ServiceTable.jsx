@@ -40,7 +40,7 @@ export default function ServiceTable() {
     useEffect(() => {
         if (Array.isArray(data) && data.length > 0) {
             setTimeout(() => {
-                $('#dataTable').DataTable();
+                $('#serviceTable').DataTable();
             }, 1);
         }
     }, [data]);
@@ -61,7 +61,7 @@ export default function ServiceTable() {
                             </Spinner>
                         </div>
                     ) : (
-                        <Table responsive striped bordered hover>
+                        <Table responsive striped bordered hover id='serviceTable'>
                             <thead>
                                 <tr>
                                     { fields.map((field) => (

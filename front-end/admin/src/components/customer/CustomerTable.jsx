@@ -43,7 +43,7 @@ export default function CustomerTable() {
     useEffect(() => {
         if (Array.isArray(data) && data.length > 0) {
             setTimeout(() => {
-                $('#dataTable').DataTable();
+                $('#customerTable').DataTable();
             }, 1);
         }
     }, [data]);
@@ -64,7 +64,7 @@ export default function CustomerTable() {
                             </Spinner>
                         </div>
                     ) : (
-                        <Table responsive striped bordered hover>
+                        <Table responsive striped bordered hover id='customerTable'>
                             <thead>
                                 <tr>
                                     { fields.map((field) => (
