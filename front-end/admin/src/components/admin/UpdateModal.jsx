@@ -16,7 +16,7 @@ export default function UpdateAdminModal({ fields, admin, show, onHide, fetchDat
     const handleSubmit = async () => {
         setLoading(true);
         try {
-            await adminAPI.updateAdmin({ ...formData, id: admin.id });
+            await adminAPI.updateAdmin({ ...formData });
             fetchData();
             onHide();
         } catch (error) {
