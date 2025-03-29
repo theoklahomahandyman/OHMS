@@ -4,6 +4,7 @@ import DeleteAdminModal from './DeleteModal';
 import UpdateAdminModal from './UpdateModal';
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../api';
+import $ from 'jquery';
 
 export default function AdminTable() {
     const [selectedAdmin, setSelectedAdmin] = useState(null);
@@ -39,6 +40,14 @@ export default function AdminTable() {
     useEffect(() => {
         fetchAdmins();
     }, []);
+
+    useEffect(() => {
+        if (Array.isArray(data) && data.length > 0) {
+            setTimeout(() => {
+                $('#dataTable').DataTable();
+            }, 1);
+        }
+    }, [data]);
 
     return (
         <Container fluid>

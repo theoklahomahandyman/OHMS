@@ -4,6 +4,7 @@ import UpdateCustomerModal from './UpdateModal';
 import DeleteCustomerModal from './DeleteModal';
 import { useState, useEffect } from 'react';
 import { customerAPI } from '../../api';
+import $ from 'jquery';
 
 export default function CustomerTable() {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -38,6 +39,14 @@ export default function CustomerTable() {
     useEffect(() => {
         fetchCustomers();
     }, []);
+
+    useEffect(() => {
+        if (Array.isArray(data) && data.length > 0) {
+            setTimeout(() => {
+                $('#dataTable').DataTable();
+            }, 1);
+        }
+    }, [data]);
 
     return (
         <Container fluid>

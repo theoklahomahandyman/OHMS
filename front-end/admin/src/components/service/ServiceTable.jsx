@@ -4,6 +4,7 @@ import UpdateServiceModal from './UpdateModal';
 import DeleteServiceModal from './DeleteModal';
 import { useState, useEffect } from 'react';
 import { serviceAPI } from '../../api';
+import $ from 'jquery';
 
 export default function ServiceTable() {
     const [selectedService, setSelectedService] = useState(null);
@@ -35,6 +36,14 @@ export default function ServiceTable() {
     useEffect(() => {
         fetchServices();
     }, []);
+
+    useEffect(() => {
+        if (Array.isArray(data) && data.length > 0) {
+            setTimeout(() => {
+                $('#dataTable').DataTable();
+            }, 1);
+        }
+    }, [data]);
 
     return (
         <Container fluid>
