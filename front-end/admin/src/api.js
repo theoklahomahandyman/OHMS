@@ -79,27 +79,19 @@ export const makeRequest = async (method, url, data = null) => {
 
 // Admin Routes
 export const adminAPI = {
+    url: '/user/admin/',
     createAdmin: async (data) => {
         try {
-            const response = await makeRequest('post', '/user/admin', data);
+            const response = await makeRequest('post', adminAPI.url, data);
             return response.data;
         } catch (error) {
             console.error('Error with adminAPI.createAdmin():', error);
             throw error;
         }
     },
-    getAdmin: async (adminID) => {
-        try {
-            const response = await makeRequest('get', `/user/admin/${adminID}/`);
-            return response.data;
-        } catch (error) {
-            console.error('Error with adminAPI.getAdmin():', error);
-            throw error;
-        }
-    },
     getAdmins: async () => {
         try {
-            const response = await makeRequest('get', '/user/admin');
+            const response = await makeRequest('get', adminAPI.url);
             return response.data;
         } catch (error) {
             console.error('Error with adminAPI.getAdmins():', error);
@@ -108,7 +100,7 @@ export const adminAPI = {
     },
     updateAdmin: async (data) => {
         try {
-            const response = await makeRequest('patch', `/user/admin/${data.id}`, data);
+            const response = await makeRequest('patch', `${adminAPI.url}${data.id}/`, data);
             return response.data;
         } catch (error) {
             console.error('Error with adminAPI.updateAdmin():', error);
@@ -117,7 +109,7 @@ export const adminAPI = {
     },
     deleteAdmin: async (adminID) => {
         try {
-            const response = await makeRequest('delete', `/user/admin/${adminID}/`);
+            const response = await makeRequest('delete', `${adminAPI.url}${adminID}/`);
             return response.data;
         } catch (error) {
             console.error('Error with adminAPI.deleteAdmin():', error);
@@ -128,32 +120,231 @@ export const adminAPI = {
 
 // Customer Routes
 export const customerAPI = {
-
+    url: '/customer/',
+    createCustomer: async (data) => {
+        try {
+            const response = await makeRequest('post', customerAPI.url, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with customerAPI.createCustomer():', error);
+            throw error;
+        }
+    },
+    getCustomers: async () => {
+        try {
+            const response = await makeRequest('get', customerAPI.url);
+            return response.data;
+        } catch (error) {
+            console.error('Error with customerAPI.getCustomers():', error);
+            throw error;
+        }
+    },
+    updateCustomer: async (data) => {
+        try {
+            const response = await makeRequest('patch', `${customerAPI.url}${data.id}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with customerAPI.updateCustomer():', error);
+            throw error;
+        }
+    },
+    deleteCustomer: async (customerID) => {
+        try {
+            const response = await makeRequest('delete', `${customerAPI.url}${customerID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with customerAPI.deleteCustomer():', error);
+            throw error;
+        }
+    }
 };
 
 // Profile Routes
 export const profileAPI = {
-
+    url: '/user/',
+    login: async (data) => {
+        try {
+            const response = await makeRequest('post', `${profileAPI.url}login/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with profileAPI.login():', error);
+            throw error;
+        }
+    },
+    getProfile: async () => {
+        try {
+            const response = await makeRequest('get', profileAPI.url);
+            return response.data;
+        } catch (error) {
+            console.error('Error with profileAPI.getProfile():', error);
+            throw error;
+        }
+    },
+    updateProfile: async (data) => {
+        try {
+            const response = await makeRequest('patch', profileAPI.url, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with profileAPI.updateProfile():', error);
+            throw error;
+        }
+    },
+    changePassword: async (data) => {
+        try {
+            const response = await makeRequest('patch', profileAPI.url, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with profileAPI.changePassword():', error);
+            throw error;
+        }
+    }
 };
 
 // Service Routes
 export const serviceAPI = {
-
+    url: '/service/',
+    createService: async (data) => {
+        try {
+            const response = await makeRequest('post', serviceAPI.url, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with serviceAPI.createService():', error);
+            throw error;
+        }
+    },
+    getServices: async () => {
+        try {
+            const response = await makeRequest('get', serviceAPI.url);
+            return response.data;
+        } catch (error) {
+            console.error('Error with serviceAPI.getServices():', error);
+            throw error;
+        }
+    },
+    updateService: async (data) => {
+        try {
+            const response = await makeRequest('patch', `${serviceAPI.url}${data.id}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with serviceAPI.updateService():', error);
+            throw error;
+        }
+    },
+    deleteService: async (serviceID) => {
+        try {
+            const response = await makeRequest('delete', `${serviceAPI.url}${serviceID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with serviceAPI.deleteService():', error);
+            throw error;
+        }
+    }
 };
 
 // Supplier Routes
 export const supplierAPI = {
-
+    url: '/supplier/',
+    addressURL: '/addresses/',
+    createSupplier: async (data) => {
+        try {
+            const response = await makeRequest('post', supplierAPI.url, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with supplierAPI.createSupplier():', error);
+            throw error;
+        }
+    },
+    getSuppliers: async () => {
+        try {
+            const response = await makeRequest('get', supplierAPI.url);
+            return response.data;
+        } catch (error) {
+            console.error('Error with supplierAPI.getSuppliers():', error);
+            throw error;
+        }
+    },
+    updateSupplier: async (data) => {
+        try {
+            const response = await makeRequest('patch', `${supplierAPI.url}${data.id}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with supplierAPI.updateSupplier():', error);
+            throw error;
+        }
+    },
+    deleteSupplier: async (supplierID) => {
+        try {
+            const response = await makeRequest('delete', `${supplierAPI.url}${supplierID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with supplierAPI.deleteSupplier():', error);
+            throw error;
+        }
+    },
+    createAddress: async (supplierID, data) => {
+        try {
+            const response = await makeRequest('post', `${supplierAPI.url}${supplierID}/${supplierAPI.addressURL}`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with supplierAPI.createAddress():', error);
+            throw error;
+        }
+    },
+    getAddresses: async (supplierID) => {
+        try {
+            const response = await makeRequest('post', `${supplierAPI.url}${supplierID}/${supplierAPI.addressURL}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with supplierAPI.getAddresses():', error);
+            throw error;
+        }
+    },
+    updateAddress: async (supplierID, addressID, data) => {
+        try {
+            const response = await makeRequest('patcj', `${supplierAPI.url}${supplierID}/${supplierAPI.addressURL}${addressID}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with supplierAPI.updateAddress():', error);
+            throw error;
+        }
+    },
+    deleteAddress: async (supplierID, addressID) => {
+        try {
+            const response = await makeRequest('patcj', `${supplierAPI.url}${supplierID}/${supplierAPI.addressURL}${addressID}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Error with supplierAPI.deleteAddress():', error);
+            throw error;
+        }
+    },
 };
 
 // Material Routes
 export const materialAPI = {
-
+    url: '/inventory/material/',
+    getMaterials: async () => {
+        try {
+            const response = await makeRequest('get', materialAPI.url);
+            return response.data;
+        } catch (error) {
+            console.error('Error with materialAPI.getMaterials():', error);
+            throw error;
+        }
+    }
 };
 
 // Tool Routes
 export const toolAPI = {
-
+    url: '/inventory/tool/',
+    getTools: async () => {
+        try {
+            const response = await makeRequest('get', toolAPI.url);
+            return response.data;
+        } catch (error) {
+            console.error('Error with toolAPI.getTools():', error);
+            throw error;
+        }
+    }
 };
 
 // Order Routes
