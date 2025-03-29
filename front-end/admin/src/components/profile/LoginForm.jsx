@@ -2,7 +2,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 import { Form, Button, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import profileAPI from '../../api';
+import { profileAPI } from '../../api';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
 
