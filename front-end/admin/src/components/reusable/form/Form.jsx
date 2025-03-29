@@ -1,6 +1,6 @@
 import TextArea from '../input/TextArea';
 import { toast } from 'react-toastify';
-import makeRequest from '../../../api';
+import {makeRequest} from '../../../api';
 import FormSet from '../form/FormSet';
 import Select from '../input/Select';
 import PropTypes from 'prop-types';
