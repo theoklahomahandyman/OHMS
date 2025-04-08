@@ -26,9 +26,26 @@ export default function CreateModal({ show, onHide, fetchData }) {
                     cost: material.cost
                 })
             ));
+            await Promise.all(formData.newMaterials.map(material =>
+                purchaseAPI.addNewMaterial(createdPurchase.id, {
+                    name: material.name,
+                    description: material.description,
+                    size: material.size,
+                    quantity: material.quantity,
+                    cost: material.cost
+                })
+            ));
             await Promise.all(formData.tools.map(tool =>
                 purchaseAPI.addTool(createdPurchase.id, {
                     inventory_item: tool.inventory_item,
+                    quantity: tool.quantity,
+                    cost: tool.cost
+                })
+            ));
+            await Promise.all(formData.newTools.map(tool =>
+                purchaseAPI.addNewTool(createdPurchase.id, {
+                    name: tool.name,
+                    description: tool.description,
                     quantity: tool.quantity,
                     cost: tool.cost
                 })

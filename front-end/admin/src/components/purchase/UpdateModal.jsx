@@ -42,7 +42,7 @@ export default function UpdateModal({ purchase, show, onHide, fetchData }) {
                 date: formData.date,
                 tax: formData.tax,
             });
-            const materialUpdates = formData.materials.map(material => {
+            await Promise.all(formData.materials.map(material => {
                 if (material.id) {
                     return purchaseAPI.updateMaterial(purchase.id, material.id, {
                         inventory_item: material.inventory_item,
@@ -55,9 +55,17 @@ export default function UpdateModal({ purchase, show, onHide, fetchData }) {
                     quantity: material.quantity,
                     cost: material.cost
                 });
-            });
-            await Promise.all(materialUpdates);
-            const toolUpdates = formData.tools.map(tool => {
+            }));
+            await Promise.all(formData.newMaterials.map(material =>
+                purchaseAPI.addNewMaterial(purchase.id, {
+                    name: material.name,
+                    description: material.description,
+                    size: material.size,
+                    quantity: material.quantity,
+                    cost: material.cost
+                })
+            ));
+            await Promise.all(formData.tools.map(tool => {
                 if (tool.id) {
                     return purchaseAPI.updateTool(purchase.id, tool.id, {
                         inventory_item: tool.inventory_item,
@@ -70,8 +78,15 @@ export default function UpdateModal({ purchase, show, onHide, fetchData }) {
                     quantity: tool.quantity,
                     cost: tool.cost
                 });
-            });
-            await Promise.all(toolUpdates);
+            }));
+            await Promise.all(formData.newTools.map(tool =>
+                purchaseAPI.addNewTool(purchase.id, {
+                    name: tool.name,
+                    description: tool.description,
+                    quantity: tool.quantity,
+                    cost: tool.cost
+                })
+            ));
             if (formData.uploaded_images?.length > 0) {
                 await Promise.all(formData.uploaded_images.map(file => {
                     const formData = new FormData();

@@ -412,6 +412,15 @@ export const purchaseAPI = {
             throw error;
         }
     },
+    addNewMaterial: async (purchaseID, data) => {
+        try {
+            const response = await makeRequest('post', `${purchaseAPI}new/${purchaseAPI.materialURL}${purchaseID}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.addNewMaterial():', error);
+            throw error;
+        }
+    },
     getMaterials: async (purchaseID) => {
         try {
             const response = await makeRequest('get', `${purchaseAPI.url}${purchaseAPI.materialURL}${purchaseID}/`);
@@ -445,6 +454,15 @@ export const purchaseAPI = {
             return response.data;
         } catch (error) {
             console.error('Error with purchaseAPI.addTool():', error);
+            throw error;
+        }
+    },
+    addNewTool: async (purchaseID, data) => {
+        try {
+            const response = await makeRequest('post', `${purchaseAPI}new/${purchaseAPI.toolURL}${purchaseID}/`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Error with purchaseAPI.addNewMaterial():', error);
             throw error;
         }
     },
