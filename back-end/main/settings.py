@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     'theoklahomahandyman.com',
     'dev.theoklahomahandyman.com',
     'ohms-production.up.railway.app',
-    'ohms-development.up.railway.app',
+    'ohms-api-development.up.railway.app',
     'ohms-admin.pages.dev',
     'ohms-admin-dev.pages.dev',
     'ohms-public-dev.pages.dev'
@@ -51,7 +51,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://dev.theoklahomahandyman.com',
     'https://dev-api.theoklahomahandyman.com',
     'https://ohms-production.up.railway.app:8080',
-    'https://ohms-development.up.railway.app:8080',
+    'https://ohms-api-development.up.railway.app:8080',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
@@ -68,7 +68,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://dev.theoklahomahandyman.com',
     'https://dev-api.theoklahomahandyman.com',
     'https://ohms-production.up.railway.app:8080',
-    'https://ohms-development.up.railway.app:8080',
+    'https://ohms-api-development.up.railway.app:8080',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
