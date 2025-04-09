@@ -59,7 +59,7 @@ export default function PasswordForm() {
                 <Button variant='success' type='submit' disabled={loading}>
                     {loading ? (
                         <>
-                            <Spinner as='span' animation='border' size='sm' className='me-2' />
+                            <Spinner as='span' animation='border' size='sm' className='me-2' /><br />
                             Updating...
                         </>
                     ) : 'Change Password' }

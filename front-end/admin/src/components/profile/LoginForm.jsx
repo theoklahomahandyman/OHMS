@@ -17,7 +17,7 @@ export default function LoginForm() {
         e.preventDefault();
         setLoading(true);
         try {
-            const { data } = await profileAPI.login(formData);
+            const data = await profileAPI.login(formData);
             Cookies.set(ACCESS_TOKEN, data.access);
             Cookies.set(REFRESH_TOKEN, data.refresh);
             navigate('/');
@@ -61,7 +61,7 @@ export default function LoginForm() {
                 <Button variant='primary' type='submit' disabled={loading} className='w-100'>
                     {loading ? (
                         <>
-                            <Spinner as='span' animation='border' size='sm' className='me-2' />
+                            <Spinner as='span' animation='border' size='sm' className='me-2' /><br />
                             Logging in...
                         </>
                     ) : 'Login'}

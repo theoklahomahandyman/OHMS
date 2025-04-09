@@ -24,7 +24,7 @@ export default function ServiceTable() {
         setLoading(true);
         try {
             const response = await serviceAPI.getServices();
-            setData(response.data);
+            setData(response);
         } catch (error) {
             setError('Failed to load services');
             console.error('Service fetch error:', error);
@@ -48,7 +48,7 @@ export default function ServiceTable() {
     return (
         <Container fluid>
             <Card className='shadow mb-4'>
-                <Card.Header className='py-3 d-flex jusify-content-between align-items-center'>
+                <Card.Header className='py-3 d-flex justify-content-between align-items-center'>
                     <h5 className='m-0 font-weight-bold text-primary'>Services</h5>
                     <Button variant='primary' onClick={() => setShowCreate(true)}>Add Service</Button>
                 </Card.Header>
@@ -56,12 +56,11 @@ export default function ServiceTable() {
                     { error && <Alert variant='danger'>{ error }</Alert>}
                     { loading ? (
                         <div className='text-center'>
-                            <Spinner animation='border' role='status'>
-                                <span className='visually-hidden'>Loading...</span>
-                            </Spinner>
+                            <Spinner animation='border' role='status'></Spinner><br />
+                            <span className='visually-hidden'>Loading...</span>
                         </div>
                     ) : (
-                        <Table responsive striped bordered hover id='serviceTable'>
+                        <Table responsive striped bordered hover id='serviceTable' className='my-3'>
                             <thead>
                                 <tr>
                                     { fields.map((field) => (
@@ -71,7 +70,7 @@ export default function ServiceTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                { data.length > 0 ? data.map((service) => (
+                                { data?.length > 0 ? data.map((service) => (
                                     <tr key={service.id} className='text-center'>
                                         { fields.map((field) => (
                                             <td key={`${field.name}-${service.id}`}>
@@ -79,8 +78,8 @@ export default function ServiceTable() {
                                             </td>
                                         ))}
                                         <td>
-                                            <Button variant='info' size='sm' className='me-2' onClick={() => { setSelectedService(service); setShowUpdate(true)} }>Edit</Button>
-                                            <Button variant='danger' size='sm' className='me-2' onClick={() => { setSelectedService(service); setShowDelete(true)} }>Delete</Button>
+                                            <Button variant='secondary' size='sm' className='me-2 mr-4' onClick={() => { setSelectedService(service); setShowUpdate(true) }}>Edit</Button>
+                                            <Button variant='danger' size='sm' className='me-2' onClick={() => { setSelectedService(service); setShowDelete(true) }}>Delete</Button>
                                         </td>
                                     </tr>
                                 )) : (
@@ -96,8 +95,8 @@ export default function ServiceTable() {
                 </Card.Body>
             </Card>
             <CreateServiceModal show={showCreate} onHide={() => setShowCreate(false)} fetchData={fetchServices} fields={fields} />
-            <UpdateServiceModal show={showUpdate} onHide={() => setShowUpdate(false)} fetchData={fetchServices} fields={fields} customer={selectedService} />
-            <DeleteServiceModal show={showDelete} onHide={() => setShowDelete(false)} fetchData={fetchServices} customer={selectedService} />
+            <UpdateServiceModal show={showUpdate} onHide={() => setShowUpdate(false)} fetchData={fetchServices} fields={fields} service={selectedService} />
+            <DeleteServiceModal show={showDelete} onHide={() => setShowDelete(false)} fetchData={fetchServices} service={selectedService} />
         </Container>
     );
 };

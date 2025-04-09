@@ -2,6 +2,7 @@ import { Modal, Button, Spinner, Alert } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import ServiceForm from './ServiceForm';
 import { serviceAPI } from '../../api';
+import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 
 export default function UpdateServiceModal({ fields, service, show, onHide, fetchData }) {
@@ -17,7 +18,9 @@ export default function UpdateServiceModal({ fields, service, show, onHide, fetc
         setLoading(true);
         try {
             await serviceAPI.updateService({ ...formData });
+            setFormData({});
             fetchData();
+            toast.success('Service successfully edited!');
             onHide();
         } catch (error) {
             setErrors(error.response?.data || {});
@@ -44,7 +47,7 @@ export default function UpdateServiceModal({ fields, service, show, onHide, fetc
                 )}
                 <ServiceForm fields={fields} formData={formData} errors={errors} handleChange={handleChange} />
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='p-3 d-flex justify-content-center align-items-center'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
                 <Button variant='primary' onClick={handleSubmit} disabled={loading}>
                     { loading ? <Spinner size='sm' /> : 'Save Changes' }
@@ -61,7 +64,7 @@ UpdateServiceModal.propTypes = {
         type: PropTypes.string.isRequired,
         required: PropTypes.bool
     })).isRequired,
-    service: PropTypes.object.isRequired,
+    service: PropTypes.object,
     show: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
     fetchData: PropTypes.func.isRequired

@@ -51,7 +51,7 @@ export default function ProfileForm() {
     if (loading) {
         return (
             <div className='text-center p-5'>
-                <Spinner animation='border' />
+                <Spinner animation='border' /><br />
                 <span className='ms-2'>Loading...</span>
             </div>
         );

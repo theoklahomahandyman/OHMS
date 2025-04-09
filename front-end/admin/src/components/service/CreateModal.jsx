@@ -1,6 +1,7 @@
 import { Modal, Button, Spinner, Alert } from 'react-bootstrap';
 import ServiceForm from './ServiceForm';
-import { customerAPI } from '../../api';
+import { toast } from 'react-toastify';
+import { serviceAPI } from '../../api';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
@@ -12,8 +13,10 @@ export default function CreateServiceModal({ fields, show, onHide, fetchData }) 
     const handleSubmit = async () => {
         setLoading(true);
         try {
-            await customerAPI.createService(formData);
+            await serviceAPI.createService(formData);
+            setFormData({});
             fetchData();
+            toast.success('Service successfully created!');
             onHide();
         } catch (error) {
             setErrors(error.response?.data || {});
@@ -38,9 +41,9 @@ export default function CreateServiceModal({ fields, show, onHide, fetchData }) 
                 { Object.keys(errors).length > 0 && <Alert variant='danger'>Please fix form errors</Alert> }
                 <ServiceForm fields={fields} formData={formData} errors={errors} handleChange={handleChange} />
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='p-3 d-flex justify-content-center align-items-center'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
-                <Button variant='primary' onClick={handleSubmit} disabled={loading}>
+                <Button type='button' variant='primary' onClick={handleSubmit} disabled={loading}>
                     { loading ? <Spinner size='sm' /> : 'Create' }
                 </Button>
             </Modal.Footer>
