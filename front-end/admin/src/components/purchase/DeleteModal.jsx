@@ -49,7 +49,7 @@ export default function DeleteModal({ purchase, show, onHide, fetchData }) {
 };
 
 DeleteModal.propTypes = {
-    purchase: PropTypes.shapt({
+    purchase: PropTypes.shape({
         id: PropTypes.number.isRequired,
         supplier: PropTypes.object.isRequired,
         date: PropTypes.string.isRequired,
