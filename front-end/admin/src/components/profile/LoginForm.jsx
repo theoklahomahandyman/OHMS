@@ -23,6 +23,7 @@ export default function LoginForm() {
             navigate('/');
             toast.success('Welcome!');
         } catch (error) {
+            console.error(error);
             setErrors(error.response?.data || {});
             toast.error('Email or password incorrect, please try again!');
         } finally {
