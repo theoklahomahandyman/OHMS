@@ -1,3 +1,4 @@
+import ProfileModal from '../profile/ProfileModal';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import SideBar from '../SideBar';
@@ -6,6 +7,7 @@ import Nav from '../Nav';
 
 function Page({ heading, text, children }) {
     const [toggle, setToggle] = useState('navbar-nav bg-gradient-primary sidebar sidebar-dark accordion');
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
     const toggleSideBar = () => {
         if (toggle === 'navbar-nav bg-gradient-primary sidebar sidebar-dark accordion') {
@@ -18,14 +20,15 @@ function Page({ heading, text, children }) {
     return (
         <>
             <div id='wrapper'>
-                <SideBar toggle={toggle} toggleSideBar={toggleSideBar} />
+                <SideBar toggle={toggle} toggleSideBar={toggleSideBar} setShowProfileModal={setShowProfileModal} />
                 <div id='content-wrapper' className='d-flex flex-column'>
                     <div id='content'>
-                        <Nav toggleSideBar={toggleSideBar} />
+                        <Nav toggleSideBar={toggleSideBar} setShowProfileModal={setShowProfileModal} />
                         <div className="container-fluid">
                             {heading ? <h1 className="h3 mb-2 text-gray-800 text-center">{heading}</h1> : <></>}
                             {text ? <p className="mb-4 text-center">{text}</p> : <></>}
                             {children}
+                            <ProfileModal show={showProfileModal} onHide={() => setShowProfileModal(false)} />
                         </div>
                     </div>
                     <Footer />
