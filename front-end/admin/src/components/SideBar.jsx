@@ -32,7 +32,7 @@ function SideBar({ toggle, toggleSideBar, setShowProfileModal }) {
                 <div id="userInfo" className="collapse" aria-labelledby="userInfo" data-parent="#accordionSidebar">
                     <div className="bg-white py-2 collapse-inner rounded">
                         <h6 className="collapse-header">User Information:</h6>
-                        <button className="collapse-item" onClick={() => setShowProfileModal(true)}>Profile</button>
+                        <a className="collapse-item" href='#' onClick={(e) => { e.preventDefault(); setShowProfileModal(true) }}>Profile</a>
                         <a className="collapse-item" href="/password/">Password</a>
                     </div>
                 </div>

@@ -94,7 +94,7 @@ export default function ProfileModal({ show, onHide }) {
                 )}
             </Modal.Body>
             <Modal.Footer className='justify-content-center'>
-                <div className='text-center mt-4'>
+                <div className='text-center m-2'>
                     <Button variant='secondary' className='me-2 mx-5' onClick={onHide}>
                         Cancel
                     </Button>
