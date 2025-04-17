@@ -34,7 +34,7 @@ api.interceptors.response.use(
 );
 
 // Wake back-end and database
-const checkHealth = async (retries = 5, delay = 1000) => {
+const checkHealth = async (retries = 5, delay = 1500) => {
     try {
         const response = await api.get('/health/check/');
         if (response.data.status === 'ready') return true;

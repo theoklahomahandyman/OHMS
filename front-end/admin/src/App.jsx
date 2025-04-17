@@ -9,7 +9,6 @@ import Supplier from './pages/Supplier';
 import Purchase from './pages/Purchase';
 import Material from './pages/Material';
 import Customer from './pages/Customer';
-import Password from './pages/Password';
 import Service from './pages/Service';
 // import Asset from './pages/Asset';
 import Order from './pages/Order';
@@ -44,8 +43,6 @@ function App() {
 
 					<Route path='/order/' element={<ProtectedRoute><Order /></ProtectedRoute>} />
 					<Route path='/order/:id/' element={<ProtectedRoute><EditOrder /></ProtectedRoute>} />
-
-					<Route path='/password/' element={<ProtectedRoute><Password /></ProtectedRoute>} />
 
 					<Route path='/admin/' element={<ProtectedRoute><Admin /></ProtectedRoute>} />
 

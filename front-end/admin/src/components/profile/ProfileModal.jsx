@@ -1,12 +1,22 @@
 import { Form, Button, Row, Col, Spinner, Modal, Alert } from 'react-bootstrap';
+import { updateProfile } from '../../store/profileSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { profileAPI } from '../../api';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 
 export default function ProfileModal({ show, onHide }) {
-    const [loading, setLoading] = useState(true);
-    const [formData, setFormData] = useState({});
+    const dispatch = useDispatch();
+    const profile = useSelector(state => state.profile)
+
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        first_name: '',
+        last_name: '',
+        email: '',
+        phone: ''
+    });
     const [errors, setErrors] = useState({});
 
     const fields = [
@@ -17,25 +27,22 @@ export default function ProfileModal({ show, onHide }) {
     ];
 
     useEffect(() => {
-        const fetchProfile  = async () => {
-            try {
-                const response = await profileAPI.getProfile();
-                setFormData(response || {});
-            } catch (error) {
-                console.error('Profile loading error:', error);
-                toast.error('Failed to load profile');
-            } finally {
-                setLoading(false);
-            }
-        };
-        if (show) fetchProfile();
-    }, [show]);
+        if (profile) {
+            setFormData({
+                first_name: profile.first_name || '',
+                last_name: profile.last_name || '',
+                email: profile.email || '',
+                phone: profile.phone || ''
+            });
+        }
+    }, [profile]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
             await profileAPI.updateProfile(formData);
+            dispatch(updateProfile(formData));
             toast.success('Profile successfully updated!');
             onHide();
         } catch (error) {
@@ -55,7 +62,7 @@ export default function ProfileModal({ show, onHide }) {
                 {loading ? (
                     <div className='text-center p-4'>
                         <Spinner animation='border' /><br />
-                        <p className='mt-2'>Loading profile...</p>
+                        <p className='mt-2'>Loading...</p>
                     </div>
                 ) : (
                     <Form className='mx-5'>

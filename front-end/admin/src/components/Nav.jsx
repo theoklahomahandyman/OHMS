@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import Cookies from 'js-cookie';
 
-function Nav({ toggleSideBar, setShowProfileModal }) {
+function Nav({ toggleSideBar, setShowProfileModal, setShowPasswordModal }) {
     const navigate = useNavigate();
 
     const logout = () => {
@@ -34,10 +34,10 @@ function Nav({ toggleSideBar, setShowProfileModal }) {
                             <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                             Profile
                         </button>
-                        <a className="dropdown-item" href="/password/">
+                        <button className="dropdown-item" onClick={() => setShowPasswordModal(true)}>
                             <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                             Password
-                        </a>
+                        </button>
                         <div className="dropdown-divider"></div>
                         <button className="dropdown-item" onClick={logout}>
                             <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -52,7 +52,8 @@ function Nav({ toggleSideBar, setShowProfileModal }) {
 
 Nav.propTypes = {
     toggleSideBar: PropTypes.func.isRequired,
-    setShowProfileModal: PropTypes.func.isRequired
+    setShowProfileModal: PropTypes.func.isRequired,
+    setShowPasswordModal: PropTypes.func.isRequired
 };
 
 export default Nav;
