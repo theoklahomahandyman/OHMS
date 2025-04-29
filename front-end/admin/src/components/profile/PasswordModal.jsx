@@ -70,7 +70,7 @@ export default function PasswordModal({ show, onHide }) {
             };
             validatePassword();
         }
-    }, [formData, profile, passwordValidations, PASSWORD_MIN_LENGTH, show])
+    }, [formData, profile, PASSWORD_MIN_LENGTH, show]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
