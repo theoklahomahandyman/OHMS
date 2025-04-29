@@ -1,5 +1,5 @@
 import { Modal, Button, Spinner, Alert } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ServiceForm from './ServiceForm';
 import { serviceAPI } from '../../api';
 import { toast } from 'react-toastify';
@@ -8,10 +8,14 @@ import PropTypes from 'prop-types';
 export default function UpdateServiceModal({ fields, service, show, onHide, fetchData }) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({});
+    const [initialData, setInitialData] = useState({});
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        if (service) setFormData({ ...service });
+        if (service) {
+            setFormData({ ...service });
+            setInitialData({ ...service });
+        }
     }, [service]);
 
     const handleSubmit = async () => {
@@ -36,6 +40,14 @@ export default function UpdateServiceModal({ fields, service, show, onHide, fetc
         }));
     };
 
+    const isFormUnchanged = useMemo(() => {
+            if (!initialData) return true;
+            return (
+                formData.name === initialData.name &&
+                formData.description === initialData.description
+            );
+        }, [formData, initialData]);
+
     return (
         <Modal show={show} onHide={onHide} size='lg'>
             <Modal.Header closeButton>
@@ -49,7 +61,7 @@ export default function UpdateServiceModal({ fields, service, show, onHide, fetc
             </Modal.Body>
             <Modal.Footer className='p-3 d-flex justify-content-center align-items-center'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
-                <Button variant='primary' onClick={handleSubmit} disabled={loading}>
+                <Button variant='primary' onClick={handleSubmit} disabled={loading || isFormUnchanged}>
                     { loading ? <Spinner size='sm' /> : 'Save Changes' }
                 </Button>
             </Modal.Footer>
