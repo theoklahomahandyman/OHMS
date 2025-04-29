@@ -1,5 +1,5 @@
 import { Modal, Button, Spinner, Alert } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { customerAPI } from '../../api';
 import CustomerForm from './CustomerForm';
 import PropTypes from 'prop-types';
@@ -7,10 +7,14 @@ import PropTypes from 'prop-types';
 export default function UpdateCustomerModal({ fields, customer, show, onHide, fetchData }) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({});
+    const [initialData, setInitialData] = useState({});
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        if (customer) setFormData({ ...customer });
+        if (customer) {
+            setFormData({ ...customer });
+            setInitialData({ ...customer });
+        }
     }, [customer]);
 
     const handleSubmit = async () => {
@@ -26,12 +30,18 @@ export default function UpdateCustomerModal({ fields, customer, show, onHide, fe
         }
     };
 
-    const handleChange = (e) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value
-        }));
-    };
+    const isFormUnchanged = useMemo(() => {
+        if (!initialData) return true;
+        const currentPhone = (formData.phone || '').replace(/\D/g, '');
+        const initialPhone = (initialData.phone || '').replace(/\D/g, '') || '';
+        return (
+            formData.first_name === initialData.first_name &&
+            formData.last_name === initialData.last_name &&
+            formData.email === initialData.email &&
+            currentPhone === initialPhone &&
+            formData.notes === initialData.notes
+        );
+    }, [formData, initialData]);
 
     return (
         <Modal show={show} onHide={onHide} size='lg'>
@@ -42,11 +52,11 @@ export default function UpdateCustomerModal({ fields, customer, show, onHide, fe
                 { Object.keys(errors).length > 0 && (
                     <Alert variant='danger'>Please fix the form errors</Alert>
                 )}
-                <CustomerForm fields={fields} formData={formData} errors={errors} handleChange={handleChange} />
+                <CustomerForm fields={fields} formData={formData} setFormData={setFormData} errors={errors} />
             </Modal.Body>
             <Modal.Footer>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
-                <Button variant='primary' onClick={handleSubmit} disabled={loading}>
+                <Button variant='primary' onClick={handleSubmit} disabled={loading || isFormUnchanged}>
                     { loading ? <Spinner size='sm' /> : 'Save Changes' }
                 </Button>
             </Modal.Footer>
@@ -61,7 +71,7 @@ UpdateCustomerModal.propTypes = {
         type: PropTypes.string.isRequired,
         required: PropTypes.bool
     })).isRequired,
-    customer: PropTypes.object.isRequired,
+    customer: PropTypes.object,
     show: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
     fetchData: PropTypes.func.isRequired

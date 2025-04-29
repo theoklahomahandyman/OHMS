@@ -22,13 +22,6 @@ export default function CreateCustomerModal({ fields, show, onHide, fetchData })
         }
     };
 
-    const handleChange = (e) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value
-        }));
-    };
-
     return (
         <Modal show={show} onHide={onHide} size='lg'>
             <Modal.Header closeButton>
@@ -36,7 +29,7 @@ export default function CreateCustomerModal({ fields, show, onHide, fetchData })
             </Modal.Header>
             <Modal.Body>
                 { Object.keys(errors).length > 0 && <Alert variant='danger'>Please fix form errors</Alert> }
-                <CustomerForm fields={fields} formData={formData} errors={errors} handleChange={handleChange} />
+                <CustomerForm fields={fields} formData={formData} setFormData={setFormData} errors={errors} />
             </Modal.Body>
             <Modal.Footer>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>

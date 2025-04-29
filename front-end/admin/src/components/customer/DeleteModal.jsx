@@ -38,6 +38,6 @@ export default function DeleteCustomerModal({ show, onHide, customer, fetchData 
 DeleteCustomerModal.propTypes = {
     show: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
-    customer: PropTypes.object.isRequired,
+    customer: PropTypes.object,
     fetchData: PropTypes.func.isRequired,
 };

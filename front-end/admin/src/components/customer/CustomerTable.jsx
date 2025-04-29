@@ -27,7 +27,7 @@ export default function CustomerTable() {
         setLoading(true);
         try {
             const response = await customerAPI.getCustomers();
-            setData(response.data);
+            setData(response);
         } catch (error) {
             setError('Failed to load customers');
             console.error('Customer fetch error:', error);
@@ -51,7 +51,7 @@ export default function CustomerTable() {
     return (
         <Container fluid>
             <Card className='shadow mb-4'>
-                <Card.Header className='py-3 d-flex jusify-content-between align-items-center'>
+                <Card.Header className='py-3 d-flex justify-content-between align-items-center'>
                     <h5 className='m-0 font-weight-bold text-primary'>Customers</h5>
                     <Button variant='primary' onClick={() => setShowCreate(true)}>Add Customer</Button>
                 </Card.Header>
@@ -59,12 +59,11 @@ export default function CustomerTable() {
                     { error && <Alert variant='danger'>{ error }</Alert>}
                     { loading ? (
                         <div className='text-center'>
-                            <Spinner animation='border' role='status'>
-                                <span className='visually-hidden'>Loading...</span>
-                            </Spinner>
+                            <Spinner animation='border' role='status'></Spinner><br />
+                            <span className='visually-hidden'>Loading...</span>
                         </div>
                     ) : (
-                        <Table responsive striped bordered hover id='customerTable'>
+                        <Table responsive striped bordered hover id='customerTable' className='my-3'>
                             <thead>
                                 <tr>
                                     { fields.map((field) => (
@@ -74,7 +73,7 @@ export default function CustomerTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                { data.length > 0 ? data.map((customer) => (
+                                { Array.isArray(data) && data?.length > 0 ? data.map((customer) => (
                                     <tr key={customer.id} className='text-center'>
                                         { fields.map((field) => (
                                             <td key={`${field.name}-${customer.id}`}>
@@ -82,7 +81,7 @@ export default function CustomerTable() {
                                             </td>
                                         ))}
                                         <td>
-                                            <Button variant='info' size='sm' className='me-2' onClick={() => { setSelectedCustomer(customer); setShowUpdate(true)} }>Edit</Button>
+                                            <Button variant='info' size='sm' className='me-2 mr-4' onClick={() => { setSelectedCustomer(customer); setShowUpdate(true)} }>Edit</Button>
                                             <Button variant='danger' size='sm' className='me-2' onClick={() => { setSelectedCustomer(customer); setShowDelete(true)} }>Delete</Button>
                                         </td>
                                     </tr>
