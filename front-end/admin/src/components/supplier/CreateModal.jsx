@@ -8,16 +8,20 @@ export default function CreateModal({ show, onHide, fetchData }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
-    const handleSubmit = async (formData) => {
+    const handleSubmit = async (formData, addresses) => {
         setLoading(true);
         try {
-            const { data: supplier } = await supplierAPI.createSupplier({
-                name: formData.name,
-                notes: formData.notes
-            });
-            await Promise.all(formData.addresses.map(address =>
-                supplierAPI.createAddress(supplier.id, address)
-            ));
+            const dataToSend = {
+                ...formData,
+                addresses: addresses.map(addr => ({
+                    ...addr,
+                    zip: addr.zip ? parseInt(addr.zip) : null
+                })).filter(addr =>
+                    addr.street_address || addr.city || addr.state || addr.zip || addr.notes
+                )
+            };
+            const response = await supplierAPI.createSupplier(dataToSend);
+            console.log(response)
             fetchData();
             onHide();
         } catch (error) {

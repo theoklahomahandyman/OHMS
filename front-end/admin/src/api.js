@@ -236,7 +236,6 @@ export const serviceAPI = {
 // Supplier Routes
 export const supplierAPI = {
     url: '/supplier/',
-    addressURL: '/addresses/',
     createSupplier: async (data) => {
         try {
             return await makeRequest('post', supplierAPI.url, data);
@@ -266,38 +265,6 @@ export const supplierAPI = {
             return await makeRequest('delete', `${supplierAPI.url}${supplierID}/`);
         } catch (error) {
             console.error('Error with supplierAPI.deleteSupplier():', error);
-            throw error;
-        }
-    },
-    createAddress: async (supplierID, data) => {
-        try {
-            return await makeRequest('post', `${supplierAPI.url}${supplierID}/${supplierAPI.addressURL}`, data);
-        } catch (error) {
-            console.error('Error with supplierAPI.createAddress():', error);
-            throw error;
-        }
-    },
-    getAddresses: async (supplierID) => {
-        try {
-            return await makeRequest('post', `${supplierAPI.url}${supplierID}/${supplierAPI.addressURL}`);
-        } catch (error) {
-            console.error('Error with supplierAPI.getAddresses():', error);
-            throw error;
-        }
-    },
-    updateAddress: async (supplierID, addressID, data) => {
-        try {
-            return await makeRequest('patcj', `${supplierAPI.url}${supplierID}/${supplierAPI.addressURL}${addressID}/`, data);
-        } catch (error) {
-            console.error('Error with supplierAPI.updateAddress():', error);
-            throw error;
-        }
-    },
-    deleteAddress: async (supplierID, addressID) => {
-        try {
-            return await makeRequest('patcj', `${supplierAPI.url}${supplierID}/${supplierAPI.addressURL}${addressID}/`);
-        } catch (error) {
-            console.error('Error with supplierAPI.deleteAddress():', error);
             throw error;
         }
     },

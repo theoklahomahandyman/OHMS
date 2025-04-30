@@ -1,11 +1,33 @@
 import { Tab, Nav, Form, Button, Spinner, Alert } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-export default function SupplierForm({ initialData, onSubmit, errors, loading }) {
+export default function SupplierForm({ supplierData, onSubmit, errors, loading }) {
     const [activeTab, setActiveTab] = useState('basic');
-    const [formData, setFormData] = useState(initialData || {});
-    const [addresses, setAddresses] = useState(initialData?.addresses || []);
+    const [formData, setFormData] = useState({});
+    const [initialData, setInitialData] = useState({});
+    const [addresses, setAddresses] = useState([]);
+    const [initialAddresses, setInitialAddresses] = useState([]);
+
+    const emptyAddress = useMemo(() => ({
+        street_address: '',
+        city: '',
+        state: '',
+        zip: '',
+        notes: ''
+    }), []);
+
+    useEffect(() => {
+        if (supplierData) {
+            setFormData({ ...supplierData });
+            setInitialData({ ...supplierData });
+            setAddresses([ ...(supplierData?.addresses || []) ]);
+            setInitialAddresses([ ...(supplierData?.addresses || []) ]);
+        } else {
+            setFormData({ name: '', notes: '' });
+            setAddresses([ emptyAddress ]);
+        }
+    }, [supplierData, emptyAddress]);
 
     const locationFields = [
         { name: 'street_address', label: 'Street Address', type: 'text', required: true },
@@ -15,16 +37,10 @@ export default function SupplierForm({ initialData, onSubmit, errors, loading })
         { name: 'notes', label: 'Notes', type: 'text' }
     ];
 
-    useEffect(() => {
-        if (initialData) {
-            setFormData(initialData);
-            setAddresses(initialData.addresses || []);
-        }
-    }, [initialData]);
-
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit({ ...formData, addresses });
+        onSubmit(formData, addresses);
+        console.log(errors);
     };
 
     const handleAddressChange = (index, field, value) => {
@@ -34,13 +50,24 @@ export default function SupplierForm({ initialData, onSubmit, errors, loading })
     };
 
     const addAddress = () => {
-        setAddresses([...addresses, {}]);
+        setAddresses([...addresses, emptyAddress]);
     };
 
     const removeAddress = (index) => {
         const updatedAddresses = addresses.filter((_, i) => i !== index);
         setAddresses(updatedAddresses);
     };
+
+    const isFormUnchanged = useMemo(() => {
+            if (!initialData && !supplierData) return false;
+            const baseUnchanged = formData.name === initialData.name && formData.notes === initialData.notes;
+            const addressesUnchanged = JSON.stringify(addresses) === JSON.stringify(initialAddresses);
+            return (
+                baseUnchanged,
+                addressesUnchanged
+            );
+        }, [formData, initialData, addresses, initialAddresses, supplierData]);
+
 
     return (
         <Form onSubmit={handleSubmit}>
@@ -61,7 +88,7 @@ export default function SupplierForm({ initialData, onSubmit, errors, loading })
                     <Tab.Pane eventKey='basic'>
                         <Form.Group className='mb-3'>
                             <Form.Label>Supplier Name</Form.Label>
-                            <Form.Control type='text' reqired
+                            <Form.Control type='text' required
                                 value={formData.name || ''}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 isInvalid={!!errors.name}
@@ -78,12 +105,12 @@ export default function SupplierForm({ initialData, onSubmit, errors, loading })
                                 isInvalid={!!errors.notes}
                             />
                         </Form.Group>
-                        <div className='text-end'>
+                        <div className='d-flex justify-content-end'>
                             <Button variant='primary' onClick={() => setActiveTab('locations')}>Next</Button>
                         </div>
                     </Tab.Pane>
                     <Tab.Pane eventKey='locations'>
-                        {addresses.map((address, index) => (
+                        {Array.isArray(addresses) && addresses.length > 0 ? addresses.map((address, index) => (
                             <div key={index} className='border p-3 mb-3'>
                                 <div className='d-flex justify-content-between mb-2'>
                                     <h6>Location {index + 1}</h6>
@@ -93,7 +120,7 @@ export default function SupplierForm({ initialData, onSubmit, errors, loading })
                                     <Form.Group key={field.name} className='mb-3'>
                                         <Form.Label>{field.label}</Form.Label>
                                         <Form.Control type={field.type} required={field.required}
-                                            value={address[field.name] || ''}
+                                            value={address?.[field.name] || ''}
                                             onChange={(e) => handleAddressChange(index, field.name, e.target.value)}
                                             isInvalid={!!errors[`addresses.${index}.${field.name}`]}
                                         />
@@ -103,11 +130,19 @@ export default function SupplierForm({ initialData, onSubmit, errors, loading })
                                     </Form.Group>
                                 ))}
                             </div>
-                        ))}
-                        <Button variant='success' onClick={addAddress} className='mb-3'>Add Location</Button>
+                        )) : null}
+                        <div className="d-flex justify-content-center">
+                            <Button variant='success' onClick={addAddress} className='mb-3'>Add Location</Button>
+                        </div>
                         <div className='d-flex justify-content-between'>
                             <Button variant='secondary' onClick={() => setActiveTab('basic')}>Back</Button>
+                            <Button variant='primary' type='submit' disabled={loading || isFormUnchanged}>
+                                {loading ? (
+                                    <Spinner animation='border' size='sm' />
+                                ) : initialData ? 'Save Changes' : 'Create Supplier'}
+                            </Button>
                         </div>
+
                     </Tab.Pane>
                 </Tab.Content>
             </Tab.Container>
@@ -116,13 +151,6 @@ export default function SupplierForm({ initialData, onSubmit, errors, loading })
                     Please fix form errors
                 </Alert>
             )}
-            <div className='text-end mt-4'>
-                <Button variant='primary' type='submit' disabled={loading}>
-                    {loading ? (
-                        <Spinner animation='border' size='sm' />
-                    ) : initialData ? 'Save Changes' : 'Create Supplier'}
-                </Button>
-            </div>
         </Form>
     );
 };
@@ -131,16 +159,5 @@ SupplierForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     errors: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
-    initialData: PropTypes.objectOf(PropTypes.shape({
-        id: PropTypes.number,
-        name: PropTypes.string,
-        notes: PropTypes.string,
-        locations: PropTypes.arrayOf(PropTypes.shape({
-            street_address: PropTypes.string,
-            city: PropTypes.string,
-            state: PropTypes.string,
-            zip: PropTypes.string,
-            notes: PropTypes.string
-        }))
-    }))
+    supplierData: PropTypes.object
 };

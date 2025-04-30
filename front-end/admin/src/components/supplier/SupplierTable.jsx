@@ -12,8 +12,8 @@ export default function SupplierTable() {
     const [showUpdate, setShowUpdate] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState({});
-    const [data, setData] = useState({});
+    const [error, setError] = useState(null);
+    const [data, setData] = useState({})
 
     const fields = [
         { name: 'name', label: 'Supplier Name' },
@@ -24,7 +24,7 @@ export default function SupplierTable() {
         setLoading(true);
         try {
             const response = await supplierAPI.getSuppliers();
-            setData(response.data);
+            setData(response);
         } catch (error) {
             setError('Failed to load suppliers');
             console.error('Supplier fetch error:', error);
@@ -56,12 +56,11 @@ export default function SupplierTable() {
                     {error && <Alert variant='danger'>{error}</Alert>}
                     {loading ? (
                         <div className='text-center'>
-                            <Spinner animation='border' role='status'>
-                                <span className='visually-hidden'>Loading</span>
-                            </Spinner>
+                            <Spinner animation='border' role='status'></Spinner><br />
+                            <span className='visually-hidden'>Loading</span>
                         </div>
                     ) : (
-                        <Table responsive striped bordered hover id='supplierTable'>
+                        <Table responsive striped bordered hover id='supplierTable' className='my-3'>
                             <thead>
                                 <tr>
                                     {fields.map((field) => (
@@ -72,7 +71,7 @@ export default function SupplierTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.length > 0 ? data.map((supplier) => (
+                                { Array.isArray(data) && data?.length > 0 ? data.map((supplier) => (
                                     <tr key={supplier.id} className='text-center'>
                                         {fields.map((field) => (
                                             <td key={`${field.name}-${supplier.id}`}>
@@ -80,9 +79,11 @@ export default function SupplierTable() {
                                             </td>
                                         ))}
                                         <td>{supplier.addresses?.length || 0}</td>
-                                        <td>
-                                            <Button variant='info' size='sm' className='me-2' onClick={() => { setSelectedSupplier(supplier); setShowUpdate(true) }}>Edit</Button>
-                                            <Button variant='dangr' size='sm' className='me-2' onClick={() => { setSelectedSupplier(supplier); setShowDelete(true) }}>Delete</Button>
+                                        <td className='text-center' style={{ verticalAlign: 'middle', height: '75px' }}>
+                                            <div className='d-flex justify-content-center'>
+                                                <Button variant='info' size='sm' className='mr-2' onClick={() => { setSelectedSupplier(supplier); setShowUpdate(true) }}>Edit</Button>
+                                                <Button variant='danger' size='sm' onClick={() => { setSelectedSupplier(supplier); setShowDelete(true) }}>Delete</Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 )) : (

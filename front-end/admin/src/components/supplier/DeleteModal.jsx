@@ -36,18 +36,7 @@ export default function DeleteModal({ supplier, show, onHide, fetchData }) {
 };
 
 DeleteModal.propTypes = {
-    supplier: PropTypes.objectOf(PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        name: PropTypes.string.isRequired,
-        notes: PropTypes.string,
-        locations: PropTypes.arrayOf(PropTypes.shape({
-            street_address: PropTypes.string,
-            city: PropTypes.string,
-            state: PropTypes.string,
-            zip: PropTypes.string,
-            notes: PropTypes.string
-        }))
-    })).isRequired,
+    supplier: PropTypes.object,
     show: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
     fetchData: PropTypes.func.isRequired

@@ -16,6 +16,12 @@ class TestSupplierModels(TestCase):
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
 
+    ''' Clean up test data '''
+    @classmethod
+    def tearDownClass(cls):
+        cls.address.delete()
+        cls.supplier.delete()
+
     ''' Test string method for supplier model '''
     def test_supplier_string(self):
         self.assertEqual(str(self.supplier), self.supplier.name)
@@ -33,14 +39,21 @@ class TestSupplierSerializers(TestCase):
         cls.supplier = Supplier.objects.create(name='supplier')
         cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
         cls.long_string = 'a' * 501
-        cls.empty_supplier_data = {'name': ''}
-        cls.short_supplier_data = {'name': 'T'}
-        cls.long_supplier_data = {'name': cls.long_string, 'notes': cls.long_string}
-        cls.supplier_data = {'name': 'test', 'notes': 'test notes'}
-        cls.empty_supplier_address_data = {'supplier': '', 'street_address': '', 'city': '', 'state': '', 'zip': ''}
-        cls.short_supplier_address_data = {'supplier': cls.supplier.pk, 'street_address': 'T', 'city': 'C', 'state': 'O', 'zip': 482}
-        cls.long_supplier_address_data = {'supplier': cls.supplier.pk, 'street_address': cls.long_string, 'city': cls.long_string, 'state': cls.long_string, 'zip': 57390238573}
-        cls.supplier_address_data = {'supplier': cls.supplier.pk, 'street_address': '164 Main St', 'city': 'City', 'state': 'State', 'zip': 48023}
+        cls.empty_supplier_address_data = {'street_address': '', 'city': '', 'state': '', 'zip': ''}
+        cls.short_supplier_address_data = {'street_address': 'T', 'city': 'C', 'state': 'O', 'zip': 482}
+        cls.long_supplier_address_data = {'street_address': cls.long_string, 'city': cls.long_string, 'state': cls.long_string, 'zip': 57390238573}
+        cls.supplier_address_data = {'street_address': '164 Main St', 'city': 'City', 'state': 'State', 'zip': 48023}
+        cls.empty_supplier_data = {'name': '', 'notes': '', 'addresses': [cls.empty_supplier_address_data]}
+        cls.short_supplier_data = {'name': 'T', 'notes': '', 'addresses': [cls.short_supplier_address_data]}
+        cls.long_supplier_data = {'name': cls.long_string, 'notes': cls.long_string, 'addresses': [cls.long_supplier_address_data]}
+        cls.supplier_data = {'name': 'test', 'notes': 'test notes', 'addresses': [cls.supplier_address_data]}
+        cls.supplier_with_address = {'name': 'supplier with address', 'notes': 'supplier with address', 'addresses': [{'street_address': '123 Main St', 'city': 'Test', 'state': 'Test', 'zip': 28342, 'notes': 'test address'}]}
+
+    ''' Clean up test data '''
+    @classmethod
+    def tearDownClass(cls):
+        cls.address.delete()
+        cls.supplier.delete()
 
     ''' Test supplier serializer with empty data '''
     def test_supplier_serializer_empty_data(self):
@@ -72,7 +85,6 @@ class TestSupplierSerializers(TestCase):
     def test_supplier_address_serializer_empty_data(self):
         serializer = SupplierAddressSerializer(data=self.empty_supplier_address_data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn('supplier', serializer.errors)
         self.assertIn('street_address', serializer.errors)
         self.assertIn('city', serializer.errors)
         self.assertIn('state', serializer.errors)
@@ -100,11 +112,19 @@ class TestSupplierSerializers(TestCase):
     def test_supplier_address_serializer_validation_success(self):
         serializer = SupplierAddressSerializer(data=self.supplier_address_data)
         self.assertTrue(serializer.is_valid())
-        self.assertIn('supplier', serializer.validated_data)
         self.assertIn('street_address', serializer.validated_data)
         self.assertIn('city', serializer.validated_data)
         self.assertIn('state', serializer.validated_data)
         self.assertIn('zip', serializer.validated_data)
+
+    ''' Test supplier with address serializer validation success '''
+    def test_supplier_with_address_serializer_validation_success(self):
+        serializer = SupplierSerializer(data=self.supplier_with_address)
+        self.assertTrue(serializer.is_valid())
+        supplier_with_address = serializer.save()
+        self.assertIn('name', supplier_with_address)
+        self.assertIn('notes', supplier_with_address)
+        self.assertIn('addresses', supplier_with_address)
 
 ''' Tests for supplier view '''
 class TestSupplierView(APITestCase):
@@ -120,7 +140,7 @@ class TestSupplierView(APITestCase):
         cls.empty_data = {'name': ''}
         cls.short_data = {'name': 'T'}
         cls.long_data = {'name': cls.long_string, 'notes': cls.long_string}
-        cls.create_data = {'name': 'test', 'notes': 'test notes'}
+        cls.create_data = {'name': 'test brand new supplier name', 'notes': 'test notes'}
         cls.update_data = {'name': 'updated', 'notes': 'updated notes'}
         cls.patch_data = {'notes': 'test service description.'}
         cls.list_url = reverse('supplier-list')
@@ -225,149 +245,3 @@ class TestSupplierView(APITestCase):
         response = self.client.delete(self.detail_url(self.supplier.pk))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Supplier.objects.count(), 0)
-
-''' Tests for supplier address view '''
-class TestSupplierAddressView(APITestCase):
-
-    ''' Set up test data '''
-    @classmethod
-    def setUpTestData(cls):
-        cls.client = APIClient()
-        cls.password = 'test1234'
-        cls.long_string = 'a' * 501
-        cls.supplier = Supplier.objects.create(name='test')
-        cls.address = SupplierAddress.objects.create(supplier=cls.supplier, street_address='123 Test Street', city='City', state='State', zip=12345)
-        cls.long_string = 'a' * 501
-        cls.empty_data = {'street_address': '', 'city': '', 'state': '', 'zip': ''}
-        cls.short_data = {'street_address': 'T', 'city': 'C', 'state': 'O', 'zip': 482}
-        cls.long_data = {'street_address': cls.long_string, 'city': cls.long_string, 'state': cls.long_string, 'zip': 57390238573, 'notes': cls.long_string}
-        cls.create_data = {'street_address': '164 Main St', 'city': 'City', 'state': 'State', 'zip': 48023, 'notes': 'notes'}
-        cls.update_data = {'street_address': '749 Fairview St', 'city': 'A-Town', 'state': 'ST', 'zip': 52023, 'notes': 'updated notes'}
-        cls.patch_data = {'notes': 'test service description.'}
-        cls.list_url = lambda supplier_pk: reverse('supplier-address-list', kwargs={'supplier_pk': supplier_pk})
-        cls.detail_url = lambda supplier_pk, address_pk: reverse('supplier-address-detail', kwargs={'supplier_pk': supplier_pk, 'address_pk': address_pk})
-        cls.representation_url = lambda address_pk: reverse('supplier-address', kwargs={'pk': address_pk})
-        cls.representation = f'{cls.address.street_address} {cls.address.city}, {cls.address.state} {cls.address.zip}'
-        cls.user = User.objects.create(first_name='first', last_name='last', email='firstlast@example.com', phone='1 (234) 567-8901', password=make_password(cls.password))
-
-    ''' Test get supplier address not found '''
-    def test_get_supplier_address_not_found(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.detail_url(self.supplier.pk, 79027269))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data['detail'], 'Supplier Address Not Found.')
-
-    ''' Test get supplier address success '''
-    def test_get_supplier_address_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.detail_url(self.supplier.pk, self.address.pk))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['street_address'], self.address.street_address)
-        self.assertEqual(response.data['city'], self.address.city)
-        self.assertEqual(response.data['state'], self.address.state)
-        self.assertEqual(response.data['zip'], self.address.zip)
-        self.assertEqual(response.data['notes'], self.address.notes)
-
-    ''' Test get supplier addresses success '''
-    def test_get_supplier_addresses_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.list_url(self.supplier.pk))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), SupplierAddress.objects.filter(supplier=self.supplier).count())
-
-    ''' Test create supplier address with empty data '''
-    def test_create_supplier_address_empty_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(self.list_url(self.supplier.pk), data=self.empty_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('street_address', response.data)
-        self.assertIn('city', response.data)
-        self.assertIn('state', response.data)
-        self.assertIn('zip', response.data)
-
-    ''' Test create supplier address with short data '''
-    def test_create_supplier_address_short_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(self.list_url(self.supplier.pk), data=self.short_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('street_address', response.data)
-        self.assertIn('city', response.data)
-        self.assertIn('state', response.data)
-        self.assertIn('zip', response.data)
-
-    ''' Test create supplier address with long data '''
-    def test_create_supplier_address_long_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(self.list_url(self.supplier.pk), data=self.long_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('street_address', response.data)
-        self.assertIn('city', response.data)
-        self.assertIn('state', response.data)
-        self.assertIn('zip', response.data)
-        self.assertIn('notes', response.data)
-
-    ''' Test create supplier address success '''
-    def test_create_supplier_address_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(self.list_url(self.supplier.pk), data=self.create_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(SupplierAddress.objects.count(), 2)
-        address = SupplierAddress.objects.get(street_address=self.create_data['street_address'])
-        self.assertEqual(address.street_address, self.create_data['street_address'])
-        self.assertEqual(address.city, self.create_data['city'])
-        self.assertEqual(address.state, self.create_data['state'])
-        self.assertEqual(address.zip, self.create_data['zip'])
-        self.assertEqual(address.notes, self.create_data['notes'])
-
-    ''' Test update supplier address with empty data '''
-    def test_update_supplier_address_empty_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.supplier.pk, self.address.pk), data=self.empty_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('street_address', response.data)
-        self.assertIn('city', response.data)
-        self.assertIn('state', response.data)
-        self.assertIn('zip', response.data)
-
-    ''' Test update supplier address with short data '''
-    def test_update_supplier_address_short_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.supplier.pk, self.address.pk), data=self.short_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('street_address', response.data)
-        self.assertIn('city', response.data)
-        self.assertIn('state', response.data)
-        self.assertIn('zip', response.data)
-
-    ''' Test update supplier address with long data '''
-    def test_update_supplier_address_long_data(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.supplier.pk, self.address.pk), data=self.long_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('street_address', response.data)
-        self.assertIn('city', response.data)
-        self.assertIn('state', response.data)
-        self.assertIn('zip', response.data)
-        self.assertIn('notes', response.data)
-
-    ''' Test update supplier address success '''
-    def test_update_supplier_address_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.patch(self.detail_url(self.supplier.pk, self.address.pk), data=self.patch_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        address = SupplierAddress.objects.get(pk=self.address.pk)
-        self.assertEqual(address.notes, self.patch_data['notes'])
-
-    ''' Test delete supplier address success '''
-    def test_delete_supplier_address_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.delete(self.detail_url(self.supplier.pk, self.address.pk))
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(SupplierAddress.objects.count(), 0)
-
-    ''' Test get supplier address representation success '''
-    def test_get_supplier_address_representation_success(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.representation_url(self.address.pk))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['representation'], self.representation)
