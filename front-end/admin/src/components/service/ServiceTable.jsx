@@ -78,7 +78,7 @@ export default function ServiceTable() {
                                             </td>
                                         ))}
                                         <td>
-                                            <Button variant='secondary' size='sm' className='me-2 mr-4' onClick={() => { setSelectedService(service); setShowUpdate(true) }}>Edit</Button>
+                                            <Button variant='info' size='sm' className='me-2 mr-4' onClick={() => { setSelectedService(service); setShowUpdate(true) }}>Edit</Button>
                                             <Button variant='danger' size='sm' className='me-2' onClick={() => { setSelectedService(service); setShowDelete(true) }}>Delete</Button>
                                         </td>
                                     </tr>
