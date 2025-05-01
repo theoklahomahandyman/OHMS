@@ -25,7 +25,7 @@ export default function DeleteAdminModal({ show, onHide, admin, fetchData }) {
             <Modal.Body>
                 Are you sure you want to delete {admin?.first_name} {admin?.last_name}?
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='p-3 d-flex justify-content-between'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
                 <Button variant='danger' onClick={handleDelete} disabled={loading}>
                     { loading ? <Spinner size='sm' /> : 'Delete' }
@@ -38,6 +38,6 @@ export default function DeleteAdminModal({ show, onHide, admin, fetchData }) {
 DeleteAdminModal.propTypes = {
     show: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
-    admin: PropTypes.object.isRequired,
+    admin: PropTypes.object,
     fetchData: PropTypes.func.isRequired,
 };

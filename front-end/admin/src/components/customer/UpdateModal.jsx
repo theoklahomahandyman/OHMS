@@ -54,7 +54,7 @@ export default function UpdateCustomerModal({ fields, customer, show, onHide, fe
                 )}
                 <CustomerForm fields={fields} formData={formData} setFormData={setFormData} errors={errors} />
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='p-3 d-flex justify-content-between'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
                 <Button variant='primary' onClick={handleSubmit} disabled={loading || isFormUnchanged}>
                     { loading ? <Spinner size='sm' /> : 'Save Changes' }

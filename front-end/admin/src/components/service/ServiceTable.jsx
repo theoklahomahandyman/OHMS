@@ -77,9 +77,11 @@ export default function ServiceTable() {
                                                 {service[field.name] || 'N/A'}
                                             </td>
                                         ))}
-                                        <td>
-                                            <Button variant='info' size='sm' className='me-2 mr-4' onClick={() => { setSelectedService(service); setShowUpdate(true) }}>Edit</Button>
-                                            <Button variant='danger' size='sm' className='me-2' onClick={() => { setSelectedService(service); setShowDelete(true) }}>Delete</Button>
+                                        <td style={{ verticalAlign: 'middle', height: '75ppx' }}>
+                                            <div className='d-flex justify-content-center'>
+                                                <Button variant='info' size='sm' className='mr-2' onClick={() => { setSelectedService(service); setShowUpdate(true) }}>Edit</Button>
+                                                <Button variant='danger' size='sm' onClick={() => { setSelectedService(service); setShowDelete(true) }}>Delete</Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 )) : (

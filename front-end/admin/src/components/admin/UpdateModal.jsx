@@ -1,5 +1,5 @@
 import { Modal, Button, Spinner, Alert } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { adminAPI } from '../../api';
 import AdminForm from './AdminForm';
 import PropTypes from 'prop-types';
@@ -7,10 +7,15 @@ import PropTypes from 'prop-types';
 export default function UpdateAdminModal({ fields, admin, show, onHide, fetchData }) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({});
+    const [initialData, setInitialData] = useState({});
+
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        if (admin) setFormData({ ...admin });
+        if (admin) {
+            setFormData({ ...admin });
+            setInitialData({ ...admin });
+        }
     }, [admin]);
 
     const handleSubmit = async () => {
@@ -26,13 +31,19 @@ export default function UpdateAdminModal({ fields, admin, show, onHide, fetchDat
         }
     };
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
+    const isFormUnchanged = useMemo(() => {
+        if (!initialData) return true;
+        const currentPhone = (formData.phone || '').replace(/\D/g, '');
+        const initialPhone = (initialData.phone || '').replace(/\D/g, '') || '';
+        return (
+            formData.first_name === initialData.first_name &&
+            formData.last_name === initialData.last_name &&
+            formData.email === initialData.email &&
+            currentPhone === initialPhone &&
+            formData.pay_rate === initialData.pay_rate &&
+            formData.is_active === initialData.is_active
+        );
+    }, [formData, initialData]);
 
     return (
         <Modal show={show} onHide={onHide} size='lg'>
@@ -43,11 +54,11 @@ export default function UpdateAdminModal({ fields, admin, show, onHide, fetchDat
                 { Object.keys(errors).length > 0 && (
                     <Alert variant='danger'>Please fix the form errors</Alert>
                 )}
-                <AdminForm fields={fields} formData={formData} errors={errors} handleChange={handleChange} />
+                <AdminForm fields={fields} formData={formData} errors={errors} setFormData={setFormData} />
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='p-3 d-flex justify-content-between'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
-                <Button variant='primary' onClick={handleSubmit} disabled={loading}>
+                <Button variant='primary' onClick={handleSubmit} disabled={loading || isFormUnchanged}>
                     { loading ? <Spinner size='sm' /> : 'Save Changes' }
                 </Button>
             </Modal.Footer>
@@ -62,7 +73,7 @@ UpdateAdminModal.propTypes = {
         type: PropTypes.string.isRequired,
         required: PropTypes.bool
     })).isRequired,
-    admin: PropTypes.object.isRequired,
+    admin: PropTypes.object,
     show: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
     fetchData: PropTypes.func.isRequired

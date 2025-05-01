@@ -59,7 +59,7 @@ export default function UpdateServiceModal({ fields, service, show, onHide, fetc
                 )}
                 <ServiceForm fields={fields} formData={formData} errors={errors} handleChange={handleChange} />
             </Modal.Body>
-            <Modal.Footer className='p-3 d-flex justify-content-center align-items-center'>
+            <Modal.Footer className='p-3 d-flex justify-content-between'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
                 <Button variant='primary' onClick={handleSubmit} disabled={loading || isFormUnchanged}>
                     { loading ? <Spinner size='sm' /> : 'Save Changes' }

@@ -20,7 +20,7 @@ export default function AdminTable() {
         { name: 'last_name', label: 'Last Name', type: 'text' },
         { name: 'email', label: 'Email', type: 'email' },
         { name: 'phone', label: 'Phone Number', type: 'text' },
-        { name: 'pay_rate', label: 'Pay Rate', type: 'number' },
+        { name: 'pay_rate', label: 'Pay Rate ($)', type: 'number' },
         { name: 'is_active', label: 'Status', type: 'checkbox' },
     ];
 
@@ -28,7 +28,7 @@ export default function AdminTable() {
         try {
             setLoading(true);
             const response = await adminAPI.getAdmins();
-            setData(response.data);
+            setData(response);
         } catch (error) {
             setError('Failed to load administrators');
             console.error('Admin fetch error:', error);
@@ -60,12 +60,11 @@ export default function AdminTable() {
                     { error && <Alert variant='danger'>{ error }</Alert> }
                     { loading ? (
                         <div className='text-center'>
-                            <Spinner animation='border' role='status'>
-                                <span className='visually-hidden'>Loading...</span>
-                            </Spinner>
+                            <Spinner animation='border' role='status'></Spinner><br />
+                            <span className='visually-hidden'>Loading...</span>
                         </div>
                     ) : (
-                        <Table responsive striped bordered hover id='adminTable'>
+                        <Table responsive striped bordered hover id='adminTable' className='my-3'>
                             <thead>
                                 <tr>
                                     { fields.map((field) => (
@@ -75,21 +74,25 @@ export default function AdminTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                { data.length > 0 ? (
+                                { Array.isArray(data) && data?.length > 0 ? (
                                     data.map((admin) => (
                                         <tr key={admin.id} className='text-center'>
                                             {fields.map((field) => (
                                                 <td key={`${field.name}-${admin.id}`}>
                                                     { field.name === 'is_active' ? (
                                                         <span style={{ color: admin[field.name] ? 'green' : 'red'}}>{ admin[field.name] ? 'Active' : 'Inactive' }</span>
+                                                    ) : field.name === 'pay_rate' ? (
+                                                        `$${Number(admin[field.name]).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                                                     ) : (
                                                         admin[field.name]
                                                     )}
                                                 </td>
                                             ))}
-                                            <td>
-                                                <Button variant='info' size='sm' className='me-2'>Edit</Button>
-                                                <Button variant='danger' size='sm' onClick={() => {setSelectedAdmin(admin); setShowDelete(true)}}>Delete</Button>
+                                            <td style={{ verticalAlign: 'middle', height: '75px' }}>
+                                                <div className='d-flex justify-content-center'>
+                                                    <Button variant='info' size='sm' className='mr-2' onClick={() => {setSelectedAdmin(admin); setShowUpdate(true)}}>Edit</Button>
+                                                    <Button variant='danger' size='sm' onClick={() => {setSelectedAdmin(admin); setShowDelete(true)}}>Delete</Button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

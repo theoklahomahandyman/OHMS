@@ -31,7 +31,7 @@ export default function CreateCustomerModal({ fields, show, onHide, fetchData })
                 { Object.keys(errors).length > 0 && <Alert variant='danger'>Please fix form errors</Alert> }
                 <CustomerForm fields={fields} formData={formData} setFormData={setFormData} errors={errors} />
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='p-3 d-flex justify-content-between'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
                 <Button variant='primary' onClick={handleSubmit} disabled={loading}>
                     { loading ? <Spinner size='sm' /> : 'Create' }

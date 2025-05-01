@@ -27,7 +27,7 @@ export default function DeleteServiceModal({ show, onHide, service, fetchData })
             <Modal.Body>
                 Are you sure you want to delete {service?.name}?
             </Modal.Body>
-            <Modal.Footer className='p-3 d-flex justify-content-center align-items-center'>
+            <Modal.Footer className='p-3 d-flex justify-content-between'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
                 <Button variant='danger' onClick={handleDelete} disabled={loading}>
                     { loading ? <Spinner size='sm' /> : 'Delete' }

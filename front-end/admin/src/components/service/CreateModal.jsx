@@ -41,7 +41,7 @@ export default function CreateServiceModal({ fields, show, onHide, fetchData }) 
                 { Object.keys(errors).length > 0 && <Alert variant='danger'>Please fix form errors</Alert> }
                 <ServiceForm fields={fields} formData={formData} errors={errors} handleChange={handleChange} />
             </Modal.Body>
-            <Modal.Footer className='p-3 d-flex justify-content-center align-items-center'>
+            <Modal.Footer className='p-3 d-flex justify-content-between'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
                 <Button type='button' variant='primary' onClick={handleSubmit} disabled={loading}>
                     { loading ? <Spinner size='sm' /> : 'Create' }

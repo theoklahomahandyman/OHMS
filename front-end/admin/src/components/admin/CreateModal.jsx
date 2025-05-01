@@ -22,14 +22,6 @@ export default function CreateAdminModal({ fields, show, onHide, fetchData }) {
         }
     };
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
-
     return (
         <Modal show={show} onHide={onHide} size='lg'>
             <Modal.Header closeButton>
@@ -39,9 +31,9 @@ export default function CreateAdminModal({ fields, show, onHide, fetchData }) {
                 { Object.keys(errors).length > 0 && (
                     <Alert variant='danger'>Please fix the form errors</Alert>
                 )}
-                <AdminForm fields={fields} formData={formData} errors={errors} handleChange={handleChange} />
+                <AdminForm fields={fields} formData={formData} errors={errors} setFormData={setFormData} />
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='p-3 d-flex justify-content-between'>
                 <Button variant='secondary' onClick={onHide}>Cancel</Button>
                 <Button variant='primary' onClick={handleSubmit} disabled={loading}>
                     { loading ? <Spinner size='sm' /> : 'Create' }

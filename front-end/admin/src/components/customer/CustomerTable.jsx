@@ -80,9 +80,11 @@ export default function CustomerTable() {
                                                 {customer[field.name] || 'N/A'}
                                             </td>
                                         ))}
-                                        <td>
-                                            <Button variant='info' size='sm' className='me-2 mr-4' onClick={() => { setSelectedCustomer(customer); setShowUpdate(true)} }>Edit</Button>
-                                            <Button variant='danger' size='sm' className='me-2' onClick={() => { setSelectedCustomer(customer); setShowDelete(true)} }>Delete</Button>
+                                        <td style={{ verticalAlign: 'middle', height: '75px' }}>
+                                            <div className='d-flex justify-content-center'>
+                                                <Button variant='info' size='sm' className='mr-2' onClick={() => { setSelectedCustomer(customer); setShowUpdate(true)} }>Edit</Button>
+                                                <Button variant='danger' size='sm' onClick={() => { setSelectedCustomer(customer); setShowDelete(true)} }>Delete</Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 )) : (
