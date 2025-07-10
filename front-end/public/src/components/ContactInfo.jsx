@@ -2,7 +2,7 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 
 function ContactInfo() {
     return (
-        <section className="contact-section bg-black" aria-label="Oklahoma Handyman Service Contact Information">
+        <section id="contact-info" className="contact-section bg-black" aria-label="Oklahoma Handyman Service Contact Information">
             <Container className="px-4 px-lg-5">
                 <Row className="gx-4 gx-lg-5">
                     {/* Address */}

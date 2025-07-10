@@ -1,4 +1,4 @@
-import ContactForm from '../components/ContactForm';
+// import ContactForm from '../components/ContactForm';
 import ContactInfo from '../components/ContactInfo';
 import Projects from '../components/Projects';
 import Footer from '../components/Footer';
@@ -13,7 +13,7 @@ function Home() {
             <Header />
             <About />
             <Projects />
-            <ContactForm />
+            {/* <ContactForm /> */}
             <ContactInfo />
             <Footer />
         </>

@@ -1,27 +1,27 @@
-import Table from '../components/reusable/Table';
+import InventoryTable from '../components/reusable/InventoryTable';
 import Page from '../components/reusable/Page';
+import { materialAPI } from '../api';
 
 function Material() {
-    const heading = 'Materials';
-
-    const text = 'Materials are used in both work orders and purchases. They must be created here before being added to a work order or purchase.';
+    const heading = 'Materials Inventory';
+    const text = 'Current stock levels and unit costs for all materials';
 
     const fields = [
-        {name: 'name', label: 'Material Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
-        {name: 'description', label: 'Material Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
-        {name: 'size', label: 'Material Size', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2}
+        {name: 'name', label: 'Material Name'},
+        {name: 'description', label: 'Description'},
+        {name: 'size', label: 'Size'}
     ];
 
     const extraFields = [
         {name: 'unit_cost', label: 'Unit Cost'},
-        {name: 'available_quantity', label: 'Available Quantity'}
+        {name: 'available_quantity', label: 'In Stock'}
     ];
 
     return (
         <Page heading={heading} text={text}>
-            <Table fields={fields} name='Material' route='/inventory/material/' extraFields={extraFields} />
+            <InventoryTable apiFunc={materialAPI.getMaterials} fields={fields} extraFields={extraFields} />
         </Page>
-    )
-}
+    );
+};
 
 export default Material;

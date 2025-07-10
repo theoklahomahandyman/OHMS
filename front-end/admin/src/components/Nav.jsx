@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import Cookies from 'js-cookie';
 
-function Nav({ toggleSideBar }) {
+function Nav({ toggleSideBar, setShowProfileModal, setShowPasswordModal }) {
     const navigate = useNavigate();
 
     const logout = () => {
@@ -30,14 +30,14 @@ function Nav({ toggleSideBar }) {
                     </a>
                     {/* <!-- Dropdown - User Information --> */}
                     <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                        <a className="dropdown-item" href="/profile/">
+                        <button className="dropdown-item" onClick={() => setShowProfileModal(true)}>
                             <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                             Profile
-                        </a>
-                        <a className="dropdown-item" href="/password/">
+                        </button>
+                        <button className="dropdown-item" onClick={() => setShowPasswordModal(true)}>
                             <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                             Password
-                        </a>
+                        </button>
                         <div className="dropdown-divider"></div>
                         <button className="dropdown-item" onClick={logout}>
                             <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -51,7 +51,9 @@ function Nav({ toggleSideBar }) {
 }
 
 Nav.propTypes = {
-    toggleSideBar: PropTypes.func.isRequired
-}
+    toggleSideBar: PropTypes.func.isRequired,
+    setShowProfileModal: PropTypes.func.isRequired,
+    setShowPasswordModal: PropTypes.func.isRequired
+};
 
 export default Nav;

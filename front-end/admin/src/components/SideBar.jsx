@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-function SideBar({ toggle, toggleSideBar }) {
+function SideBar({ toggle, toggleSideBar, setShowProfileModal, setShowPasswordModal }) {
     return (
         <ul className={toggle} id='accordionSidebar'>
             {/* <!-- Sidebar - Brand --> */}
@@ -32,8 +32,8 @@ function SideBar({ toggle, toggleSideBar }) {
                 <div id="userInfo" className="collapse" aria-labelledby="userInfo" data-parent="#accordionSidebar">
                     <div className="bg-white py-2 collapse-inner rounded">
                         <h6 className="collapse-header">User Information:</h6>
-                        <a className="collapse-item" href="/profile/">Profile</a>
-                        <a className="collapse-item" href="/password/">Password</a>
+                        <a className="collapse-item" href='#' onClick={(e) => { e.preventDefault(); setShowProfileModal(true) }}>Profile</a>
+                        <a className="collapse-item" href="#" onClick={(e) => {e.preventDefault(); setShowPasswordModal(true)}}>Password</a>
                     </div>
                 </div>
             </li>
@@ -111,7 +111,9 @@ function SideBar({ toggle, toggleSideBar }) {
 
 SideBar.propTypes = {
     toggle: PropTypes.string.isRequired,
-    toggleSideBar: PropTypes.func.isRequired
+    toggleSideBar: PropTypes.func.isRequired,
+    setShowProfileModal: PropTypes.func.isRequired,
+    setShowPasswordModal: PropTypes.func.isRequired
 }
 
 export default SideBar;

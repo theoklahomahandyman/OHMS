@@ -20,7 +20,22 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', True)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'api.theoklahomahandyman.com', 'admin.theoklahomahandyman.com', 'theoklahomahandyman.com', 'ohms-production.up.railway.app', 'ohms-admin.pages.dev', 'ohms.pages.dev']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'api.theoklahomahandyman.com',
+    'dev-api.theoklahomahandyman.com',
+    'admin.theoklahomahandyman.com',
+    'dev-admin.theoklahomahandyman.com',
+    'theoklahomahandyman.com',
+    'dev.theoklahomahandyman.com',
+    'ohms-production.up.railway.app',
+    'ohms-api-development.up.railway.app',
+    'ohms-admin.pages.dev',
+    'ohms-admin-dev.pages.dev',
+    'ohms-public-dev.pages.dev'
+    'ohms.pages.dev'
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -31,8 +46,12 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
     'https://api.theoklahomahandyman.com:8080',
     'https://admin.theoklahomahandyman.com',
+    'https://dev-admin.theoklahomahandyman.com',
     'https://theoklahomahandyman.com',
+    'https://dev.theoklahomahandyman.com',
+    'https://dev-api.theoklahomahandyman.com',
     'https://ohms-production.up.railway.app:8080',
+    'https://ohms-api-development.up.railway.app:8080',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]
@@ -44,8 +63,12 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:5173',
     'https://api.theoklahomahandyman.com:8080',
     'https://admin.theoklahomahandyman.com',
+    'https://dev-admin.theoklahomahandyman.com',
     'https://theoklahomahandyman.com',
+    'https://dev.theoklahomahandyman.com',
+    'https://dev-api.theoklahomahandyman.com',
     'https://ohms-production.up.railway.app:8080',
+    'https://ohms-api-development.up.railway.app:8080',
     'https://ohms-admin.pages.dev',
     'https://ohms.pages.dev'
 ]

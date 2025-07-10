@@ -66,18 +66,16 @@ BarChart.propTypes = {
             PropTypes.shape({
                 label: PropTypes.string.isRequired,
                 data: PropTypes.arrayOf(
-                    PropTypes.oneOf(
-                        PropTypes.string,
-                        PropTypes.number
-                    )
+                    PropTypes.string,
+                    PropTypes.number
                 ).isRequired,
-                background: PropTypes.oneOf(
+                background: PropTypes.arrayOf(
                     PropTypes.string,
                     PropTypes.arrayOf(
                         PropTypes.string
                     )
                 ).isRequired,
-                color: PropTypes.oneOf(
+                color: PropTypes.arrayOf(
                     PropTypes.string,
                     PropTypes.arrayOf(
                         PropTypes.string

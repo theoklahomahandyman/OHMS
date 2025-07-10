@@ -1,0 +1,21 @@
+{
+    "name": "Oklahoma Handyman Service",
+    "short_name": "OHMS",
+    "description": "Professional home repair and maintenane servies in central Oklahoma",
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#1a4b8c",
+    "background_color": "#ffffff",
+    "ions": [
+        {
+            "src": "/hammer-and-wrench.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/hammer-and-wrench.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

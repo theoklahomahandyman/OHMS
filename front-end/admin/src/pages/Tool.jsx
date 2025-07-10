@@ -1,26 +1,26 @@
-import Table from '../components/reusable/Table';
+import InventoryTable from '../components/reusable/InventoryTable';
 import Page from '../components/reusable/Page';
+import { toolAPI } from '../api';
 
 function Tool() {
-    const heading = 'Tools';
-
-    const text = 'Tools are used in both work orders and purchases. They must be created here before being added to a work order or purchase.';
+    const heading = 'Tools Inventory';
+    const text = 'Current stock levels and unit costs for all tools';
 
     const fields = [
-        {name: 'name', label: 'Tool Name', type: 'text', required: true, elementType: 'input', maxLength: 255, minLength: 2},
-        {name: 'description', label: 'Tool Description', type: 'text', required: false, elementType: 'input', maxLength: 500, minLength: 0},
+        {name: 'name', label: 'Tool Name'},
+        {name: 'description', label: 'Description'},
     ];
 
     const extraFields = [
         {name: 'unit_cost', label: 'Unit Cost'},
-        {name: 'available_quantity', label: 'Available Quantity'}
+        {name: 'available_quantity', label: 'In Stock'}
     ];
 
     return (
         <Page heading={heading} text={text}>
-            <Table fields={fields} name='Tool' route='/inventory/tool/' extraFields={extraFields} />
+            <InventoryTable apiFunc={toolAPI.getTools} fields={fields} extraFields={extraFields} />
         </Page>
-    )
-}
+    );
+};
 
 export default Tool;

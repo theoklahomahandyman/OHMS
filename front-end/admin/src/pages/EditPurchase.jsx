@@ -7,7 +7,7 @@ import Page from '../components/reusable/Page';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import makeRequest from '../api';
+import { makeRequest } from '../api';
 
 function EditPurchase() {
     const [suppliers, setSuppliers] = useState([]);

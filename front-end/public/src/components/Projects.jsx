@@ -19,7 +19,7 @@ function Projects() {
                                     From wood staining to sheetrock repair, these photos showcase the quality craftsmanship and attention to detail we bring to every job.
                                     Look at our work, and imagine what we can do for your home.
                                     Ready to start your project?{" "}
-                                    <a href="#contact" aria-label="Contact us for a quote">Contact us today</a>!
+                                    <a href="#contact-info" aria-label="Contact us for a quote">Contact us today</a>!
                                 </Card.Text>
                             </Card.Body>
                         </Card>
@@ -39,7 +39,7 @@ function Projects() {
                                     This customer noticed the stain on his raw cedar pergola fading.
                                     After a couple of afternoons and a few coats of stain, we made the cedar look as if it was fresh from the mill.
                                     Interested in wood staining for your home?{" "}
-                                    <a href="#contact" aria-label="Contact us for wood staining services">Get a free quote</a>!
+                                    <a href="#contact-info" aria-label="Contact us for wood staining services">Get a free quote</a>!
                                 </Card.Text>
                             </Card.Body>
                         </Card>
@@ -59,7 +59,7 @@ function Projects() {
                                     This customer reached out because paint and sheetrock began falling on them in the shower.
                                     After a single afternoon, we were able to get it looking brand new again!
                                     Need drywall repair?{" "}
-                                    <a href="#contact" aria-label="Schedule drywall repair appointment">Schedule an appointment</a>!
+                                    <a href="#contact-info" aria-label="Schedule drywall repair appointment">Schedule an appointment</a>!
                                 </Card.Text>
                             </Card.Body>
                         </Card>
