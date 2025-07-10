@@ -15,7 +15,7 @@ function About() {
                         <p className="text-white">
                             Serving Moore, Oklahoma City, Norman, and the surrounding areas, we are committed to delivering quality craftsmanshsip and exceptional customer service.
                             Ready to start your project?{" "}
-                            <a href="#contact" aria-label="Contact us for a quote">Contact us today</a>!
+                            <a href="#contact-info" aria-label="Contact us for a quote">Contact us today</a>!
                         </p>
                     </Col>
                 </Row>

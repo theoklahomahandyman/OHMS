@@ -18,7 +18,7 @@ function Sitemap() {
                                 <a href="#projects" className="text-white text-decoration-none">Projects</a>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0">
-                                <a href="#contact" className="text-white text-decoration-none">Contact</a>
+                                <a href="#contact-info" className="text-white text-decoration-none">Contact</a>
                             </ListGroup.Item>
                             <ListGroup.Item className="bg-transparent border-0">
                                 <a href="#sitemap" className="text-white text-decoration-none">Site Map</a>
